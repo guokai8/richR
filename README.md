@@ -1,4 +1,7 @@
 # richR
+## install
+library(devtools)
+install_github("guokai8/richR")
 ## Quick tour
 ```{r}
 set.seed(123)   
