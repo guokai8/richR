@@ -24,9 +24,11 @@ Imports:
     ggrepel,
     GGally,
     sna
+Depends:
 LinkingTo: Rcpp
 Suggests:
     knitr,
+    testthat,
     rmarkdown
 VignetteBuilder: knitr
 RoxygenNote: 7.0.2
