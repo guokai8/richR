@@ -1,4 +1,4 @@
-# bioAnno  [![](https://img.shields.io/badge/devel%20version-0.0.1-green.svg)](https://github.com/guokai8/richR) 
+# richR  [![](https://img.shields.io/badge/devel%20version-0.0.1-green.svg)](https://github.com/guokai8/richR) 
 ## Description
 _richR_ provide functions _richGO_, _richKEGG_,and _enrich_ to do enrichment analysis. 
 ## Installation
