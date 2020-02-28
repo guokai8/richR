@@ -1,0 +1,33 @@
+Package: richR
+Type: Package
+Title: Function Enrichment analysis and Network construction
+Version: 0.0.1
+Author: Kai Guo
+Maintainer: Kai Guo <guokai8@gmail.com>
+Description: This package is used for for enrichment analysis and network construction.
+License: GPL-2
+LazyData: TRUE
+Imports:
+    Rcpp,
+    GO.db,
+    dplyr,
+    magrittr,
+    msigdbr,
+    KEGGREST,
+    igraph,
+    visNetwork,
+    AnnotationDbi,
+    reshape2,
+    intergraph,
+    fgsea,
+    ggrepel,
+    GGally,
+    sna
+LinkingTo: Rcpp
+Suggests:
+    ggplot2,
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
+RoxygenNote: 7.0.2
+biocViews:
