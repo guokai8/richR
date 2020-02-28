@@ -1,9 +1,10 @@
-# richR
-## install
-```.  
-library(devtools)      
+## Description
+_richR_ provide functions _richGO_, _richKEGG_,and _enrich_ to do enrichment analysis. 
+## Installation
+```
+library(devtools)
 install_github("guokai8/richR")
-```.  
+``` 
 ## Quick tour
 ```{r}
 set.seed(123)   
