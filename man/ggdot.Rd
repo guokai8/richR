@@ -63,6 +63,20 @@ dotplot for Enrichment results
 
 dotplot for Enrichment results
 }
+\examples{
+\dontrun{
+  hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+  gene=sample(unique(hsago$GeneID),1000)
+  res<-richKEGG(gene,kodata = hsako)
+  ggdot(res)
+}
+\dontrun{
+  hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+  gene=sample(unique(hsago$GeneID),1000)
+  res<-richKEGG(gene,kodata = hsako)
+  ggdot(result(res))
+}
+}
 \author{
 Kai Guo
 

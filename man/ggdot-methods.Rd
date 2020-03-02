@@ -35,6 +35,14 @@ plot
 \description{
 ggdot
 }
+\examples{
+\dontrun{
+  hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+  gene=sample(unique(hsago$GeneID),1000)
+  res<-richKEGG(gene,kodata = hsako)
+  ggdot(res)
+}
+}
 \author{
 Kai Guo
 }

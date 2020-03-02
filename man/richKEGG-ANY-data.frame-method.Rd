@@ -48,6 +48,14 @@
 \description{
 KEGG Pathway Enrichment analysis function
 }
+\examples{
+\dontrun{
+  hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+  hsako<-as.data.frame(hsako)
+  gene=sample(unique(hsako$GeneID),1000)
+  res<-richKEGG(gene,kodata = hsako)
+}
+}
 \author{
 Kai Guo
 }

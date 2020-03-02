@@ -25,6 +25,14 @@ plot
 \description{
 ggbar
 }
+\examples{
+\dontrun{
+  hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+  gene=sample(unique(hsago$GeneID),1000)
+  res<-richKEGG(gene,kodata = hsako)
+  ggbar(res)
+}
+}
 \author{
 Kai Guo
 }

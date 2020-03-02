@@ -33,6 +33,16 @@ GSEAResult
 \description{
 richGSEA
 }
+\examples{
+\dontrun{
+set.seed(123)
+  hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+  name=sample(unique(hsako$GeneID),1000)
+  gene<-rnorm(1000)
+  names(gene)<-name
+  res<-richGSEA(gene,kodata = hsako)
+}
+}
 \author{
 Kai Guo
 }

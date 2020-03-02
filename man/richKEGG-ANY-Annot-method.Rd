@@ -48,6 +48,13 @@
 \description{
 KEGG Enrichment analysis function
 }
+\examples{
+\dontrun{
+  hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+  gene=sample(unique(hsako$GeneID),1000)
+  res<-richKEGG(gene,kodata = hsako)
+}
+}
 \author{
 Kai Guo
 }

@@ -45,3 +45,11 @@ plot
 \description{
 ggnetwork
 }
+\examples{
+\dontrun{
+  hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+  gene=sample(unique(hsago$GeneID),1000)
+  res<-richKEGG(gene,kodata = hsako)
+  ggnetwork(res)
+}
+}

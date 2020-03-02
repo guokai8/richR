@@ -19,6 +19,15 @@ richResult
 \description{
 enrich
 }
+\examples{
+\dontrun{
+library(bioAnno)
+fromKEGG(species="ath")
+athgo<-buildOwn(dbname="org.ath.eg.db",anntype="GO")
+gene=sample(unique(athgo$GeneID),1000)
+res<-enrich(gene,athgo)
+}
+}
 \author{
 Kai Guo
 }
