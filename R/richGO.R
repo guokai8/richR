@@ -58,7 +58,13 @@ richGO_internal<-function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,
   if(is.data.frame(x)){
     detail<-getdetail(resultFis,x)
   }else{
-    detail<-resultFis
+    gene<-strsplit(as.vector(resultFis$GeneID),split="\\,")
+    names(gene)<-resultFis$Annot
+    gened<-data.frame("TERM"=rep(names(gene),times=unlist(lapply(gene,length))),
+                      "Annot"=rep(rese$Term,times=unlist(lapply(gene,length))),
+                      "GeneID"=unlist(gene),row.names=NULL)
+    gened$GeneID<-as.character(gened$GeneID)
+    detail<-gened
   }
   if(is.null(organism)){
     organism=character()
@@ -90,6 +96,13 @@ richGO_internal<-function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,
 #' @param keepRich keep terms with rich factor value equal 1 or not (default: TRUE)
 #' @param filename output filename
 #' @param padj.method pvalue adjust method(default:"BH")
+#' @examples
+#' \dontrun{
+#'   hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "GO")
+#'   hsago<-as.data.frame(hsago)
+#'   gene=sample(unique(hsago$GeneID),1000)
+#'   res<-richGO(gene,godata = hsago,ontology ="BP")
+#' }
 #' @export
 #' @author Kai Guo
 setMethod("richGO", signature(godata = "data.frame"),definition = function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,
@@ -113,6 +126,12 @@ setMethod("richGO", signature(godata = "data.frame"),definition = function(x,god
 #' @param keepRich keep terms with rich factor value equal 1 or not (default: TRUE)
 #' @param filename output filename
 #' @param padj.method pvalue adjust method(default:"BH")
+#' @examples
+#' \dontrun{
+#'   hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "GO")
+#'   gene=sample(unique(hsago$GeneID),1000)
+#'   res<-richGO(gene,godata = hsago,ontology ="BP")
+#' }
 #' @export
 #' @author Kai Guo
 setMethod("richGO", signature(godata = "Annot"),definition = function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,minSize=2,maxSize=500,

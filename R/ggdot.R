@@ -60,6 +60,13 @@ ggdot_internal<-function(object,top=50,pvalue=0.05,order=FALSE,
 ##' @param usePadj use p adjust value as color or not (should use with padj)
 ##' @param font.size font size for xlim or ylim
 ##' @param filename figure output name
+##' @examples
+#' \dontrun{
+#'   hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+#'   gene=sample(unique(hsago$GeneID),1000)
+#'   res<-richKEGG(gene,kodata = hsako)
+#'   ggdot(res)
+#' }
 ##' @exportMethod ggdot
 ##' @author Kai Guo
 setMethod("ggdot", signature(object = "richResult"),definition = function(object,top=50,pvalue=0.05,order=FALSE,
@@ -80,6 +87,13 @@ setMethod("ggdot", signature(object = "richResult"),definition = function(object
 ##' @param usePadj use p adjust value as color or not (should use with padj)
 ##' @param font.size font size for xlim or ylim
 ##' @param filename figure output name
+##' @examples
+##' \dontrun{
+##'   hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+##'   gene=sample(unique(hsago$GeneID),1000)
+##'   res<-richKEGG(gene,kodata = hsako)
+##'   ggdot(result(res))
+##' }
 ##' @exportMethod ggdot
 ##' @author Kai Guo
 setMethod("ggdot", signature(object = "data.frame"),definition = function(object,top=50,pvalue=0.05,order=FALSE,

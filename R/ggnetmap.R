@@ -1,5 +1,5 @@
 ##' generate network based on Enrichment results
-##' @rdname ggnetwork
+##' @rdname ggnetmap
 ##' @param richRes list of enrichment object
 ##' @param gene vector contains gene names or dataframe with DEGs information
 ##' @param top number of terms to display

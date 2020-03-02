@@ -7,6 +7,13 @@
 ##' @param godata Annotation object or dataframe
 ##' @param ... additional parameters
 ##' @return richResult
+##' @examples
+#' \dontrun{
+#'   hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "GO")
+#'   hsago<-as.data.frame(hsago)
+#'   gene=sample(unique(hsago$GeneID),1000)
+#'   res<-richGO(gene,godata = hsago,ontology ="BP")
+#' }
 ##' @export
 ##' @author Kai Guo
 setGeneric("richGO", function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,minSize=2,maxSize=500,
@@ -22,6 +29,12 @@ setGeneric("richGO", function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,minSi
 ##' @param kodata Annotation object or dataframe
 ##' @param ... additional parameters
 ##' @return richResult
+#' @examples
+#' \dontrun{
+#'   hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+#'   gene=sample(unique(hsako$GeneID),1000)
+#'   res<-richKEGG(gene,kodata = hsako)
+#' }
 ##' @export
 ##' @author Kai Guo
 setGeneric("richKEGG", function(x,kodata,pvalue=0.05,padj=NULL,organism=NULL,ontology="KEGG",
@@ -38,6 +51,15 @@ setGeneric("richKEGG", function(x,kodata,pvalue=0.05,padj=NULL,organism=NULL,ont
 ##' @param Annot object or dataframe
 ##' @param ... additional parameters
 ##' @return GSEAResult
+#' @examples
+#' \dontrun{
+#' set.seed(123)
+#'   hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+#'   name=sample(unique(hsako$GeneID),1000)
+#'   gene<-rnorm(1000)
+#'   names(gene)<-name
+#'   res<-richGSEA(gene,kodata = hsako)
+#' }
 ##' @export
 ##' @author Kai Guo
 setGeneric("richGSEA", function(x,object,keytype="",pvalue=0.05,padj=NULL,minSize=15,ontology="",
@@ -52,6 +74,14 @@ setGeneric("richGSEA", function(x,object,keytype="",pvalue=0.05,padj=NULL,minSiz
 ##' @param annot Annotation object or dataframe
 ##' @param ... additional parameters
 ##' @return richResult
+##' @examples
+##' \dontrun{
+##' library(bioAnno)
+##' fromKEGG(species="ath")
+##' athgo<-buildOwn(dbname="org.ath.eg.db",anntype="GO")
+##' gene=sample(unique(athgo$GeneID),1000)
+##' res<-enrich(gene,athgo)
+##' }
 ##' @export
 ##' @author Kai Guo
 setGeneric("enrich", function(x,annot,pvalue=0.05,...)
@@ -66,6 +96,13 @@ setGeneric("enrich", function(x,annot,pvalue=0.05,...)
 ##' @param object richResult or dataframe
 ##' @param ... additional parameters
 ##' @return plot
+##' @examples
+#' \dontrun{
+#'   hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+#'   gene=sample(unique(hsago$GeneID),1000)
+#'   res<-richKEGG(gene,kodata = hsako)
+#'   ggdot(res)
+#' }
 ##' @export
 ##' @author Kai Guo
 setGeneric("ggdot", function(object,top=50,pvalue=0.05,order=FALSE,
@@ -82,6 +119,13 @@ setGeneric("ggdot", function(object,top=50,pvalue=0.05,order=FALSE,
 ##' @param object richResult or dataframe
 ##' @param ... additional parameters
 ##' @return plot
+##' @examples
+#' \dontrun{
+#'   hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+#'   gene=sample(unique(hsago$GeneID),1000)
+#'   res<-richKEGG(gene,kodata = hsako)
+#'   ggbar(res)
+#' }
 ##' @export
 ##' @author Kai Guo
 setGeneric("ggbar", function(object,top=50,pvalue=0.05,padj=NULL,order=FALSE,
@@ -93,6 +137,13 @@ setGeneric("ggbar", function(object,top=50,pvalue=0.05,padj=NULL,order=FALSE,
 ##' @param object richResult or dataframe
 ##' @param ... additional parameters
 ##' @return plot
+##' @examples
+#' \dontrun{
+#'   hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+#'   gene=sample(unique(hsago$GeneID),1000)
+#'   res<-richKEGG(gene,kodata = hsako)
+#'   ggnetplot(res)
+#' }
 ##' @export
 ##' @author Kai Guo
 setGeneric("ggnetplot",function(object,top=50, pvalue=0.05, padj=NULL,
@@ -112,6 +163,13 @@ setGeneric("ggnetplot",function(object,top=50, pvalue=0.05, padj=NULL,
 ##' @param object richResult object or dataframe
 ##' @param ... additional paramters
 ##' @return plot
+##' @examples
+#' \dontrun{
+#'   hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+#'   gene=sample(unique(hsago$GeneID),1000)
+#'   res<-richKEGG(gene,kodata = hsako)
+#'   ggnetwork(res)
+#' }
 ##' @export
 setGeneric("ggnetwork", function(object,gene,top = 50, pvalue = 0.05, padj = NULL,low = "orange",high = "red",
                                  weightcut = 0.2, useTerm = TRUE, writeCyt = FALSE,cytoscapeFile = "network-file-for-cytoscape.txt",

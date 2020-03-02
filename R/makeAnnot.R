@@ -101,6 +101,7 @@ buildAnnot<-function(species="human",keytype="SYMBOL",anntype="GO",builtin=TRUE,
   KO_FILE[,1]<-as.vector(KO_FILE[,1])
   KO_FILE[,2]<-as.vector(KO_FILE[,2])
   KO_FILE$Annot<-annot[KO_FILE[,2],"annotation"]
+  colnames(KO_FILE)[1]<-"GeneID"
   return(KO_FILE)
 }
 

@@ -58,6 +58,15 @@ richGSEA_internal<-function(x,object,keytype="",pvalue=0.05,padj=NULL,minSize=15
 #' @param maxSize Maximal size of a gene set to test. All pathways above the threshold are excluded.
 #' @param table leadingEdge as vector
 #' @export
+#' @examples
+#' \dontrun{
+#'   hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+#'   hsako<-as.data.frame(hsako)
+#'   name=sample(unique(hsako$GeneID),1000)
+#'   gene<-rnorm(1000)
+#'   names(gene)<-name
+#'   res<-richKEGG(gene,kodata = hsako)
+#' }
 #' @author Kai Guo
 setMethod("richGSEA", signature(object = "data.frame"),definition = function(x,object,keytype="",pvalue=0.05,padj=NULL,minSize=15,ontology=ontology,
                                                                              maxSize=500,nperm=5000,filename=NULL,padj.method="BH",organism=NULL,table=TRUE) {
@@ -73,6 +82,14 @@ setMethod("richGSEA", signature(object = "data.frame"),definition = function(x,o
 #' @param minSize Minimal size of a gene set to test. All pathways below the threshold are excluded.
 #' @param maxSize Maximal size of a gene set to test. All pathways above the threshold are excluded.
 #' @param table leadingEdge as vector
+#' @examples
+#' \dontrun{
+#'   hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+#'   name=sample(unique(hsako$GeneID),1000)
+#'   gene<-rnorm(1000)
+#'   names(gene)<-name
+#'   res<-richGSEA(gene,kodata = hsako)
+#' }
 #' @export
 #' @author Kai Guo
 setMethod("richGSEA", signature(object = "Annot"),definition = function(x,object,keytype="",pvalue=0.05,padj=NULL,minSize=15,ontology=ontology,
@@ -90,6 +107,16 @@ setMethod("richGSEA", signature(object = "Annot"),definition = function(x,object
 #' @param info Term with annotation details
 #' @param gseaRes GSEAResult object
 #' @importFrom fgsea plotEnrichment plotGseaTable
+#' @examples
+#' \dontrun{
+#' set.seed(123)
+#'   hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+#'   name=sample(unique(hsako$GeneID),1000)
+#'   gene<-rnorm(1000)
+#'   names(gene)<-name
+#'   res<-richGSEA(gene,kodata = hsako)
+#'  # ggGSEA(gene,term=res$)
+#' }
 #' @export
 #' @author Kai Guo
 ggGSEA<-function(x,term,object,gseaRes=gseaRes){

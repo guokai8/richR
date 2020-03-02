@@ -60,7 +60,13 @@ richKEGG_internal<-function(x,kodata,pvalue=0.05,padj=NULL,ontology="KEGG",
   if(is.data.frame(x)){
     detail<-getdetail(resultFis,x)
   }else{
-    detail<-resultFis
+    gene<-strsplit(as.vector(resultFis$GeneID),split="\\,")
+    names(gene)<-resultFis$Annot
+    gened<-data.frame("TERM"=rep(names(gene),times=unlist(lapply(gene,length))),
+                      "Annot"=rep(rese$Term,times=unlist(lapply(gene,length))),
+                      "GeneID"=unlist(gene),row.names=NULL)
+    gened$GeneID<-as.character(gened$GeneID)
+    detail<-gened
   }
   if(is.null(organism)){
     organism=character()
@@ -95,6 +101,13 @@ richKEGG_internal<-function(x,kodata,pvalue=0.05,padj=NULL,ontology="KEGG",
 #' @param bulitin use KEGG bulit in KEGG annotation or not(set FALSE if you want use newest KEGG data)
 #' @param filename output filename
 #' @param padj.method pvalue adjust method(default:"BH")
+#' @examples
+#' \dontrun{
+#'   hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+#'   hsako<-as.data.frame(hsako)
+#'   gene=sample(unique(hsako$GeneID),1000)
+#'   res<-richKEGG(gene,kodata = hsako)
+#' }
 #' @export
 #' @author Kai Guo
 setMethod("richKEGG", signature(kodata = "data.frame"),definition = function(x,kodata,pvalue=0.05,padj=NULL,organism=NULL,ontology="KEGG",
@@ -118,6 +131,12 @@ setMethod("richKEGG", signature(kodata = "data.frame"),definition = function(x,k
 #' @param bulitin use KEGG bulit in KEGG annotation or not(set FALSE if you want use newest KEGG data)
 #' @param filename output filename
 #' @param padj.method pvalue adjust method(default:"BH")
+#' @examples
+#' \dontrun{
+#'   hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+#'   gene=sample(unique(hsako$GeneID),1000)
+#'   res<-richKEGG(gene,kodata = hsako)
+#' }
 #' @export
 #' @author Kai Guo
 setMethod("richKEGG", signature(kodata = "Annot"),definition = function(x,kodata,pvalue=0.05,padj=NULL,organism=NULL,ontology="KEGG",

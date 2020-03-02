@@ -57,7 +57,13 @@ enrich_internal<-function(x,annot,pvalue=0.05,padj=NULL,organism=NULL,ontology=N
   if(is.data.frame(x)){
     detail<-getdetail(resultFis,x)
   }else{
-    detail<-resultFis
+    gene<-strsplit(as.vector(resultFis$GeneID),split="\\,")
+    names(gene)<-resultFis$Annot
+    gened<-data.frame("TERM"=rep(names(gene),times=unlist(lapply(gene,length))),
+                      "Annot"=rep(rese$Term,times=unlist(lapply(gene,length))),
+                      "GeneID"=unlist(gene),row.names=NULL)
+    gened$GeneID<-as.character(gened$GeneID)
+    detail<-gened
   }
   if(is.null(organism)){
     organism=character()
