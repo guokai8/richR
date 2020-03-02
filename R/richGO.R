@@ -61,7 +61,7 @@ richGO_internal<-function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,
     gene<-strsplit(as.vector(resultFis$GeneID),split="\\,")
     names(gene)<-resultFis$Annot
     gened<-data.frame("TERM"=rep(names(gene),times=unlist(lapply(gene,length))),
-                      "Annot"=rep(rese$Term,times=unlist(lapply(gene,length))),
+                      "Annot"=rep(resultFis$Term,times=unlist(lapply(gene,length))),
                       "GeneID"=unlist(gene),row.names=NULL)
     gened$GeneID<-as.character(gened$GeneID)
     detail<-gened
