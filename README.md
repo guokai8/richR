@@ -10,7 +10,7 @@ install_github("guokai8/richR")
 ```{r}
 set.seed(123)   
 library(richR)   
-# To check if your the current species if supported !!!
+# To check the available species !!!
 showData()   
 # Make the GO and KEGG Pathway data for your analysis
 # find suitable species name by using showensemble()    
@@ -19,8 +19,8 @@ hsa_ko<-buildAnnot(species = "human",keytype="SYMBOL", anntype = "KEGG")
 ```         
 ____   
 
-### You can make annotation data from ensemble   
-* If had bioAnno installed, you can build annotation package with it  
+### You can make annotation data for all species from _bioAnno_ package   
+* If had _bioAnno_ installed, you can build annotation package with it  
 ```{r}
 # library(bioAnno)
 # fromKEGG(species="ath")
