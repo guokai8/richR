@@ -12,6 +12,7 @@
 ##' @param top number of terms to show (default: 50)
 ##' @param pvalue cutoff p value for enrichment result
 ##' @param padj cutoff p adjust value for enrichment result
+##' @param usePadj use adjust p value for the color or not
 ##' @param low color used for small value
 ##' @param high color used for large value
 ##' @param useTerm use terms for nodes (default: TRUE)
@@ -29,13 +30,14 @@
 ##' @param node.shape shape of the node
 ##' @param repel use ggrepel text function or not
 ##' @param segment.size segment size for ggrepel text
+##' @param sep character string used to separate the genes when concatenating
 ##' @export
 ggrich_internal <- function(object,top=50, pvalue=0.05, padj=NULL,
                             usePadj =TRUE, useTerm=TRUE,low="orange",high="red",
                             writeCyt=FALSE, cytoscapeFile="network-file-for-cytoscape.txt",
                             label.color = "black", label.size = 2, node.shape=NULL,
                             layout = layout.fruchterman.reingold,savefig=FALSE,filename="network",
-                            width=7,height=7,node.alpha=0.7,repel=TRUE,segment.size=0.2){
+                            width=7,height=7,node.alpha=0.7,repel=TRUE,segment.size=0.2,sep=","){
   if(!is.null(padj)){
     object<-object[object$Padj<padj,]
   }else{
@@ -45,7 +47,7 @@ ggrich_internal <- function(object,top=50, pvalue=0.05, padj=NULL,
     object<-object[1:top,]
   }
   object$GeneID<-as.vector(object$GeneID)
-  lhs <- strsplit(object$GeneID,",")
+  lhs <- strsplit(object$GeneID,sep)
   if(isTRUE(useTerm)){
     rhs <- data.frame(from=unlist(lhs),to=rep(object$Term,lapply(lhs,length)))
     rownames(object) <- object$Term
@@ -101,6 +103,7 @@ ggrich_internal <- function(object,top=50, pvalue=0.05, padj=NULL,
 ##' @param top number of terms to show (default: 50)
 ##' @param pvalue cutoff p value for enrichment result
 ##' @param padj cutoff p adjust value for enrichment result
+##' @param usePadj use adjust p value for the color or not
 ##' @param low color used for small value
 ##' @param high color used for large value
 ##' @param useTerm use terms for nodes (default: TRUE)
@@ -118,6 +121,7 @@ ggrich_internal <- function(object,top=50, pvalue=0.05, padj=NULL,
 ##' @param node.shape shape of the node
 ##' @param repel use ggrepel text function or not
 ##' @param segment.size segment size for ggrepel text
+##' @param sep character string used to separate the genes when concatenating
 ##' @export
 ##' @author Kai Guo
 setMethod("ggnetplot", signature(object = "richResult"),definition = function(object,top=50, pvalue=0.05, padj=NULL,
@@ -125,19 +129,20 @@ setMethod("ggnetplot", signature(object = "richResult"),definition = function(ob
                                                                            writeCyt=FALSE, cytoscapeFile="network-file-for-cytoscape.txt",
                                                                            label.color = "black", label.size = 2, node.shape=NULL,
                                                                            layout = layout.fruchterman.reingold,savefig=FALSE,filename="network",
-                                                                           width=7,height=7,node.alpha=0.7,repel=TRUE,segment.size=0.2) {
+                                                                           width=7,height=7,node.alpha=0.7,repel=TRUE,segment.size=0.2,sep=",") {
   ggrich_internal(object@result,top=top,pvalue=pvalue,padj=padj,
                  usePadj=usePadj,useTerm=useTerm,low=low,high=high,
                  writeCyt=writeCyt, cytoscapeFile=cytoscapeFile,
                  label.color = label.color, label.size = label.size, node.shape=node.shape,
                  layout = layout,savefig=savefig,filename=filename,
-                 width=width,height=height,node.alpha=node.alpha,repel=repel,segment.size=segment.size)
+                 width=width,height=height,node.alpha=node.alpha,repel=repel,segment.size=segment.size,sep=object@sep)
 })
 ##' richplot for Enrichment result
 ##' @rdname ggnetplot
 ##' @param top number of terms to show (default: 50)
 ##' @param pvalue cutoff p value for enrichment result
 ##' @param padj cutoff p adjust value for enrichment result
+##' @param usePadj use adjust p value for the color or not
 ##' @param low color used for small value
 ##' @param high color used for large value
 ##' @param useTerm use terms for nodes (default: TRUE)
@@ -160,13 +165,13 @@ setMethod("ggnetplot", signature(object = "data.frame"),definition = function(ob
                                                                            writeCyt=FALSE, cytoscapeFile="network-file-for-cytoscape.txt",
                                                                            label.color = "black", label.size = 2, node.shape=NULL,
                                                                            layout = layout.fruchterman.reingold,savefig=FALSE,filename="network",
-                                                                           width=7,height=7,node.alpha=0.7,repel=TRUE,segment.size=0.2) {
+                                                                           width=7,height=7,node.alpha=0.7,repel=TRUE,segment.size=0.2,sep=",") {
   ggrich_internal(object,top=top,pvalue=pvalue,padj=padj,
                   usePadj=usePadj,useTerm=useTerm,low=low,high=high,
                   writeCyt=writeCyt, cytoscapeFile=cytoscapeFile,
                   label.color = label.color, label.size = label.size, node.shape=node.shape,
                   layout = layout,savefig=savefig,filename=filename,
-                  width=width,height=height,node.alpha=node.alpha,repel=repel,segment.size=segment.size)
+                  width=width,height=height,node.alpha=node.alpha,repel=repel,segment.size=segment.size,sep=sep)
 })
 
 ##' richplot for Enrichment result
@@ -174,6 +179,7 @@ setMethod("ggnetplot", signature(object = "data.frame"),definition = function(ob
 ##' @param top number of terms to show (default: 50)
 ##' @param pvalue cutoff p value for enrichment result
 ##' @param padj cutoff p adjust value for enrichment result
+##' @param usePadj use adjust p value for the color or not
 ##' @param low color used for small value
 ##' @param high color used for large value
 ##' @param useTerm use terms for nodes (default: TRUE)
@@ -196,10 +202,11 @@ setMethod("ggnetplot", signature(object = "GSEAResult"),definition = function(ob
                                                                               writeCyt=FALSE, cytoscapeFile="network-file-for-cytoscape.txt",
                                                                               label.color = "black", label.size = 2, node.shape=NULL,
                                                                               layout = layout.fruchterman.reingold,savefig=FALSE,filename="network",
-                                                                              width=7,height=7,node.alpha=0.7,repel=TRUE,segment.size=0.2) {
+                                                                              width=7,height=7,node.alpha=0.7,repel=TRUE,segment.size=0.2,sep=",") {
   object<-object@result
+  sep <- object@sep
   if(is.list(object$leadingEdge)){
-    object$leadingEdge<-unlist(lapply(object$leadingEdge, function(x)paste(x,collapse = ",",sep="")))
+    object$leadingEdge<-unlist(lapply(object$leadingEdge, function(x)paste(x,collapse = sep,sep="")))
   }
   object$Annot<-object$pathway
   object<-object[,c(9,1:3,8)]
@@ -209,7 +216,7 @@ setMethod("ggnetplot", signature(object = "GSEAResult"),definition = function(ob
                   writeCyt=writeCyt, cytoscapeFile=cytoscapeFile,
                   label.color = label.color, label.size = label.size, node.shape=node.shape,
                   layout = layout,savefig=savefig,filename=filename,
-                  width=width,height=height,node.alpha=node.alpha,repel=repel,segment.size=segment.size)
+                  width=width,height=height,node.alpha=node.alpha,repel=repel,segment.size=segment.size,sep=sep)
 })
 
 

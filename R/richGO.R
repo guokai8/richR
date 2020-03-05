@@ -11,10 +11,11 @@
 #' @param keepRich keep terms with rich factor value equal 1 or not (default: TRUE)
 #' @param filename output filename
 #' @param padj.method pvalue adjust method(default:"BH")
+#' @param sep character string used to separate the genes when concatenating
 #' @author Kai Guo
 richGO_internal<-function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,
                  organism=NULL,keytype="SYMBOL",minSize=2,maxSize=500,
-                 keepRich=TRUE, filename=NULL,padj.method="BH"){
+                 keepRich=TRUE, filename=NULL,padj.method="BH",sep=","){
   go2gene<-sf(godata)
   all_go<-.get_go_dat(ont=ontology)
   go2gene<-go2gene[names(go2gene)%in%rownames(all_go)];
@@ -34,7 +35,7 @@ richGO_internal<-function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,
   rhs<-hyper_bench_vector(k,M,N,n)
   lhs<-p.adjust(rhs,method=padj.method)
   rhs_an<-all_go[names(rhs),]
-  rhs_gene<-unlist(lapply(fgo2gene, function(x)paste(unique(x),sep="",collapse = ",")))
+  rhs_gene<-unlist(lapply(fgo2gene, function(x)paste(unique(x),sep="",collapse = sep)))
   resultFis<-data.frame("Annot"=names(rhs),"Term"=rhs_an,"Annotated"=M[names(rhs)],
                         "Significant"=k[names(rhs)],"Pvalue"=as.vector(rhs),"Padj"=lhs,
                         "GeneID"=rhs_gene[as.vector(names(rhs))])
@@ -56,9 +57,9 @@ richGO_internal<-function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,
     write.table(resultFis,file=paste(filename,ontology,"res.txt",sep="_"),sep="\t",quote=F,row.names=F)
   }
   if(is.data.frame(x)){
-    detail<-getdetail(resultFis,x)
+    detail<-getdetail(resultFis,x,sep=sep)
   }else{
-    gene<-strsplit(as.vector(resultFis$GeneID),split="\\,")
+    gene<-strsplit(as.vector(resultFis$GeneID),split=sep)
     names(gene)<-resultFis$Annot
     gened<-data.frame("TERM"=rep(names(gene),times=unlist(lapply(gene,length))),
                       "Annot"=rep(resultFis$Term,times=unlist(lapply(gene,length))),
@@ -82,7 +83,8 @@ richGO_internal<-function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,
               organism       = organism,
               ontology       = ontology,
               gene           = input,
-              keytype        = keytype
+              keytype        = keytype,
+              sep=sep
   )
   return(result);
 }
@@ -99,6 +101,7 @@ richGO_internal<-function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,
 #' @param keepRich keep terms with rich factor value equal 1 or not (default: TRUE)
 #' @param filename output filename
 #' @param padj.method pvalue adjust method(default:"BH")
+#' @param sep character string used to separate the genes when concatenating
 #' @examples
 #' \dontrun{
 #'   hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "GO")
@@ -110,10 +113,10 @@ richGO_internal<-function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,
 #' @author Kai Guo
 setMethod("richGO", signature(godata = "data.frame"),definition = function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,
                                                                            organism=NULL,keytype="SYMBOL",minSize=2,maxSize=500,
-                                                                           keepRich=TRUE, filename=NULL,padj.method="BH") {
+                                                                           keepRich=TRUE, filename=NULL,padj.method="BH",sep=",") {
   richGO_internal(x,godata,ontology=ontology,pvalue=pvalue,padj=padj,
                   organism=organism,keytype=keytype,minSize=minSize,maxSize=maxSize,
-                  keepRich=keepRich,filename=filename,padj.method=padj.method)
+                  keepRich=keepRich,filename=filename,padj.method=padj.method,sep=sep)
 })
 
 #' GO Enrichment analysis function
@@ -129,6 +132,7 @@ setMethod("richGO", signature(godata = "data.frame"),definition = function(x,god
 #' @param keepRich keep terms with rich factor value equal 1 or not (default: TRUE)
 #' @param filename output filename
 #' @param padj.method pvalue adjust method(default:"BH")
+#' @param sep character string used to separate the genes when concatenating
 #' @examples
 #' \dontrun{
 #'   hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "GO")
@@ -138,8 +142,8 @@ setMethod("richGO", signature(godata = "data.frame"),definition = function(x,god
 #' @export
 #' @author Kai Guo
 setMethod("richGO", signature(godata = "Annot"),definition = function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,minSize=2,maxSize=500,
-                                                                      keepRich=TRUE,filename=NULL,padj.method="BH") {
+                                                                      keepRich=TRUE,filename=NULL,padj.method="BH",sep=",") {
   richGO_internal(x,godata@annot,ontology=ontology,pvalue=pvalue,padj=padj,
                   organism=godata@species,keytype=godata@keytype,minSize=minSize,maxSize=maxSize,
-                  keepRich=keepRich,filename=filename,padj.method=padj.method)
+                  keepRich=keepRich,filename=filename,padj.method=padj.method,sep=sep)
 })

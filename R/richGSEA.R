@@ -7,11 +7,12 @@
 #' @param minSize Minimal size of a gene set to test. All pathways below the threshold are excluded.
 #' @param maxSize Maximal size of a gene set to test. All pathways above the threshold are excluded.
 #' @param table leadingEdge as vector
+#' @param sep character string used to separate the genes when concatenating
 #' @importFrom fgsea fgsea
 #' @export
 #' @author Kai Guo
 richGSEA_internal<-function(x,object,keytype="",pvalue=0.05,padj=NULL,minSize=15,maxSize=500,nperm=5000,filename=NULL,
-                            padj.method="BH",organism=NULL,ontology=NULL,table=TRUE){
+                            padj.method="BH",organism=NULL,ontology=NULL,table=TRUE,sep=","){
   x<-sort(x)
   if("Annot"%in%colnames(object)){
     object[,2]<-object$Annot
@@ -19,7 +20,7 @@ richGSEA_internal<-function(x,object,keytype="",pvalue=0.05,padj=NULL,minSize=15
   annod<-sf(object);
   res<-fgsea(pathways=annod,stats=x,minSize=minSize,maxSize=maxSize,nperm=nperm)
   if(isTRUE(table)){
-    res$leadingEdge<-unlist(lapply(res$leadingEdge, function(x)paste(gsub(" ","",x),collapse = ",",sep="")))
+    res$leadingEdge<-unlist(lapply(res$leadingEdge, function(x)paste(gsub(" ","",x),collapse = sep,sep="")))
   }
   if(is.null(padj)){
     res<-res[res$pval<pvalue,]
@@ -43,7 +44,8 @@ richGSEA_internal<-function(x,object,keytype="",pvalue=0.05,padj=NULL,minSize=15
               organism       = organism,
               gene           = names(x),
               ontology = ontology,
-              keytype        = keytype
+              keytype        = keytype,
+              sep = sep
   )
   return(result)
 }
@@ -57,6 +59,7 @@ richGSEA_internal<-function(x,object,keytype="",pvalue=0.05,padj=NULL,minSize=15
 #' @param minSize Minimal size of a gene set to test. All pathways below the threshold are excluded.
 #' @param maxSize Maximal size of a gene set to test. All pathways above the threshold are excluded.
 #' @param table leadingEdge as vector
+#' @param sep character string used to separate the genes when concatenating
 #' @export
 #' @examples
 #' \dontrun{
@@ -69,9 +72,9 @@ richGSEA_internal<-function(x,object,keytype="",pvalue=0.05,padj=NULL,minSize=15
 #' }
 #' @author Kai Guo
 setMethod("richGSEA", signature(object = "data.frame"),definition = function(x,object,keytype="",pvalue=0.05,padj=NULL,minSize=15,ontology=ontology,
-                                                                             maxSize=500,nperm=5000,filename=NULL,padj.method="BH",organism=NULL,table=TRUE) {
+                                                                             maxSize=500,nperm=5000,filename=NULL,padj.method="BH",organism=NULL,table=TRUE,sep=",") {
   richGSEA_internal(x,object,keytype=keytype,pvalue=pvalue,padj=padj,minSize=minSize,ontology=ontology,
-                    maxSize=maxSize,nperm=nperm,filename=filename,padj.method=padj.method,organism=organism,table=table)
+                    maxSize=maxSize,nperm=nperm,filename=filename,padj.method=padj.method,organism=organism,table=table,sep=sep)
 })
 #' GSEA Enrichment analysis function
 #' @param x a vector include all log2FC with gene name
@@ -81,7 +84,8 @@ setMethod("richGSEA", signature(object = "data.frame"),definition = function(x,o
 #' @param nperm Number of permutations to do. Minimial possible nominal p-value is about 1/nperm
 #' @param minSize Minimal size of a gene set to test. All pathways below the threshold are excluded.
 #' @param maxSize Maximal size of a gene set to test. All pathways above the threshold are excluded.
-#' @param table leadingEdge as vector
+#' @param table leadingEdge as vector#'
+#' @param sep character string used to separate the genes when concatenating
 #' @examples
 #' \dontrun{
 #'   hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
@@ -93,9 +97,9 @@ setMethod("richGSEA", signature(object = "data.frame"),definition = function(x,o
 #' @export
 #' @author Kai Guo
 setMethod("richGSEA", signature(object = "Annot"),definition = function(x,object,keytype="",pvalue=0.05,padj=NULL,minSize=15,ontology=ontology,
-                                                                            maxSize=500,nperm=5000,filename=NULL,padj.method="BH",organism=NULL,table=TRUE) {
+                                                                            maxSize=500,nperm=5000,filename=NULL,padj.method="BH",organism=NULL,table=TRUE,sep=",") {
   richGSEA_internal(x,object@annot,keytype=object@keytype,pvalue=pvalue,padj=padj,minSize=minSize,ontology=object@anntype,
-                    maxSize=maxSize,nperm=nperm,filename=filename,padj.method=padj.method,organism=object@species,table=table)
+                    maxSize=maxSize,nperm=nperm,filename=filename,padj.method=padj.method,organism=object@species,table=table,sep=sep)
 })
 
 

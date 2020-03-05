@@ -17,7 +17,7 @@
 ##' @export
 ##' @author Kai Guo
 setGeneric("richGO", function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,minSize=2,maxSize=500,
-                              keepRich=TRUE,filename=NULL,padj.method="BH",...)
+                              keepRich=TRUE,filename=NULL,padj.method="BH",sep=",",...)
   standardGeneric("richGO"))
 
 ##' richKEGG
@@ -39,7 +39,7 @@ setGeneric("richGO", function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,minSi
 ##' @author Kai Guo
 setGeneric("richKEGG", function(x,kodata,pvalue=0.05,padj=NULL,organism=NULL,ontology="KEGG",
                                 keytype=NULL,minSize=2,maxSize=500,
-                                keepRich=TRUE,filename=NULL,padj.method="BH",builtin=TRUE,...)
+                                keepRich=TRUE,filename=NULL,padj.method="BH",builtin=TRUE,sep=",",...)
   standardGeneric("richKEGG"))
 
 ##' richGSEA
@@ -63,7 +63,7 @@ setGeneric("richKEGG", function(x,kodata,pvalue=0.05,padj=NULL,organism=NULL,ont
 ##' @export
 ##' @author Kai Guo
 setGeneric("richGSEA", function(x,object,keytype="",pvalue=0.05,padj=NULL,minSize=15,ontology="",
-                                maxSize=500,nperm=5000,filename=NULL,padj.method="BH",organism=NULL,...)
+                                maxSize=500,nperm=5000,filename=NULL,padj.method="BH",organism=NULL,sep=",",...)
   standardGeneric("richGSEA"))
 ##' enrich
 ##'
@@ -84,7 +84,9 @@ setGeneric("richGSEA", function(x,object,keytype="",pvalue=0.05,padj=NULL,minSiz
 ##' }
 ##' @export
 ##' @author Kai Guo
-setGeneric("enrich", function(x,annot,pvalue=0.05,...)
+setGeneric("enrich", function(x,annot,pvalue=0.05,padj=NULL,organism=NULL,ontology="",
+                              keytype="",filename=NULL,minSize=2,maxSize=500,
+                              keepRich=TRUE,padj.method="BH",sep=",",...)
   standardGeneric("enrich"))
 
 
@@ -98,8 +100,8 @@ setGeneric("enrich", function(x,annot,pvalue=0.05,...)
 ##' @return plot
 ##' @examples
 #' \dontrun{
-#'   hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
-#'   gene=sample(unique(hsago$GeneID),1000)
+#'   hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+#'   gene=sample(unique(hsako$GeneID),1000)
 #'   res<-richKEGG(gene,kodata = hsako)
 #'   ggdot(res)
 #' }
@@ -121,8 +123,8 @@ setGeneric("ggdot", function(object,top=50,pvalue=0.05,order=FALSE,
 ##' @return plot
 ##' @examples
 #' \dontrun{
-#'   hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
-#'   gene=sample(unique(hsago$GeneID),1000)
+#'   hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+#'   gene=sample(unique(hsako$GeneID),1000)
 #'   res<-richKEGG(gene,kodata = hsako)
 #'   ggbar(res)
 #' }
@@ -139,8 +141,8 @@ setGeneric("ggbar", function(object,top=50,pvalue=0.05,padj=NULL,order=FALSE,
 ##' @return plot
 ##' @examples
 #' \dontrun{
-#'   hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
-#'   gene=sample(unique(hsago$GeneID),1000)
+#'   hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+#'   gene=sample(unique(hsako$GeneID),1000)
 #'   res<-richKEGG(gene,kodata = hsako)
 #'   ggnetplot(res)
 #' }
@@ -151,7 +153,7 @@ setGeneric("ggnetplot",function(object,top=50, pvalue=0.05, padj=NULL,
                                 writeCyt=FALSE, cytoscapeFile="network-file-for-cytoscape.txt",
                                 label.color = "black", label.size = 2, node.shape=NULL,
                                 layout = layout.fruchterman.reingold,savefig=FALSE,filename="network",
-                                width=7,height=7,node.alpha=0.7,repel=TRUE,segment.size=0.2,...)
+                                width=7,height=7,node.alpha=0.7,repel=TRUE,segment.size=0.2,sep=",",...)
   standardGeneric("ggnetplot"))
 
 
@@ -165,17 +167,17 @@ setGeneric("ggnetplot",function(object,top=50, pvalue=0.05, padj=NULL,
 ##' @return plot
 ##' @examples
 #' \dontrun{
-#'   hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
-#'   gene=sample(unique(hsago$GeneID),1000)
+#'   hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+#'   gene=sample(unique(hsako$GeneID),1000)
 #'   res<-richKEGG(gene,kodata = hsako)
 #'   ggnetwork(res)
 #' }
 ##' @export
-setGeneric("ggnetwork", function(object,gene,top = 50, pvalue = 0.05, padj = NULL,low = "orange",high = "red",
+setGeneric("ggnetwork", function(object,gene,top = 50, pvalue = 0.05, padj = NULL,usePadj=TRUE,low = "orange",high = "red",
                                  weightcut = 0.2, useTerm = TRUE, writeCyt = FALSE,cytoscapeFile = "network-file-for-cytoscape.txt",
                                  label.color = "black", label.size = 2,node.shape=NULL, layout = layout.fruchterman.reingold,savefig=FALSE,
                                  visNet=FALSE,smooth=TRUE,nodeselect=FALSE,edit=FALSE,savehtml=FALSE,filename="network",
-                                 width=7,height=7,segment.size=0.2,node.alpha=0.7,...)
+                                 width=7,height=7,segment.size=0.2,node.alpha=0.7,sep=",",...)
   standardGeneric("ggnetwork"))
 
 

@@ -34,7 +34,8 @@ setClass("richResult",
            organism       = "character",
            ontology       = "character",
            gene           = "character",
-           keytype        = "character"
+           keytype        = "character",
+           sep = "character"
          )
 )
 ##' Class "GSEAResult"
@@ -63,7 +64,8 @@ setClass("GSEAResult",
            organism       = "character",
            gene           = "character",
            ontology = "character",
-           keytype        = "character"
+           keytype        = "character",
+           sep = "character"
          )
 )
 ##' Class "Annot"

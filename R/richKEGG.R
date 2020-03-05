@@ -13,10 +13,11 @@
 #' @param bulitin use KEGG bulit in KEGG annotation or not(set FALSE if you want use newest KEGG data)
 #' @param filename output filename
 #' @param padj.method pvalue adjust method(default:"BH")
+#' @param sep character string used to separate the genes when concatenating
 #' @author Kai Guo
 richKEGG_internal<-function(x,kodata,pvalue=0.05,padj=NULL,ontology="KEGG",
                             organism=NULL,keytype="SYMBOL",minSize=2,maxSize=500,
-                            keepRich=TRUE, filename=NULL,padj.method="BH",builtin=TRUE){
+                            keepRich=TRUE, filename=NULL,padj.method="BH",builtin=TRUE,sep=","){
 
     ko2gene<-sf(kodata)
     ko2gene_num<-name_table(ko2gene)
@@ -36,7 +37,7 @@ richKEGG_internal<-function(x,kodata,pvalue=0.05,padj=NULL,ontology="KEGG",
     lhs<-p.adjust(rhs,method=padj.method)
     all_ko<-.get_kg_dat(builtin=builtin)
     rhs_an<-all_ko[names(rhs),]
-    rhs_gene<-unlist(lapply(fko2gene, function(x)paste(unique(x),sep="",collapse = ",")))
+    rhs_gene<-unlist(lapply(fko2gene, function(x)paste(unique(x),sep="",collapse = sep)))
     resultFis<-data.frame("Annot"=names(rhs),"Term"=rhs_an,"Annotated"=M[names(rhs)],
                           "Significant"=k[names(rhs)],"Pvalue"=as.vector(rhs),"Padj"=lhs,
                           "GeneID"=rhs_gene[names(rhs)])
@@ -60,7 +61,7 @@ richKEGG_internal<-function(x,kodata,pvalue=0.05,padj=NULL,ontology="KEGG",
   if(is.data.frame(x)){
     detail<-getdetail(resultFis,x)
   }else{
-    gene<-strsplit(as.vector(resultFis$GeneID),split="\\,")
+    gene<-strsplit(as.vector(resultFis$GeneID),split=sep)
     names(gene)<-resultFis$Annot
     gened<-data.frame("TERM"=rep(names(gene),times=unlist(lapply(gene,length))),
                       "Annot"=rep(resultFis$Term,times=unlist(lapply(gene,length))),
@@ -87,7 +88,8 @@ richKEGG_internal<-function(x,kodata,pvalue=0.05,padj=NULL,ontology="KEGG",
               organism       = organism,
               ontology       = ontology,
               gene           = input,
-              keytype        = keytype
+              keytype        = keytype,
+              sep = sep
   )
   return(result)
 }
@@ -104,6 +106,7 @@ richKEGG_internal<-function(x,kodata,pvalue=0.05,padj=NULL,ontology="KEGG",
 #' @param bulitin use KEGG bulit in KEGG annotation or not(set FALSE if you want use newest KEGG data)
 #' @param filename output filename
 #' @param padj.method pvalue adjust method(default:"BH")
+#' @param sep character string used to separate the genes when concatenating
 #' @examples
 #' \dontrun{
 #'   hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
@@ -115,10 +118,10 @@ richKEGG_internal<-function(x,kodata,pvalue=0.05,padj=NULL,ontology="KEGG",
 #' @author Kai Guo
 setMethod("richKEGG", signature(kodata = "data.frame"),definition = function(x,kodata,pvalue=0.05,padj=NULL,organism=NULL,ontology="KEGG",
                                                                              keytype=NULL,minSize=2,maxSize=500,
-                                                                             keepRich=TRUE,filename=NULL,padj.method="BH",builtin=TRUE) {
+                                                                             keepRich=TRUE,filename=NULL,padj.method="BH",builtin=TRUE,sep=",") {
   richKEGG_internal(x,kodata=kodata,pvalue=pvalue,padj=padj,
                   organism=organism,ontology=ontology,keytype=keytype,minSize=minSize,maxSize=maxSize,keepRich=keepRich,
-                  filename=filename,padj.method=padj.method,builtin=builtin)
+                  filename=filename,padj.method=padj.method,builtin=builtin,sep=sep)
 })
 
 #' KEGG Enrichment analysis function
@@ -134,6 +137,7 @@ setMethod("richKEGG", signature(kodata = "data.frame"),definition = function(x,k
 #' @param bulitin use KEGG bulit in KEGG annotation or not(set FALSE if you want use newest KEGG data)
 #' @param filename output filename
 #' @param padj.method pvalue adjust method(default:"BH")
+#' @param sep character string used to separate the genes when concatenating
 #' @examples
 #' \dontrun{
 #'   hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
@@ -144,11 +148,11 @@ setMethod("richKEGG", signature(kodata = "data.frame"),definition = function(x,k
 #' @author Kai Guo
 setMethod("richKEGG", signature(kodata = "Annot"),definition = function(x,kodata,pvalue=0.05,padj=NULL,organism=NULL,ontology="KEGG",
                                                                         keytype=NULL,minSize=2,maxSize=500,
-                                                                        keepRich=TRUE,filename=NULL,padj.method="BH",builtin=TRUE) {
+                                                                        keepRich=TRUE,filename=NULL,padj.method="BH",builtin=TRUE,sep=",") {
   richKEGG_internal(x,kodata@annot,pvalue=pvalue,padj=padj,
                   organism=kodata@species,ontology=kodata@anntype,keytype=kodata@keytype,minSize=minSize,
                   maxSize=maxSize,keepRich=keepRich,filename=filename,
-                  padj.method=padj.method,builtin=builtin)
+                  padj.method=padj.method,builtin=builtin,sep=sep)
 })
 
 

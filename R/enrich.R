@@ -12,10 +12,11 @@
 #' @param keepRich keep terms with rich factor value equal 1 or not (default: TRUE)
 #' @param filename output filename
 #' @param padj.method pvalue adjust method(default:"BH")
+#' @param sep character string used to separate the genes when concatenating
 #' @export
 #' @author Kai Guo
 enrich_internal<-function(x,annot,pvalue=0.05,padj=NULL,organism=NULL,ontology="",minSize=1,maxSize=500,
-                          keepRich=TRUE,keytype="",filename=NULL,padj.method="BH"){
+                          keepRich=TRUE,keytype="",filename=NULL,padj.method="BH",sep = ","){
   ao2gene<-sf(annot)
   ao2gene_num<-name_table(ao2gene)
   gene2ao<-sf(annot[,c(2,1)])
@@ -32,7 +33,7 @@ enrich_internal<-function(x,annot,pvalue=0.05,padj=NULL,organism=NULL,ontology="
   N=length(unique(annot[,1]))
   rhs<-hyper_bench_vector(k,M,N,n)
   lhs<-p.adjust(rhs,method=padj.method)
-  rhs_gene<-unlist(lapply(fao2gene, function(x)paste(unique(x),sep="",collapse = ",")))
+  rhs_gene<-unlist(lapply(fao2gene, function(x)paste(unique(x),sep="",collapse = sep)))
   resultFis<-data.frame("Annot"=names(rhs),"Term"=names(rhs),"Annotated"=M[names(rhs)],
                         "Significant"=k[names(rhs)],"Pvalue"=as.vector(rhs),"Padj"=lhs,
                         "GeneID"=rhs_gene[names(rhs)])
@@ -57,7 +58,7 @@ enrich_internal<-function(x,annot,pvalue=0.05,padj=NULL,organism=NULL,ontology="
   if(is.data.frame(x)){
     detail<-getdetail(resultFis,x)
   }else{
-    gene<-strsplit(as.vector(resultFis$GeneID),split="\\,")
+    gene<-strsplit(as.vector(resultFis$GeneID),split=sep)
     names(gene)<-resultFis$Annot
     gened<-data.frame("TERM"=rep(names(gene),times=unlist(lapply(gene,length))),
                       "Annot"=rep(resultFis$Term,times=unlist(lapply(gene,length))),
@@ -81,7 +82,8 @@ enrich_internal<-function(x,annot,pvalue=0.05,padj=NULL,organism=NULL,ontology="
               organism       = organism,
               ontology       = ontology,
               gene           = input,
-              keytype        = keytype
+              keytype        = keytype,
+              sep = sep
   )
   return(result)
 }
@@ -97,14 +99,15 @@ enrich_internal<-function(x,annot,pvalue=0.05,padj=NULL,organism=NULL,ontology="
 #' @param keepRich keep terms with rich factor value equal 1 or not (default: TRUE)
 #' @param filename output filename
 #' @param padj.method pvalue adjust method(default:"BH")
+#' @param sep character string used to separate the genes when concatenating
 #' @export
 #' @author Kai Guo
 setMethod("enrich", signature(annot = "data.frame"),definition = function(x,annot,pvalue=0.05,padj=NULL,organism=NULL,ontology="",
                                                                              keytype="",filename=NULL,minSize=2,maxSize=500,
-                                                                             keepRich=TRUE,padj.method="BH") {
+                                                                             keepRich=TRUE,padj.method="BH",sep=",") {
   enrich_internal(x,annot=annot,ontology=ontology,pvalue=pvalue,padj=padj,
                     organism=organism,keytype=keytype,minSize=minSize,maxSize=maxSize,keepRich=keepRich,
-                    filename=filename,padj.method=padj.method)
+                    filename=filename,padj.method=padj.method,sep=sep)
 })
 
 #' KEGG Enrichment analysis function
@@ -120,12 +123,13 @@ setMethod("enrich", signature(annot = "data.frame"),definition = function(x,anno
 #' @param bulitin use KEGG bulit in KEGG annotation or not(set FALSE if you want use newest KEGG data)
 #' @param filename output filename
 #' @param padj.method pvalue adjust method(default:"BH")
+#' @param sep character string used to separate the genes when concatenating
 #' @export
 #' @author Kai Guo
 setMethod("enrich", signature(annot = "Annot"),definition = function(x,annot,pvalue=0.05,padj=NULL,organism=NULL,ontology="",
                                                                         keytype="",filename=NULL,minSize=2,maxSize=500,
-                                                                        keepRich=TRUE,padj.method="BH",builtin=TRUE) {
+                                                                        keepRich=TRUE,padj.method="BH",builtin=TRUE,sep=",") {
   enrich_internal(x=x,annot=annot@annot,ontology=annot@anntype,pvalue=pvalue,padj=padj,
                     organism=annot@species,keytype=annot@keytype,minSize=minSize,maxSize=maxSize,keepRich=keepRich,
-                    filename=filename,padj.method=padj.method)
+                    filename=filename,padj.method=padj.method,sep=sep)
 })

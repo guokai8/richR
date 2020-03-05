@@ -130,14 +130,14 @@ detail.GSEAResult<-function(x){
   as.data.frame(x@detail)
 }
 ##' @importFrom dplyr left_join
-getdetail<-function(rese,resd){
+getdetail<-function(rese,resd,sep){
   if(!is.data.frame(resd)){
     resd=data.frame(gene=resd)
   }
   if(!("gene"%in%colnames(resd))){
     resd$gene=rownames(resd)
   }
-  gene<-strsplit(as.vector(rese$GeneID),split="\\,")
+  gene<-strsplit(as.vector(rese$GeneID),split=sep)
   names(gene)<-rese$Annot
   gened<-data.frame("TERM"=rep(names(gene),times=unlist(lapply(gene,length))),
                     "Annot"=rep(resultFis$Term,times=unlist(lapply(gene,length))),

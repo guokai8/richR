@@ -7,7 +7,7 @@
 ##' @param pvalue cutoff value of pvalue (if padj set as NULL)
 ##' @param padj cutoff value of p adjust value
 ##' @param weightcut cutoff valule for edge
-##' @param usePadj use p adjust value as color or not (should use with padj)
+##' @param usePadj use adjust p value as color or not (should use with padj)
 ##' @param layout layout for the network (layout.fruchterman.reingold)
 ##' @param low color used for small value
 ##' @param high color used for large value
@@ -24,7 +24,7 @@
 ##' @param height figure height
 ##' @export
 ##' @author Kai Guo
-ggnetmap<-function(richRes,gene=NULL,top=50,top.display=NULL,pvalue = 0.05, padj = NULL,low = "orange",high = "red",
+ggnetmap<-function(richRes,gene=NULL,top=50,top.display=NULL,pvalue = 0.05, padj = NULL,usePadj=TRUE,low = "orange",high = "red",
                    weightcut = 0.2, useTerm = TRUE, writeCyt = FALSE,cytoscapeFile = "network-file-for-cytoscape.txt",
                    label.color = "black", label.size = 2,node.shape=NULL, layout = layout.fruchterman.reingold,savefig=FALSE,
                    visNet=FALSE,smooth=TRUE,nodeselect=FALSE,edit=FALSE,savehtml=FALSE,filename="network",
@@ -41,7 +41,7 @@ ggnetmap<-function(richRes,gene=NULL,top=50,top.display=NULL,pvalue = 0.05, padj
   if(is.null(top.display)){
     top.display=nrow(object)
   }
-  ggnetwork(object,gene=gene,top=top,pvalue=pvalue,padj=padj,weightcut=weightcut,useTerm=useTerm,writeCyt=writeCyt,
+  ggnetwork(object,gene=gene,top=top,pvalue=pvalue,padj=padj,usePadj=usePadj,weightcut=weightcut,useTerm=useTerm,writeCyt=writeCyt,
             label.font=label.font,label.color=label.color,label.size=label.size,node.shape=node.shape,
             layout=layout,savefig=savefig,width=width,height=height,
             visNet=visNet,smooth=smooth,nodeselect=nodeselect,edit=edit,
