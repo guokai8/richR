@@ -17,6 +17,7 @@ richGSEA(
   filename = NULL,
   padj.method = "BH",
   organism = NULL,
+  sep = ",",
   ...
 )
 }

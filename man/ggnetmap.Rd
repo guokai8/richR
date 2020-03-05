@@ -11,6 +11,7 @@ ggnetmap(
   top.display = NULL,
   pvalue = 0.05,
   padj = NULL,
+  usePadj = TRUE,
   low = "orange",
   high = "red",
   weightcut = 0.2,
@@ -48,6 +49,8 @@ ggnetmap(
 
 \item{padj}{cutoff value of p adjust value}
 
+\item{usePadj}{use adjust p value as color or not (should use with padj)}
+
 \item{low}{color used for small value}
 
 \item{high}{color used for large value}
@@ -75,8 +78,6 @@ ggnetmap(
 \item{segment.size}{size for label segment}
 
 \item{node.alpha}{alpha-transparency scales}
-
-\item{usePadj}{use p adjust value as color or not (should use with padj)}
 
 \item{label.font}{label font}
 }

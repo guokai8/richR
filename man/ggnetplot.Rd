@@ -27,7 +27,8 @@
   height = 7,
   node.alpha = 0.7,
   repel = TRUE,
-  segment.size = 0.2
+  segment.size = 0.2,
+  sep = ","
 )
 
 \S4method{ggnetplot}{data.frame}(
@@ -51,7 +52,8 @@
   height = 7,
   node.alpha = 0.7,
   repel = TRUE,
-  segment.size = 0.2
+  segment.size = 0.2,
+  sep = ","
 )
 
 \S4method{ggnetplot}{GSEAResult}(
@@ -75,7 +77,8 @@
   height = 7,
   node.alpha = 0.7,
   repel = TRUE,
-  segment.size = 0.2
+  segment.size = 0.2,
+  sep = ","
 )
 }
 \arguments{
@@ -84,6 +87,8 @@
 \item{pvalue}{cutoff p value for enrichment result}
 
 \item{padj}{cutoff p adjust value for enrichment result}
+
+\item{usePadj}{use adjust p value for the color or not}
 
 \item{useTerm}{use terms for nodes (default: TRUE)}
 
@@ -116,6 +121,8 @@
 \item{repel}{use ggrepel text function or not}
 
 \item{segment.size}{segment size for ggrepel text}
+
+\item{sep}{character string used to separate the genes when concatenating}
 }
 \description{
 richplot for Enrichment results

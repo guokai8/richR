@@ -10,13 +10,14 @@ enrich_internal(
   pvalue = 0.05,
   padj = NULL,
   organism = NULL,
-  ontology = NULL,
+  ontology = "",
   minSize = 1,
   maxSize = 500,
   keepRich = TRUE,
   keytype = "",
   filename = NULL,
-  padj.method = "BH"
+  padj.method = "BH",
+  sep = ","
 )
 }
 \arguments{
@@ -41,6 +42,8 @@ enrich_internal(
 \item{filename}{output filename}
 
 \item{padj.method}{pvalue adjust method(default:"BH")}
+
+\item{sep}{character string used to separate the genes when concatenating}
 }
 \description{
 Enrichment analysis for any type of annotation data

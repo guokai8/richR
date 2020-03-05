@@ -14,7 +14,8 @@
   maxSize = 500,
   keepRich = TRUE,
   filename = NULL,
-  padj.method = "BH"
+  padj.method = "BH",
+  sep = ","
 )
 }
 \arguments{
@@ -37,6 +38,8 @@
 \item{filename}{output filename}
 
 \item{padj.method}{pvalue adjust method(default:"BH")}
+
+\item{sep}{character string used to separate the genes when concatenating}
 
 \item{organism}{organism}
 

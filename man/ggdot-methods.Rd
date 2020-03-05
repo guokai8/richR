@@ -37,8 +37,8 @@ ggdot
 }
 \examples{
 \dontrun{
-  hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
-  gene=sample(unique(hsago$GeneID),1000)
+  hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+  gene=sample(unique(hsako$GeneID),1000)
   res<-richKEGG(gene,kodata = hsako)
   ggdot(res)
 }

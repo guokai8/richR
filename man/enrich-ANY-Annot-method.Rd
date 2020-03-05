@@ -10,14 +10,15 @@
   pvalue = 0.05,
   padj = NULL,
   organism = NULL,
-  ontology = "KEGG",
-  keytype = NULL,
+  ontology = "",
+  keytype = "",
   filename = NULL,
   minSize = 2,
   maxSize = 500,
   keepRich = TRUE,
   padj.method = "BH",
-  builtin = TRUE
+  builtin = TRUE,
+  sep = ","
 )
 }
 \arguments{
@@ -42,6 +43,8 @@
 \item{keepRich}{keep terms with rich factor value equal 1 or not (default: TRUE)}
 
 \item{padj.method}{pvalue adjust method(default:"BH")}
+
+\item{sep}{character string used to separate the genes when concatenating}
 
 \item{bulitin}{use KEGG bulit in KEGG annotation or not(set FALSE if you want use newest KEGG data)}
 }

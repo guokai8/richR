@@ -4,7 +4,22 @@
 \alias{enrich}
 \title{enrich method}
 \usage{
-enrich(x, annot, pvalue = 0.05, ...)
+enrich(
+  x,
+  annot,
+  pvalue = 0.05,
+  padj = NULL,
+  organism = NULL,
+  ontology = "",
+  keytype = "",
+  filename = NULL,
+  minSize = 2,
+  maxSize = 500,
+  keepRich = TRUE,
+  padj.method = "BH",
+  sep = ",",
+  ...
+)
 }
 \arguments{
 \item{x}{vector contains gene names}

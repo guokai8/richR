@@ -17,7 +17,8 @@ richGSEA_internal(
   padj.method = "BH",
   organism = NULL,
   ontology = NULL,
-  table = TRUE
+  table = TRUE,
+  sep = ","
 )
 }
 \arguments{
@@ -36,6 +37,8 @@ richGSEA_internal(
 \item{padj.method}{p value adjust method}
 
 \item{table}{leadingEdge as vector}
+
+\item{sep}{character string used to separate the genes when concatenating}
 }
 \description{
 Enrichment analysis for any type of annotation data

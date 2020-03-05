@@ -17,7 +17,8 @@
   filename = NULL,
   padj.method = "BH",
   organism = NULL,
-  table = TRUE
+  table = TRUE,
+  sep = ","
 )
 }
 \arguments{
@@ -35,7 +36,9 @@
 
 \item{padj.method}{p value adjust method}
 
-\item{table}{leadingEdge as vector}
+\item{table}{leadingEdge as vector#'}
+
+\item{sep}{character string used to separate the genes when concatenating}
 }
 \description{
 GSEA Enrichment analysis function

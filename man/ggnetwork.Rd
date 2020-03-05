@@ -13,6 +13,7 @@ ggnetwork_internal(
   top = 50,
   pvalue = 0.05,
   padj = NULL,
+  usePadj = TRUE,
   low = "orange",
   high = "red",
   weightcut = 0.2,
@@ -34,6 +35,7 @@ ggnetwork_internal(
   height = 7,
   segment.size = 0.2,
   node.alpha = 0.7,
+  sep = ",",
   ...
 )
 
@@ -43,6 +45,7 @@ ggnetwork_internal(
   top = 50,
   pvalue = 0.05,
   padj = NULL,
+  usePadj = TRUE,
   low = "orange",
   high = "red",
   weightcut = 0.2,
@@ -64,6 +67,7 @@ ggnetwork_internal(
   height = 7,
   segment.size = 0.2,
   node.alpha = 0.7,
+  sep = ",",
   ...
 )
 
@@ -73,6 +77,7 @@ ggnetwork_internal(
   top = 50,
   pvalue = 0.05,
   padj = NULL,
+  usePadj = TRUE,
   low = "orange",
   high = "red",
   weightcut = 0.2,
@@ -94,6 +99,7 @@ ggnetwork_internal(
   height = 7,
   segment.size = 0.2,
   node.alpha = 0.7,
+  sep = ",",
   ...
 )
 
@@ -103,6 +109,7 @@ ggnetwork_internal(
   top = 50,
   pvalue = 0.05,
   padj = NULL,
+  usePadj = TRUE,
   low = "orange",
   high = "red",
   weightcut = 0.2,
@@ -124,6 +131,7 @@ ggnetwork_internal(
   height = 7,
   segment.size = 0.2,
   node.alpha = 0.7,
+  sep = ",",
   ...
 )
 }
@@ -137,6 +145,8 @@ ggnetwork_internal(
 \item{pvalue}{cutoff value of pvalue (if padj set as NULL)}
 
 \item{padj}{cutoff value of p adjust value}
+
+\item{usePadj}{use p adjust value as color or not (should use with padj)}
 
 \item{low}{color used for small value}
 
@@ -166,7 +176,7 @@ ggnetwork_internal(
 
 \item{node.alpha}{alpha-transparency scales}
 
-\item{usePadj}{use p adjust value as color or not (should use with padj)}
+\item{sep}{character string used to separate the genes when concatenating}
 
 \item{label.font}{label font}
 }

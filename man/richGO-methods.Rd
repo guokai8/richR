@@ -15,6 +15,7 @@ richGO(
   keepRich = TRUE,
   filename = NULL,
   padj.method = "BH",
+  sep = ",",
   ...
 )
 }

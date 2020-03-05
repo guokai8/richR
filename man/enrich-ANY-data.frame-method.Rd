@@ -10,13 +10,14 @@
   pvalue = 0.05,
   padj = NULL,
   organism = NULL,
-  ontology = NULL,
-  keytype = NULL,
+  ontology = "",
+  keytype = "",
   filename = NULL,
   minSize = 2,
   maxSize = 500,
   keepRich = TRUE,
-  padj.method = "BH"
+  padj.method = "BH",
+  sep = ","
 )
 }
 \arguments{
@@ -41,6 +42,8 @@
 \item{keepRich}{keep terms with rich factor value equal 1 or not (default: TRUE)}
 
 \item{padj.method}{pvalue adjust method(default:"BH")}
+
+\item{sep}{character string used to separate the genes when concatenating}
 }
 \description{
 KEGG Pathway Enrichment analysis function

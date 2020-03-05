@@ -18,6 +18,7 @@ richKEGG(
   filename = NULL,
   padj.method = "BH",
   builtin = TRUE,
+  sep = ",",
   ...
 )
 }

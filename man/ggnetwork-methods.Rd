@@ -10,6 +10,7 @@ ggnetwork(
   top = 50,
   pvalue = 0.05,
   padj = NULL,
+  usePadj = TRUE,
   low = "orange",
   high = "red",
   weightcut = 0.2,
@@ -31,6 +32,7 @@ ggnetwork(
   height = 7,
   segment.size = 0.2,
   node.alpha = 0.7,
+  sep = ",",
   ...
 )
 }
@@ -47,8 +49,8 @@ ggnetwork
 }
 \examples{
 \dontrun{
-  hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
-  gene=sample(unique(hsago$GeneID),1000)
+  hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+  gene=sample(unique(hsako$GeneID),1000)
   res<-richKEGG(gene,kodata = hsako)
   ggnetwork(res)
 }

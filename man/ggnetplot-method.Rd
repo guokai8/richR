@@ -26,6 +26,7 @@ ggnetplot(
   node.alpha = 0.7,
   repel = TRUE,
   segment.size = 0.2,
+  sep = ",",
   ...
 )
 }
@@ -42,8 +43,8 @@ ggnetplot
 }
 \examples{
 \dontrun{
-  hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
-  gene=sample(unique(hsago$GeneID),1000)
+  hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+  gene=sample(unique(hsako$GeneID),1000)
   res<-richKEGG(gene,kodata = hsako)
   ggnetplot(res)
 }
