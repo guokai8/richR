@@ -14,7 +14,7 @@
 #' @param padj.method pvalue adjust method(default:"BH")
 #' @export
 #' @author Kai Guo
-enrich_internal<-function(x,annot,pvalue=0.05,padj=NULL,organism=NULL,ontology=NULL,minSize=1,maxSize=500,
+enrich_internal<-function(x,annot,pvalue=0.05,padj=NULL,organism=NULL,ontology="",minSize=1,maxSize=500,
                           keepRich=TRUE,keytype="",filename=NULL,padj.method="BH"){
   ao2gene<-sf(annot)
   ao2gene_num<-name_table(ao2gene)
@@ -99,8 +99,8 @@ enrich_internal<-function(x,annot,pvalue=0.05,padj=NULL,organism=NULL,ontology=N
 #' @param padj.method pvalue adjust method(default:"BH")
 #' @export
 #' @author Kai Guo
-setMethod("enrich", signature(annot = "data.frame"),definition = function(x,annot,pvalue=0.05,padj=NULL,organism=NULL,ontology=NULL,
-                                                                             keytype=NULL,filename=NULL,minSize=2,maxSize=500,
+setMethod("enrich", signature(annot = "data.frame"),definition = function(x,annot,pvalue=0.05,padj=NULL,organism=NULL,ontology="",
+                                                                             keytype="",filename=NULL,minSize=2,maxSize=500,
                                                                              keepRich=TRUE,padj.method="BH") {
   enrich_internal(x,annot=annot,ontology=ontology,pvalue=pvalue,padj=padj,
                     organism=organism,keytype=keytype,minSize=minSize,maxSize=maxSize,keepRich=keepRich,
@@ -122,8 +122,8 @@ setMethod("enrich", signature(annot = "data.frame"),definition = function(x,anno
 #' @param padj.method pvalue adjust method(default:"BH")
 #' @export
 #' @author Kai Guo
-setMethod("enrich", signature(annot = "Annot"),definition = function(x,annot,pvalue=0.05,padj=NULL,organism=NULL,ontology="KEGG",
-                                                                        keytype=NULL,filename=NULL,minSize=2,maxSize=500,
+setMethod("enrich", signature(annot = "Annot"),definition = function(x,annot,pvalue=0.05,padj=NULL,organism=NULL,ontology="",
+                                                                        keytype="",filename=NULL,minSize=2,maxSize=500,
                                                                         keepRich=TRUE,padj.method="BH",builtin=TRUE) {
   enrich_internal(x=x,annot=annot@annot,ontology=annot@anntype,pvalue=pvalue,padj=padj,
                     organism=annot@species,keytype=annot@keytype,minSize=minSize,maxSize=maxSize,keepRich=keepRich,
