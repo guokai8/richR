@@ -162,7 +162,7 @@ ggnetwork_internal<-function (object=object,gene=gene,top = 50, pvalue = 0.05, p
     graph
   }else{
   p<-ggnet2(g, node.size = V(g)$size, node.color = V(g)$color,
-            edge.size = E(g)$width/10,node.shape=node.shape,node.alpha=node.alpha) +
+            edge.size = E(g)$width/20,node.shape=node.shape,node.alpha=node.alpha) +
     geom_text_repel(label = V(g)$name,
                     size=label.size,segment.size=segment.size,color=label.color)+
     theme(legend.position = "none")
