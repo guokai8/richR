@@ -86,7 +86,7 @@ ggrich_internal <- function(object,top=50, pvalue=0.05, padj=NULL,
   }
   p <- ggnet2(g, node.size = degree(g), node.color = V(g)$color,
               node.shape=node.shape,legend.position = "none",
-              node.alpha=node.alpha)
+              node.alpha=node.alpha,edge.size=0.01)
   if(isTRUE(repel)){
     p <- p + geom_text_repel(label = V(g)$name,size=label.size, color=label.color,
                              segment.size=segment.size)
