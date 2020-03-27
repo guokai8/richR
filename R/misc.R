@@ -13,6 +13,38 @@ as.data.frame.richResult <- function(x, ...) {
 as.data.frame.GSEAResult <- function(x, ...) {
   as.data.frame(x@result, ...)
 }
+##' @method row.names Annot
+##' @export
+row.names.Annot<-function(x,...){
+  row.names(x@annot)
+}
+
+##' @method row.names richResult
+##' @export
+row.names.richResult <- function(x, ...) {
+  row.names(x@result)
+}
+##' @method row.names GSEAResult
+##' @export
+row.names.GSEAResult <- function(x, ...) {
+  row.names(x@result)
+}
+##' @method names Annot
+##' @export
+names.Annot<-function(x,...){
+  names(x@annot)
+}
+##' @method names richResult
+##' @export
+names.richResult <- function(x, ...) {
+  names(x@result)
+}
+##' @method names GSEAResult
+##' @export
+names.GSEAResult <- function(x, ...) {
+  names(x@result)
+}
+
 ##' @importFrom utils head
 ##' @method head Annot
 ##' @export
