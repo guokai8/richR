@@ -26,7 +26,7 @@ richGSEA(
 
 \item{...}{additional parameters}
 
-\item{Annot}{object or dataframe}
+\item{object}{Annot object or dataframe}
 }
 \value{
 GSEAResult
