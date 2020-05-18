@@ -48,7 +48,7 @@ setGeneric("richKEGG", function(x,kodata,pvalue=0.05,padj=NULL,organism=NULL,ont
 ##' @rdname richGSEA-methods
 ##' @title richGSEA method
 ##' @param x vector contains gene names
-##' @param Annot object or dataframe
+##' @param object Annot object or dataframe
 ##' @param ... additional parameters
 ##' @return GSEAResult
 #' @examples
