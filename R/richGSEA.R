@@ -111,6 +111,8 @@ setMethod("richGSEA", signature(object = "Annot"),definition = function(x,object
 #' @param info Term with annotation details
 #' @param gseaRes GSEAResult object
 #' @importFrom fgsea plotEnrichment plotGseaTable
+#' @importFrom ggplot2 ggtitle
+#' @importFrom cowplot plot_grid
 #' @examples
 #' \dontrun{
 #' set.seed(123)
@@ -118,21 +120,29 @@ setMethod("richGSEA", signature(object = "Annot"),definition = function(x,object
 #'   name=sample(unique(hsako$GeneID),1000)
 #'   gene<-rnorm(1000)
 #'   names(gene)<-name
-#'   res<-richGSEA(gene,kodata = hsako)
-#'  # ggGSEA(gene,term=res$)
+#'   res<-richGSEA(gene,object = hsako)
+#'   ggGSEA(gene,term = res$pathway,object = hsako,gseaRes = res,default = F)
 #' }
 #' @export
 #' @author Kai Guo
-ggGSEA<-function(x,term,object,gseaRes=gseaRes){
+ggGSEA<-function(x,term,object,gseaRes=gseaRes,top=10, default = TRUE){
   x<-sort(x)
   annot<-object@annot
   gseaRes<-gseaRes@result
+  if(nrow(gseaRes)<top){
+    top <- nrow(gseaRes)
+  }
   if(!is.null(annot$Annot)){
-    annot[,2]<-annot$Annot
+    annot[,2] <- annot$Annot
   }
   annod <- sf(annot)
   if(length(term)>1&!is.null(gseaRes)){
-    plotGseaTable(annod[term],stats=x,gseaRes,gseaParam=0.5)
+    if(isTRUE(default)){
+       plotGseaTable(annod[term],stats=x,gseaRes,gseaParam=0.5)
+    }else{
+      res<-lapply(gseaRes$pathway, function(y)plotEnrichment(annod[[y]],stats=x)+ggtitle(y))
+      plot_grid(plotlist = res[1:top],ncol=5)
+    }
   }else{
     plotEnrichment(annod[[term]],stats=x)
   }
