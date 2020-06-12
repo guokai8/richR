@@ -24,9 +24,9 @@ richGSEA(
 \arguments{
 \item{x}{vector contains gene names}
 
-\item{...}{additional parameters}
-
 \item{object}{Annot object or dataframe}
+
+\item{...}{additional parameters}
 }
 \value{
 GSEAResult
