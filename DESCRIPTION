@@ -22,6 +22,7 @@ Imports:
     intergraph,
     fgsea,
     ggrepel,
+    cowplot,
     GGally,
     sna
 Depends:
