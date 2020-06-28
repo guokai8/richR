@@ -12,8 +12,6 @@ richGSEA_internal(
   padj = NULL,
   minSize = 15,
   maxSize = 500,
-  nperm = 5000,
-  filename = NULL,
   padj.method = "BH",
   organism = NULL,
   ontology = NULL,
@@ -26,13 +24,13 @@ richGSEA_internal(
 
 \item{object}{annotation file for all genes}
 
+\item{pvalue}{pvalue cutoff value}
+
+\item{padj}{adjust p value cut off method}
+
 \item{minSize}{Minimal size of a gene set to test. All pathways below the threshold are excluded.}
 
 \item{maxSize}{Maximal size of a gene set to test. All pathways above the threshold are excluded.}
-
-\item{nperm}{Number of permutations to do. Minimial possible nominal p-value is about 1/nperm}
-
-\item{filename}{output filename}
 
 \item{padj.method}{p value adjust method}
 
