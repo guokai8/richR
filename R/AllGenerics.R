@@ -31,9 +31,9 @@ setGeneric("richGO", function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,minSi
 ##' @return richResult
 #' @examples
 #' \dontrun{
-#'   hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
-#'   gene=sample(unique(hsako$GeneID),1000)
-#'   res<-richKEGG(gene,kodata = hsako)
+#' hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+#' gene=sample(unique(hsako$GeneID),1000)
+#' res<-richKEGG(gene,kodata = hsako)
 #' }
 ##' @export
 ##' @author Kai Guo
@@ -54,16 +54,16 @@ setGeneric("richKEGG", function(x,kodata,pvalue=0.05,padj=NULL,organism=NULL,ont
 #' @examples
 #' \dontrun{
 #' set.seed(123)
-#'   hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
-#'   name=sample(unique(hsako$GeneID),1000)
-#'   gene<-rnorm(1000)
-#'   names(gene)<-name
-#'   res<-richGSEA(gene,kodata = hsako)
+#' hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+#' name=sample(unique(hsako$GeneID),1000)
+#' gene<-rnorm(1000)
+#' names(gene)<-name
+#' res<-richGSEA(gene,object = hsako)
 #' }
 ##' @export
 ##' @author Kai Guo
 setGeneric("richGSEA", function(x,object,keytype="",pvalue=0.05,padj=NULL,minSize=15,ontology="",
-                                maxSize=500,nperm=5000,filename=NULL,padj.method="BH",organism=NULL,sep=",",...)
+                                maxSize=500,padj.method="BH",organism=NULL,table=TRUE,sep=",",...)
   standardGeneric("richGSEA"))
 ##' enrich
 ##'
