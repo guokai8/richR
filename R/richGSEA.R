@@ -8,7 +8,7 @@
 #' @param maxSize Maximal size of a gene set to test. All pathways above the threshold are excluded.
 #' @param table leadingEdge as vector
 #' @param sep character string used to separate the genes when concatenating
-#' @importFrom fgsea fgsea
+#' @importFrom fgsea fgseaMultilevel
 #' @export
 #' @author Kai Guo
 richGSEA_internal<-function(x,object,keytype="",pvalue=0.05,padj=NULL,minSize=15,maxSize=500,
