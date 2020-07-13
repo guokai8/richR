@@ -9,17 +9,16 @@
 ##'
 ##' @docType class
 ##' @slot result enrichment analysis results
-##' @slot sig genes included in significant terms and original information
+##' @slot detail genes included in significant terms and original information
 ##' @slot pvalueCutoff cutoff pvalue
 ##' @slot pAdjustMethod pvalue adjust method
 ##' @slot padjCutoff pvalue adjust cutoff value
-##' @slot inputgene number of input genes
-##' @slot inputcutoff cutoff value for input gene(DESeq results)
+##' @slot genenumber number of input genes
 ##' @slot organism organism used
 ##' @slot ontology biological ontology
 ##' @slot gene Gene IDs
 ##' @slot keytype Gene ID type
-##' @slot universe background gene
+##' @slot sep character string used to separate the genes when concatenating 
 ##' @exportClass richResult
 ##' @author Kai Guo
 ##' @keywords classes
@@ -46,11 +45,16 @@ setClass("richResult",
 ##'   plot,GSEAResult-method
 ##'
 ##' @docType class
-##' @slot result result from fgsea analysis
-##' @slot sig genes included in significant terms and original information
-##' @slot organism organism
+##' @slot result enrichment analysis results
+##' @slot pvalueCutoff cutoff pvalue
+##' @slot pAdjustMethod pvalue adjust method
+##' @slot padjCutoff pvalue adjust cutoff value
+##' @slot genenumber number of input genes
+##' @slot organism organism used
+##' @slot ontology biological ontology
+##' @slot gene Gene IDs
 ##' @slot keytype Gene ID type
-##' @slot params parameters used for GSEA analysis
+##' @slot sep character string used to separate the genes when concatenating 
 ##' @exportClass GSEAResult
 ##' @author Kai Guo
 ##' @keywords classes
