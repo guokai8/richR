@@ -172,10 +172,10 @@ getdetail<-function(rese,resd,sep){
   gene<-strsplit(as.vector(rese$GeneID),split=sep)
   names(gene)<-rese$Annot
   gened<-data.frame("TERM"=rep(names(gene),times=unlist(lapply(gene,length))),
-                    "Annot"=rep(resultFis$Term,times=unlist(lapply(gene,length))),
+                    "Annot"=rep(rese$Term,times=unlist(lapply(gene,length))),
                     "GeneID"=unlist(gene),row.names=NULL,
-                    "Pvalue"=rep(resultFis$Pvalue,times=unlist(lapply(gene,length))),
-                    "Padj"=rep(resultFis$Padj,times=unlist(lapply(gene,length)))
+                    "Pvalue"=rep(rese$Pvalue,times=unlist(lapply(gene,length))),
+                    "Padj"=rep(rese$Padj,times=unlist(lapply(gene,length)))
   )
   gened$GeneID<-as.character(gened$GeneID)
   res<-left_join(gened,resd,by=c("GeneID"="gene"))
