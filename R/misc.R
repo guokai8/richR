@@ -276,10 +276,10 @@ idconvert<-function(species,keys,fkeytype,tkeytype){
   dbname<-.getdbname(species);
   suppressMessages(require(dbname,character.only = T))
   dbname<-eval(parse(text=dbname))
-  mapIds(dbname,keys=as.vector(keys),
+  unlist(mapIds(dbname,keys=as.vector(keys),
          column=tkeytype,
          keytype=fkeytype,
-         multiVals="first")
+         multiVals="first"))
 }
 .getdbname<-function(species="human"){
   dbname=.getdb(species=species);
