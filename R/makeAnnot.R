@@ -229,7 +229,7 @@ buildMSIGDB<-function(species="human",keytype="SYMBOL",anntype="GO",
     res$GeneID = keys
     res <- na.omit(res)
   }
-  return(res)
+  return(res[,c(1,3)])
 }
 
 
