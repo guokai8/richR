@@ -24,6 +24,8 @@ Imports:
     ggrepel,
     cowplot,
     GGally,
+    RDAVIDWebService,
+    rlang,
     sna
 Depends:
 LinkingTo: Rcpp
