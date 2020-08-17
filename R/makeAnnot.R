@@ -51,7 +51,7 @@ buildAnnot<-function(species="human",keytype="SYMBOL",anntype="GO",builtin=TRUE,
     suppressMessages(require(dbname,character.only = T,quietly = T))
   }
   dbname<-eval(parse(text=dbname))
-  GO_FILE<-select(dbname,keys=keys(dbname,keytype=keytype),keytype=keytype,columns=c("GOALL","ONTOLOGYALL"))
+  GO_FILE<-AnnotationDbi::select(dbname,keys=keys(dbname,keytype=keytype),keytype=keytype,columns=c("GOALL","ONTOLOGYALL"))
   colnames(GO_FILE)[1]<-"GeneID"
   GO_FILE<-distinct_(GO_FILE,~GeneID, ~GOALL, ~ONTOLOGYALL)
   annot <- getann("GO")
@@ -83,7 +83,7 @@ buildAnnot<-function(species="human",keytype="SYMBOL",anntype="GO",builtin=TRUE,
       suppressMessages(require(dbname,character.only = T,quietly = T))
     }
     dbname<-eval(parse(text=dbname))
-    KO_FILE=select(dbname,keys=keys(dbname,keytype=keytype),keytype=keytype,columns="PATH")
+    KO_FILE=AnnotationDbi::select(dbname,keys=keys(dbname,keytype=keytype),keytype=keytype,columns="PATH")
     KO_FILE<-na.omit(KO_FILE)
   }else{
     spe=.getspeices(species)
@@ -231,6 +231,7 @@ buildMSIGDB<-function(species="human",keytype="SYMBOL",anntype="GO",
   }
   return(res[,c(1,3)])
 }
+
 
 
 

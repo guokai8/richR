@@ -1,0 +1,14 @@
+##' @importFrom dplyr slice
+##' @importFrom magrittr %<>%
+##' @method slice richResult
+##' @export
+slice.richResult <- function(.data, ..., .preserve = FALSE) {
+    dots <- quos(...)
+    .data@result %<>% slice(!!!dots, .preserve = .preserve)
+    return(.data)
+}
+
+##' @method slice GSEAResult
+##' @export
+slice.GSEAResult <- slice.richResult
+
