@@ -274,6 +274,6 @@ richDAVID <- function(gene,keytype="ENTREZ_GENE_ID",species="human",anntype="GOT
       ontology       = anntype,
       gene           = gene,
       keytype        = keytype,
-      sep=sep)
+      sep=",")
 }
 
