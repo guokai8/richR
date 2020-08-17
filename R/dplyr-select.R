@@ -1,10 +1,9 @@
 ##' @method select richResult
 ##' @importFrom magrittr %<>%
-##' @importFrom dplyr select
 ##' @export
 select.richResult<- function(.data, ...) {
     dots <- quos(...)
-    .data@result %<>% select(!!!dots,)
+    .data@result %<>% dplyr::select(!!!dots,)
     return(.data)
 }
 
