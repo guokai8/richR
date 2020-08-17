@@ -149,6 +149,13 @@ setMethod("enrich", signature(annot = "Annot"),definition = function(x,annot,pva
 #' @param padj cutoff p adjust value
 #' @param david.user richR@und.edu
 #' @return Annot object
+#' @examples
+#' \dontrun{
+#'   hsako<-buildAnnot(species="human",keytype="ENTREZID",anntype = "KEGG")
+#'   hsako<-as.data.frame(hsako)
+#'   gene=sample(unique(hsako$GeneID),1000)
+#'   res<-richDAVID(gene,keytype="ENTREZID",species="human")
+#' }
 #' @export
 #' @author Kai Guo
 richDAVID <- function(gene,keytype="ENTREZ_GENE_ID",species="human",anntype="GOTERM_BP_FAT",
