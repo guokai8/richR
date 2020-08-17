@@ -17,7 +17,7 @@ This class represents the result of enrichment analysis.
 \describe{
 \item{\code{result}}{enrichment analysis results}
 
-\item{\code{sig}}{genes included in significant terms and original information}
+\item{\code{detail}}{genes included in significant terms and original information}
 
 \item{\code{pvalueCutoff}}{cutoff pvalue}
 
@@ -25,9 +25,7 @@ This class represents the result of enrichment analysis.
 
 \item{\code{padjCutoff}}{pvalue adjust cutoff value}
 
-\item{\code{inputgene}}{number of input genes}
-
-\item{\code{inputcutoff}}{cutoff value for input gene(DESeq results)}
+\item{\code{genenumber}}{number of input genes}
 
 \item{\code{organism}}{organism used}
 
@@ -37,7 +35,7 @@ This class represents the result of enrichment analysis.
 
 \item{\code{keytype}}{Gene ID type}
 
-\item{\code{universe}}{background gene}
+\item{\code{sep}}{character string used to separate the genes when concatenating}
 }}
 
 \author{

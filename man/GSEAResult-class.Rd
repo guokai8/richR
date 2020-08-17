@@ -15,15 +15,25 @@ This class represents the result from GSEA analysis
 \section{Slots}{
 
 \describe{
-\item{\code{result}}{result from fgsea analysis}
+\item{\code{result}}{enrichment analysis results}
 
-\item{\code{sig}}{genes included in significant terms and original information}
+\item{\code{pvalueCutoff}}{cutoff pvalue}
 
-\item{\code{organism}}{organism}
+\item{\code{pAdjustMethod}}{pvalue adjust method}
+
+\item{\code{padjCutoff}}{pvalue adjust cutoff value}
+
+\item{\code{genenumber}}{number of input genes}
+
+\item{\code{organism}}{organism used}
+
+\item{\code{ontology}}{biological ontology}
+
+\item{\code{gene}}{Gene IDs}
 
 \item{\code{keytype}}{Gene ID type}
 
-\item{\code{params}}{parameters used for GSEA analysis}
+\item{\code{sep}}{character string used to separate the genes when concatenating}
 }}
 
 \author{

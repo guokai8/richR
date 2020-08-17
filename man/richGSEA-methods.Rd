@@ -15,6 +15,7 @@ richGSEA(
   maxSize = 500,
   padj.method = "BH",
   organism = NULL,
+  table = TRUE,
   sep = ",",
   ...
 )
