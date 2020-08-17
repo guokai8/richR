@@ -168,9 +168,9 @@ richDAVID <- function(gene,keytype="ENTREZ_GENE_ID",species="human",anntype="GOT
     stop("You should have RDAVIDWebService package installed ...")
   }
   require(pkg, character.only=TRUE)
+  idtype=keytype
   if(keytype=="SYMBOL"){
     gene<-idconvert(gene,species=species,fkeytype = "SYMBOL",tkeytype = "ENTREZID")
-    idtype=keytype
     keytype="ENTREZ_GENE_ID"
   }else if(keytype=="ENTREZID"){
     keytype="ENTREZ_GENE_ID"
