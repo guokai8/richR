@@ -1,4 +1,4 @@
-# richR <a href="https://travis-ci.org/guokai8/richR"><img src="https://travis-ci.org/guokai8/richR.svg" alt="Build status"></a>  [![Project Status:](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)  [![](https://img.shields.io/badge/devel%20version-0.0.11-green.svg)](https://github.com/guokai8/richR) 
+# richR <a href="https://travis-ci.org/guokai8/richR"><img src="https://travis-ci.org/guokai8/richR.svg" alt="Build status"></a>  [![Project Status:](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)  [![](https://img.shields.io/badge/devel%20version-0.0.12-green.svg)](https://github.com/guokai8/richR) 
 ## Description
 _richR_ provide functions _richGO_, _richKEGG_,and _enrich_ to do enrichment analysis. 
 ## Installation
@@ -44,9 +44,29 @@ resko<-richKEGG(gene,hsa_ko,pvalue=0.05)
 head(resko)
 ggdot(resko,top=10,usePadj = F)
 ```    
-You can also get network graphic for any type of enrichment analysis result and also combine different enrichment result
+#### You can also get network graphic for any type of enrichment analysis result and also combine different enrichment result
 ```{r,fig.height=6,fig.width=6,fig.align="center",dpi=100}
 ggnetplot(res,top=20)
 ggnetwork(res,top=20,weightcut = 0.01)
 ggnetmap(list(res,resko),top=50,visNet=TRUE,smooth=FALSE)
-```    
+```   
+### Directly support dplyr filter, select, mutate,group_by ... functions
+```
+filter(resko,Padj<0.05)%>%head()
+select(resko,Term)
+```
+### Generate figures with mutiple enrichment results for groups
+```
+gene1 <- sample(unique(hsako$GeneID),1000)
+gene2 <- sample(unique(hsako$GeneID),1000)
+resko1 <-richKEGG(gene1,kodata = hsako)
+resko2 <-richKEGG(gene2,kodata = hsako)
+res<-compareResult(list(S1=resko1,S2=resko2))
+comparedot(res)
+```
+### Contact information
+For any questions please contact guokai8@gmail.com
+
+
+
+
