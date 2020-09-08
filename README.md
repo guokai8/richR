@@ -14,13 +14,13 @@ library(richR)
 showData()   
 # Make the GO and KEGG Pathway data for your analysis
 # find suitable species name by using showensemble()    
-hsa_go<-buildAnnot(species="human",keytype="SYMBOL",anntype = "GO")
-hsa_ko<-buildAnnot(species = "human",keytype="SYMBOL", anntype = "KEGG")
+hsa_go <- buildAnnot(species="human",keytype="SYMBOL",anntype = "GO")
+hsa_ko <- buildAnnot(species = "human",keytype="SYMBOL", anntype = "KEGG")
 ```   
 ### Support KEGG Module and MSIGDB anntation
 ```
-hsamgi<-buildMSIGDB(species="human",keytype="SYMBOL",anntype="GO")
-hsakom<-buildAnnot(species = "human",keytype="SYMBOL", anntype = "KEGGM")
+hsamgi <- buildMSIGDB(species="human",keytype="SYMBOL",anntype="GO")
+hsakom <- buildAnnot(species = "human",keytype="SYMBOL", anntype = "KEGGM")
 ```
 ____   
 
@@ -38,8 +38,8 @@ ____
 ### Simple example for enrichment analysis
 
 ```{r,fig.height=6,fig.width=6,fig.align="center",dpi=100}
-gene=sample(unique(hsa_go$GeneID),1000)
-res<-richGO(gene,godata = hsa_go,ontology ="BP")
+gene <- sample(unique(hsa_go$GeneID),1000)
+res <- richGO(gene,godata = hsa_go,ontology ="BP")
 head(res)
 ggbar(res,top = 20,usePadj = F)
 ```       
@@ -51,8 +51,8 @@ ggdot(resko,top=10,usePadj = F)
 ```   
 ### Support DAVID analysis (Online)
 ```
-gene=sample(unique(hsako$GeneID),1000)
-res<-richDAVID(gene,keytype="ENTREZID",species="human")
+gene <- sample(unique(hsako$GeneID),1000)
+res <- richDAVID(gene,keytype="ENTREZID",species="human")
 ```
 #### You can also get network graphic for any type of enrichment analysis result and also combine different enrichment result
 ```{r,fig.height=6,fig.width=6,fig.align="center",dpi=100}
@@ -69,9 +69,9 @@ select(resko,Term)
 ```
 gene1 <- sample(unique(hsako$GeneID),1000)
 gene2 <- sample(unique(hsako$GeneID),1000)
-resko1 <-richKEGG(gene1,kodata = hsako)
-resko2 <-richKEGG(gene2,kodata = hsako)
-res<-compareResult(list(S1=resko1,S2=resko2))
+resko1 <- richKEGG(gene1,kodata = hsako)
+resko2 <- richKEGG(gene2,kodata = hsako)
+res <- compareResult(list(S1=resko1,S2=resko2))
 comparedot(res)
 ```
 ### Generate figures with different enrichment results
