@@ -49,7 +49,7 @@ resko<-richKEGG(gene,hsa_ko,pvalue=0.05)
 head(resko)
 ggdot(resko,top=10,usePadj = F)
 ```   
-### Support DAVID analysis
+### Support DAVID analysis (Online)
 ```
 gene=sample(unique(hsako$GeneID),1000)
 res<-richDAVID(gene,keytype="ENTREZID",species="human")
