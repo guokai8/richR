@@ -47,7 +47,12 @@ ggbar(res,top = 20,usePadj = F)
 resko<-richKEGG(gene,hsa_ko,pvalue=0.05)
 head(resko)
 ggdot(resko,top=10,usePadj = F)
-```    
+```   
+### Support DAVID analysis
+```
+gene=sample(unique(hsako$GeneID),1000)
+res<-richDAVID(gene,keytype="ENTREZID",species="human")
+```
 #### You can also get network graphic for any type of enrichment analysis result and also combine different enrichment result
 ```{r,fig.height=6,fig.width=6,fig.align="center",dpi=100}
 ggnetplot(res,top=20)
