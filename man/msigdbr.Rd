@@ -28,6 +28,11 @@ buildMSIGDB(
 \description{
 Download database from Msigdb and prepare for enrichment analysis
 }
+\examples{
+\dontrun{
+hsamsi<-buildMSIGDB(species="human",keytype="SYMBOL",anntype="GO")
+}
+}
 \author{
 Kai Guo
 }
