@@ -17,8 +17,9 @@ showData()
 hsa_go<-buildAnnot(species="human",keytype="SYMBOL",anntype = "GO")
 hsa_ko<-buildAnnot(species = "human",keytype="SYMBOL", anntype = "KEGG")
 ```   
-### Support KEGG Module anntation
+### Support KEGG Module and MSIGDB anntation
 ```
+hsamgi<-buildMSIGDB(species="human",keytype="SYMBOL",anntype="GO")
 hsakom<-buildAnnot(species = "human",keytype="SYMBOL", anntype = "KEGGM")
 ```
 ____   
