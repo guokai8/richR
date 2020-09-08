@@ -137,11 +137,6 @@ setMethod("enrich", signature(annot = "Annot"),definition = function(x,annot,pva
 
 #' Functional enrichment analysis with DAVID
 #'
-#' @importFrom RDAVIDWebService DAVIDWebService
-#' @importFrom RDAVIDWebService addList
-#' @importFrom RDAVIDWebService setAnnotationCategories
-#' @importFrom RDAVIDWebService getFunctionalAnnotationChart
-#' @importFrom RDAVIDWebService getSpecieNames
 #' @param gene vector contains gene names
 #' @param keytype key type export
 #' @param anntype GOTERM_BP_FAT, KEGG_PATHWAY,GOTERM_CC_FAT

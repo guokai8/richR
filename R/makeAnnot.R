@@ -118,6 +118,10 @@ buildAnnot<-function(species="human",keytype="SYMBOL",anntype="GO",builtin=TRUE,
 ##' @param anntype Gene Set anntype
 ##' @param save save the dataset or not
 ##' @param path path to save the dataset
+##' @examples
+##' \dontrun{
+##' hsamsi<-buildMSIGDB(species="human",keytype="SYMBOL",anntype="GO")
+##' }
 ##' @export
 ##' @author Kai Guo
 buildMSIGDB<-function(species="human",keytype="SYMBOL",anntype="GO",
