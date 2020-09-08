@@ -68,12 +68,27 @@ ggbar_internal<-function(resultFis,top=50,pvalue=0.05,order=FALSE,horiz=FALSE,
 ##' @param object richResult object
 ##' @param top number of terms you want to display,
 ##' @param pvalue cutoff value of pvalue (if padj set as NULL)
+##' @param low low color
+##' @param high high color
+##' @param alpha transparency alpha
+##' @param font.x font of x axis
+##' @param font y font of y axis
+##' @param fontsize.x fontsize of x axis
+##' @param fontsize.y fontsize of y axis
 ##' @param padj cutoff value of p adjust value
 ##' @param usePadj use p adjust value as color or not (should use with padj)
 ##' @param font.size font size for xlim or ylim
-##' @param angle label angle of xlim
 ##' @param filename figure output name
-##' @exportMethod ggbar
+##' @param width figure width
+##' @param height figure height
+##' @examples
+##' \dontrun{
+##'   hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+##'   gene=sample(unique(hsako$GeneID),1000)
+##'   res<-richKEGG(gene,kodata = hsako)
+##'   ggbar(res)
+##' }
+##' @export
 ##' @author Kai Guo
 setMethod("ggbar", signature(object = "richResult"),definition = function(object,top=50,pvalue=0.05,padj=NULL,order=FALSE,
                    usePadj=TRUE,fontsize.x=10,fontsize.y=10,fontsize.text=3,angle=75,filename=NULL,
@@ -86,11 +101,28 @@ setMethod("ggbar", signature(object = "richResult"),definition = function(object
 ##' @param object dataframe of enrichment results
 ##' @param top number of terms you want to display,
 ##' @param pvalue cutoff value of pvalue (if padj set as NULL)
+##' @param low low color
+##' @param high high color
+##' @param alpha transparency alpha
+##' @param font.x font of x axis
+##' @param font y font of y axis
+##' @param fontsize.x fontsize of x axis
+##' @param fontsize.y fontsize of y axis
 ##' @param padj cutoff value of p adjust value
 ##' @param usePadj use p adjust value as color or not (should use with padj)
 ##' @param font.size font size for xlim or ylim
-##' @param angle label angle of xlim
 ##' @param filename figure output name
+##' @param width figure width
+##' @param height figure height
+##' @examples
+##' \dontrun{
+##'   hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+##'   gene=sample(unique(hsako$GeneID),1000)
+##'   res<-richKEGG(gene,kodata = hsako)
+##'   ggbar(result(res))
+##' }
+##' @export
+##' @author Kai Guo
 setMethod("ggbar", signature(object = "data.frame"),definition = function(object,top=50,pvalue=0.05,padj=NULL,order=FALSE,
                                                                           usePadj=TRUE,fontsize.x=10,fontsize.y=10,fontsize.text=3,angle=75,filename=NULL,
                                                                           width=10,height=8,...) {

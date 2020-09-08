@@ -1,6 +1,5 @@
 #' make annotation database using bioAnno results
 #' @importFrom AnnotationDbi keys
-#' @importFrom AnnotationDbi select
 #' @param dbname database name from bioAnno
 #' @param anntype GO or KEGG
 #' @param OP BP,CC,MF default use all
@@ -19,7 +18,7 @@ buildOwn<-function(dbname,anntype="GO",OP=NULL,species="",keytype=""){
   }
   dbname<-eval(parse(text=dbname))
   if(anntype=="GO"){
-    annof<-select(dbname,keys=keys(dbname),columns=c("GOALL","ONTOLOGYALL"))
+    annof<-AnnotationDbi::select(dbname,keys=keys(dbname),columns=c("GOALL","ONTOLOGYALL"))
     colnames(annof)[1]<-"GeneID"
     annof<-distinct_(annof,~GeneID, ~GOALL, ~ONTOLOGYALL)
     annot <- getann("GO")

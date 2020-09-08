@@ -193,12 +193,11 @@ getdetail<-function(rese,resd,sep){
 }
 
 ##' @importFrom dplyr filter_
-##' @importFrom AnnotationDbi select
 ##' @importFrom AnnotationDbi keys
 .get_go_dat<-function(ont="BP"){
   require(GO.db)
   key<-keys(GO.db)
-  suppressMessages(go_dat<-select(GO.db, keys=key, columns=c("TERM","ONTOLOGY"),keytype="GOID"))
+  suppressMessages(go_dat<-AnnotationDbi::select(GO.db, keys=key, columns=c("TERM","ONTOLOGY"),keytype="GOID"))
   if(ont=="BP") res<-as.data.frame(filter_(go_dat,~ONTOLOGY=="BP"))
   if(ont=="CC") res<-as.data.frame(filter_(go_dat,~ONTOLOGY=="CC"))
   if(ont=="MF") res<-as.data.frame(filter_(go_dat,~ONTOLOGY=="MF"))
@@ -221,6 +220,17 @@ getdetail<-function(rese,resd,sep){
     return(pathway)
   }
 }
+##' @importFrom KEGGREST keggList
+##'
+.get_kgm.data <- function(){
+  module <-  cbind(keggList('module'))
+  rownames(module)<-sub('md:','',rownames(module))
+  colnames(module)<-"annotation"
+  module<-as.data.frame(module)
+  module$annotation<-as.vector(module$annotation)
+  return(module)
+}
+
 ##' build annotaion for kegg
 ##' @param ontype GO or KEGG
 ##' @examples
@@ -232,6 +242,9 @@ getann<-function(ontype="GO"){
   }
   if(ontype=="KEGG"){
     res<-.get_kg_dat(builtin=F)
+  }
+  if(ontype=="Module"){
+    res <-.get_kgm_dat()
   }
   return(res)
 }
@@ -538,3 +551,24 @@ setAs(from = "data.frame", to = "richResult", def = function(from){
       keytype        = keytype
   )
 })
+
+#' rbind generic function for richResult object
+#'@importFrom S4Vectors bindROWS
+#'@export
+#'@author Kai Guo
+rbind.richResult<-function(...){
+    objects <- list(...)
+    objects <- lapply(objects,as.data.frame)
+    bindROWS(objects[[1L]],objects=objects[-1L])
+}
+
+#' rbind generic function for GSEAResult object
+#'@importFrom S4Vectors bindROWS
+#'@export
+#'@author Kai Guo
+rbind.GSEAResult<-function(...){
+  objects <- list(...)
+  objects <- lapply(objects,as.data.frame)
+  bindROWS(objects[[1L]],objects=objects[-1L])
+}
+

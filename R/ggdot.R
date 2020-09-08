@@ -1,3 +1,4 @@
+##' Dotplot for enrichment results
 ##' @importFrom ggplot2 ggplot
 ##' @importFrom ggplot2 aes
 ##' @importFrom ggplot2 geom_point
@@ -13,6 +14,22 @@
 ##' @importFrom ggplot2 guides
 ##' @importFrom ggplot2 guide_colourbar
 ##' @importFrom ggplot2 guide_legend
+##' @param object richResult object
+##' @param top number of terms you want to display,
+##' @param pvalue cutoff value of pvalue (if padj set as NULL)
+##' @param low low color
+##' @param high high color
+##' @param alpha transparency alpha
+##' @param font.x font of x axis
+##' @param font y font of y axis
+##' @param fontsize.x fontsize of x axis
+##' @param fontsize.y fontsize of y axis
+##' @param padj cutoff value of p adjust value
+##' @param usePadj use p adjust value as color or not (should use with padj)
+##' @param font.size font size for xlim or ylim
+##' @param filename figure output name
+##' @param width figure width
+##' @param height figure height
 ggdot_internal<-function(object,top=50,pvalue=0.05,order=FALSE,
                          low="lightpink",high="red",alpha=0.7,
                          font.x="bold",font.y="bold",fontsize.x=10,fontsize.y=10,
@@ -56,14 +73,23 @@ ggdot_internal<-function(object,top=50,pvalue=0.05,order=FALSE,
 ##' @param object richResult object
 ##' @param top number of terms you want to display,
 ##' @param pvalue cutoff value of pvalue (if padj set as NULL)
+##' @param low low color
+##' @param high high color
+##' @param alpha transparency alpha
+##' @param font.x font of x axis
+##' @param font y font of y axis
+##' @param fontsize.x fontsize of x axis
+##' @param fontsize.y fontsize of y axis
 ##' @param padj cutoff value of p adjust value
 ##' @param usePadj use p adjust value as color or not (should use with padj)
 ##' @param font.size font size for xlim or ylim
 ##' @param filename figure output name
+##' @param width figure width
+##' @param height figure height
 ##' @examples
 #' \dontrun{
-#'   hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
-#'   gene=sample(unique(hsago$GeneID),1000)
+#'   hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+#'   gene=sample(unique(hsako$GeneID),1000)
 #'   res<-richKEGG(gene,kodata = hsako)
 #'   ggdot(res)
 #' }
@@ -80,13 +106,22 @@ setMethod("ggdot", signature(object = "richResult"),definition = function(object
           })
 ##' dotplot for Enrichment results
 ##' @rdname ggdot
-##' @param object data.frame object
+##' @param object richResult object
 ##' @param top number of terms you want to display,
 ##' @param pvalue cutoff value of pvalue (if padj set as NULL)
+##' @param low low color
+##' @param high high color
+##' @param alpha transparency alpha
+##' @param font.x font of x axis
+##' @param font y font of y axis
+##' @param fontsize.x fontsize of x axis
+##' @param fontsize.y fontsize of y axis
 ##' @param padj cutoff value of p adjust value
 ##' @param usePadj use p adjust value as color or not (should use with padj)
 ##' @param font.size font size for xlim or ylim
 ##' @param filename figure output name
+##' @param width figure width
+##' @param height figure height
 ##' @examples
 ##' \dontrun{
 ##'   hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")

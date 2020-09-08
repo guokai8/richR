@@ -122,6 +122,13 @@ ggrich_internal <- function(object,top=50, pvalue=0.05, padj=NULL,
 ##' @param repel use ggrepel text function or not
 ##' @param segment.size segment size for ggrepel text
 ##' @param sep character string used to separate the genes when concatenating
+##' @examples
+##' \dontrun{
+##'   hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+##'   gene=sample(unique(hsago$GeneID),1000)
+##'   res<-richKEGG(gene,kodata = hsako)
+##'   ggnetplot(res)
+##' }
 ##' @export
 ##' @author Kai Guo
 setMethod("ggnetplot", signature(object = "richResult"),definition = function(object,top=50, pvalue=0.05, padj=NULL,
@@ -160,6 +167,15 @@ setMethod("ggnetplot", signature(object = "richResult"),definition = function(ob
 ##' @param node.shape shape of the node
 ##' @param repel use ggrepel text function or not
 ##' @param segment.size segment size for ggrepel text
+##' @examples
+##' \dontrun{
+##'   hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+##'   gene=sample(unique(hsago$GeneID),1000)
+##'   res<-richKEGG(gene,kodata = hsako)
+##'   ggnetplot(result(res))
+##' }
+##' @export
+##' @author Kai Guo
 setMethod("ggnetplot", signature(object = "data.frame"),definition = function(object,top=50, pvalue=0.05, padj=NULL,
                                                                            usePadj =TRUE, useTerm=TRUE,low="orange",high="red",
                                                                            writeCyt=FALSE, cytoscapeFile="network-file-for-cytoscape.txt",
@@ -197,6 +213,16 @@ setMethod("ggnetplot", signature(object = "data.frame"),definition = function(ob
 ##' @param node.shape shape of the node
 ##' @param repel use ggrepel text function or not
 ##' @param segment.size segment size for ggrepel text
+##' @examples
+##' \dontrun{
+#' hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+#' hsako<-as.data.frame(hsako)
+#' name=sample(unique(hsako$GeneID),1000)
+#' gene<-rnorm(1000)
+#' names(gene)<-name
+#' res<-richKEGG(gene,object = hsako)
+#' ggnetplot(res)
+##' }
 setMethod("ggnetplot", signature(object = "GSEAResult"),definition = function(object,top=50, pvalue=0.05, padj=NULL,
                                                                               usePadj =TRUE, useTerm=TRUE,low="orange",high="red",
                                                                               writeCyt=FALSE, cytoscapeFile="network-file-for-cytoscape.txt",

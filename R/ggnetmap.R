@@ -22,6 +22,15 @@
 ##' @param savefig save the figure or not
 ##' @param width figure width
 ##' @param height figure height
+##' @examples
+#' \dontrun{
+#' hsako <- buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+#' hsago <- buildAnnot(species="human",keytype="SYMBOL",anntype = "GO")
+#' gene <- sample(unique(hsako$GeneID),1000)
+#' resko <-richKEGG(gene,kodata = hsako)
+#' resgo <- richGO(gene,hsago)
+#' ggnetmap(list(resgo,resko))
+#' }
 ##' @export
 ##' @author Kai Guo
 ggnetmap<-function(richRes,gene=NULL,top=50,top.display=NULL,pvalue = 0.05, padj = NULL,usePadj=TRUE,low = "orange",high = "red",

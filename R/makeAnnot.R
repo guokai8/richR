@@ -23,6 +23,9 @@ buildAnnot<-function(species="human",keytype="SYMBOL",anntype="GO",builtin=TRUE,
   if(anntype=="Reactome"){
     annot <- .makeROdata(species=species,keytype=keytype)
   }
+  if(anntype=="KEGGM"){
+    annot <- .makeKOMdata(species=species,keytype=keytype)
+  }
   result<-new("Annot",
               species = species,
               anntype = anntype,
@@ -33,7 +36,6 @@ buildAnnot<-function(species="human",keytype="SYMBOL",anntype="GO",builtin=TRUE,
 }
 #' make GO annotation data function
 #' @importFrom AnnotationDbi keys
-#' @importFrom AnnotationDbi select
 #' @param species you can check the support species by using showData()
 #' @param keytype the gene ID type
 #' @param OP BP,CC,MF default use all
@@ -63,7 +65,6 @@ buildAnnot<-function(species="human",keytype="SYMBOL",anntype="GO",builtin=TRUE,
 }
 #' make KEGG annotation data function
 #' @importFrom AnnotationDbi keys
-#' @importFrom AnnotationDbi select
 #' @importFrom KEGGREST keggLink
 #' @param species you can check the support species by using showData()
 #' @param keytype the gene ID type
@@ -80,7 +81,7 @@ buildAnnot<-function(species="human",keytype="SYMBOL",anntype="GO",builtin=TRUE,
         BiocManager::install(dbname)
       }
     }else{
-      suppressMessages(require(dbname,character.only = T,quietly = T))
+      suppressMessages(requireNamespace(dbname))
     }
     dbname<-eval(parse(text=dbname))
     KO_FILE=AnnotationDbi::select(dbname,keys=keys(dbname,keytype=keytype),keytype=keytype,columns="PATH")
@@ -232,7 +233,31 @@ buildMSIGDB<-function(species="human",keytype="SYMBOL",anntype="GO",
   return(res[,c(1,3)])
 }
 
-
+###
+#' make KEGG module annotation data function
+#' @importFrom AnnotationDbi keys
+#' @importFrom KEGGREST keggLink
+#' @param species you can check the support species by using showData()
+#' @param keytype the gene ID type
+#' @author Kai Guo
+.makeKOMdata<-function(species="human",keytype="ENTREZID",builtin=TRUE){
+    spe=.getspeices(species)
+    tmp<-keggLink("module",spe)
+    tmp<-substr(tmp,8,13)
+    names(tmp)<-sub('.*:','',names(tmp))
+    tmp<-vec_to_df(tmp,name=c(keytype,"Module"))
+    if(keytype!="ENTREZID"){
+      tmp[,1]<-idconvert(species,keys=tmp[,1],fkeytype = "ENTREZID",tkeytype = keytype)
+      tmp<-na.omit(tmp)
+    }
+    MO_FILE=tmp
+    annot<-getann("module")
+    MO_FILE[,1]<-as.vector(MO_FILE[,1])
+    MO_FILE[,2]<-as.vector(MO_FILE[,2])
+    MO_FILE$Annot<-annot[MO_FILE[,2],"annotation"]
+    colnames(MO_FILE)[1]<-"GeneID"
+    return(MO_FILE)
+}
 
 
 
