@@ -16,7 +16,11 @@ showData()
 # find suitable species name by using showensemble()    
 hsa_go<-buildAnnot(species="human",keytype="SYMBOL",anntype = "GO")
 hsa_ko<-buildAnnot(species = "human",keytype="SYMBOL", anntype = "KEGG")
-```         
+```   
+### Support KEGG Module anntation
+```
+hsakom<-buildAnnot(species = "human",keytype="SYMBOL", anntype = "KEGGM")
+```
 ____   
 
 ### You can make annotation data for all species from _bioAnno_ package   
@@ -48,7 +52,7 @@ ggdot(resko,top=10,usePadj = F)
 ```{r,fig.height=6,fig.width=6,fig.align="center",dpi=100}
 ggnetplot(res,top=20)
 ggnetwork(res,top=20,weightcut = 0.01)
-ggnetmap(list(res,resko),top=50,visNet=TRUE,smooth=FALSE)
+
 ```   
 ### Directly support dplyr filter, select, mutate,group_by ... functions
 ```
@@ -63,6 +67,10 @@ resko1 <-richKEGG(gene1,kodata = hsako)
 resko2 <-richKEGG(gene2,kodata = hsako)
 res<-compareResult(list(S1=resko1,S2=resko2))
 comparedot(res)
+```
+### Generate figures with different enrichment results
+```
+ggnetmap(list(res,resko),top=50,visNet=TRUE,smooth=FALSE)
 ```
 ### Contact information
 For any questions please contact guokai8@gmail.com
