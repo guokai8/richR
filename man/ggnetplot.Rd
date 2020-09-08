@@ -131,6 +131,31 @@ richplot for Enrichment result
 
 richplot for Enrichment result
 }
+\examples{
+\dontrun{
+  hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+  gene=sample(unique(hsago$GeneID),1000)
+  res<-richKEGG(gene,kodata = hsako)
+  ggnetplot(res)
+}
+\dontrun{
+  hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+  gene=sample(unique(hsago$GeneID),1000)
+  res<-richKEGG(gene,kodata = hsako)
+  ggnetplot(result(res))
+}
+\dontrun{
+hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+hsako<-as.data.frame(hsako)
+name=sample(unique(hsako$GeneID),1000)
+gene<-rnorm(1000)
+names(gene)<-name
+res<-richKEGG(gene,object = hsako)
+ggnetplot(res)
+}
+}
 \author{
+Kai Guo
+
 Kai Guo
 }

@@ -50,9 +50,25 @@
 
 \item{usePadj}{use p adjust value as color or not (should use with padj)}
 
-\item{angle}{label angle of xlim}
+\item{fontsize.x}{fontsize of x axis}
+
+\item{fontsize.y}{fontsize of y axis}
 
 \item{filename}{figure output name}
+
+\item{width}{figure width}
+
+\item{height}{figure height}
+
+\item{low}{low color}
+
+\item{high}{high color}
+
+\item{alpha}{transparency alpha}
+
+\item{font.x}{font of x axis}
+
+\item{font}{y font of y axis}
 
 \item{font.size}{font size for xlim or ylim}
 }
@@ -61,6 +77,22 @@ barplot for Enrichment results
 
 barplot for Enrichment result
 }
+\examples{
+\dontrun{
+  hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+  gene=sample(unique(hsako$GeneID),1000)
+  res<-richKEGG(gene,kodata = hsako)
+  ggbar(res)
+}
+\dontrun{
+  hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+  gene=sample(unique(hsako$GeneID),1000)
+  res<-richKEGG(gene,kodata = hsako)
+  ggbar(result(res))
+}
+}
 \author{
+Kai Guo
+
 Kai Guo
 }
