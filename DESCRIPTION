@@ -5,7 +5,7 @@ Version: 0.0.12
 Author: Kai Guo
 Maintainer: Kai Guo <guokai8@gmail.com>
 Description: This package is used for for enrichment analysis and network construction.
-License: GPL-2
+License: GPL-3
 LazyData: TRUE
 Imports:
     Rcpp,
