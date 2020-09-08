@@ -1,38 +1,22 @@
-Package: richR
+Package: eoffice
 Type: Package
-Title: Function Enrichment analysis and Network construction
-Version: 0.0.12
-Author: Kai Guo
+Title: Export or Graph and Tables to 'Microsoft' Office and Import Figures and Tables
+Version: 0.2.2
+Author: Kai Guo 
 Maintainer: Kai Guo <guokai8@gmail.com>
-Description: This package is used for for enrichment analysis and network construction.
+Description: Provides wrap functions to export and import graphics and
+             data frames in R to 'microsoft' office. And This package also 
+             provide write out figures with lots of different formats.
+             Since people may work on the platform without GUI support, the package 
+             also provide function to easily write out figures
+             to lots of different type of formats. Now this package provide function 
+             to extract colors from all types of figures and pdf files.
 License: GPL-2
-LazyData: TRUE
-Imports:
-    Rcpp,
-    ggplot2,
-    GO.db,
-    dplyr,
-    magrittr,
-    msigdbr,
-    KEGGREST,
-    igraph,
-    visNetwork,
-    AnnotationDbi,
-    reshape2,
-    intergraph,
-    fgsea,
-    ggrepel,
-    cowplot,
-    GGally,
-    rlang,
-    S4Vectors,
-    sna
-Depends:
-LinkingTo: Rcpp
-Suggests:
-    knitr,
-    testthat,
-    rmarkdown
+Imports: officer, rvg, flextable, broom, dplyr, magrittr,
+         ggplotify, R.devices, devEMF, magick, ggplot2, htmlwidgets, plotly
+Depends: 
+Encoding: UTF-8
+LazyData: true
+Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
 RoxygenNote: 7.1.1
-biocViews:
