@@ -24,7 +24,6 @@ Imports:
     ggrepel,
     cowplot,
     GGally,
-    RDAVIDWebService,
     rlang,
     S4Vectors,
     sna
