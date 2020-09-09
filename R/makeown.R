@@ -28,7 +28,7 @@ buildOwn<-function(dbname,anntype="GO",OP=NULL,species="",keytype=""){
     }
   }
   if(anntype=="KEGG"){
-    annof=select(dbname,keys=keys(dbname),columns="PATH")
+    annof=AnnotationDbi::select(dbname,keys=keys(dbname),columns="PATH")
     annof<-na.omit(annof)
     annot<-getann("KEGG")
     annof[,1]<-as.vector(annof[,1])
