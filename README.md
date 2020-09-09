@@ -56,8 +56,8 @@ res <- richDAVID(gene,keytype="ENTREZID",species="human")
 ```
 #### You can also get network graphic for any type of enrichment analysis result and also combine different enrichment result
 ```{r,fig.height=6,fig.width=6,fig.align="center",dpi=100}
-ggnetplot(res,top=20)
-ggnetwork(res,top=20,weightcut = 0.01)
+ggnetplot(resko,top=20)
+ggnetwork(resgo,top=20,weightcut = 0.01)
 
 ```   
 ### Directly support dplyr filter, select, mutate,group_by ... functions
