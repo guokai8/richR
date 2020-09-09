@@ -187,7 +187,7 @@ buildMSIGDB<-function(species="human",keytype="SYMBOL",anntype="GO",
   if(!is.null(anntype)){
     res <- res%>%filter(!!sym(gs_subcat)==anntype)
   }
-  res<-res%>%select(!!!key,!!!gs_name)
+  res<-res%>%dplyr::select(!!!key,!!!gs_name)
   if(flag==1){
     res[,1]<-idconvert(species,keys=res[,1],fkeytype="ENTREZID", tkeytype=keytype)
     res<-na.omit(res)

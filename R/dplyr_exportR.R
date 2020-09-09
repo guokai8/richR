@@ -25,12 +25,11 @@ dplyr::mutate
 
 ##' @importFrom dplyr rename
 ##' @export
-rename <- dplyr::rename
-
+dplyr::rename
 
 ##' @importFrom dplyr select
 ##' @export
-select <- dplyr::select
+dplyr::select
 
 ##' @importFrom dplyr slice
 ##' @export
