@@ -256,7 +256,7 @@ buildMSIGDB<-function(species="human",keytype="SYMBOL",anntype="GO",
       tmp<-na.omit(tmp)
     }
     MO_FILE=tmp
-    annot<-getann("module")
+    annot<-.get_kgm.data()
     MO_FILE[,1]<-as.vector(MO_FILE[,1])
     MO_FILE[,2]<-as.vector(MO_FILE[,2])
     MO_FILE$Annot<-annot[MO_FILE[,2],"annotation"]
