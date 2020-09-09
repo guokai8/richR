@@ -14,8 +14,8 @@ library(richR)
 showData()   
 # Make the GO and KEGG Pathway data for your analysis
 # find suitable species name by using showensemble()    
-hsa_go <- buildAnnot(species="human",keytype="SYMBOL",anntype = "GO")
-hsa_ko <- buildAnnot(species = "human",keytype="SYMBOL", anntype = "KEGG")
+hsago <- buildAnnot(species="human",keytype="SYMBOL",anntype = "GO")
+hsako <- buildAnnot(species = "human",keytype="SYMBOL", anntype = "KEGG")
 ```   
 ### Support KEGG Module and MSIGDB anntation
 ```
@@ -39,13 +39,13 @@ ____
 
 ```{r,fig.height=6,fig.width=6,fig.align="center",dpi=100}
 gene <- sample(unique(hsa_go$GeneID),1000)
-res <- richGO(gene,godata = hsa_go,ontology ="BP")
-head(res)
-ggbar(res,top = 20,usePadj = F)
+resgo <- richGO(gene,godata = hsago,ontology ="BP")
+head(resgo)
+ggbar(resgo,top = 20,usePadj = F)
 ```       
 
 ```{r,fig.height=6,fig.width=6,fig.align="center"}
-resko<-richKEGG(gene,hsa_ko,pvalue=0.05)
+resko<-richKEGG(gene,hsako,pvalue=0.05)
 head(resko)
 ggdot(resko,top=10,usePadj = F)
 ```   
