@@ -10,6 +10,12 @@ sudo: false
 cache: packages
 warnings_are_errors: false
 r_check_args: --as-cran
+r:
+  - bioc-devel
+
+cache: packages
+bioc_required: true
+bioc_use_devel: true
 latex: false
 
 matrix:
@@ -17,11 +23,6 @@ matrix:
     - os: osx
       r_check_args: '--ignore-vignettes'
       r_build_args: '--no-build-vignettes'
-    - dist: trusty
+    - dist: linux
       r_check_args: '--ignore-vignettes'
       r_build_args: '--no-build-vignettes'
-
-addons:
-  apt:
-    update: true
-
