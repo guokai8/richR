@@ -50,7 +50,7 @@ buildAnnot<-function(species="human",keytype="SYMBOL",anntype="GO",builtin=TRUE,
       BiocManager::install(dbname)
     }
   }else{
-    suppressMessages(require(dbname,character.only = T,quietly = T))
+    suppressMessages(requireNamespace(dbname,character.only = T,quietly = T))
   }
   dbname<-eval(parse(text=dbname))
   GO_FILE<-AnnotationDbi::select(dbname,keys=keys(dbname,keytype=keytype),keytype=keytype,columns=c("GOALL","ONTOLOGYALL"))
@@ -109,8 +109,9 @@ buildAnnot<-function(species="human",keytype="SYMBOL",anntype="GO",builtin=TRUE,
 ##' Download database from Msigdb and prepare for enrichment analysis
 ##' @name msigdbr
 ##' @importFrom msigdbr msigdbr
-##' @importFrom dplyr filter_
-##' @importFrom dplyr select_
+##' @importFrom dplyr filter
+##' @importFrom dplyr select
+##' @importFrom rlang sym
 ##' @importFrom magrittr %>%
 ##' @param species the species for query
 ##' @param keytype the gene ID type
@@ -182,11 +183,11 @@ buildMSIGDB<-function(species="human",keytype="SYMBOL",anntype="GO",
   }
   cat("Downloading msigdb datasets ...\n")
   res <- msigdbr(species=mspe)
-  res <- res%>%filter_(~gs_cat==category)
+  res <- res%>%filter(!!sym(gs_cat)==category)
   if(!is.null(anntype)){
-    res <- res%>%filter_(~gs_subcat==anntype)
+    res <- res%>%filter(!!sym(gs_subcat)==anntype)
   }
-  res<-res%>%select_(~key,~gs_name)
+  res<-res%>%select(!!!key,!!!gs_name)
   if(flag==1){
     res[,1]<-idconvert(species,keys=res[,1],fkeytype="ENTREZID", tkeytype=keytype)
     res<-na.omit(res)

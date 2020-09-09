@@ -1,6 +1,5 @@
 #' Plot compare heatmap of Enrichment result among DEG groups
 #' @importFrom dplyr full_join
-#' @importFrom dplyr filter_
 #' @importFrom dplyr arrange
 #' @importFrom ggplot2 ggplot
 #' @importFrom ggplot2 geom_tile
@@ -35,7 +34,7 @@ ggheatmap<-function(richRes, top = 50, colnames = NULL, xsize = 6, ysize = 6,use
     colnames(res)[2:ncol(res)] <- paste("Group", 1:(ncol(res)-1), sep = "_")
   }
   res[is.na(res)] <- 1
-  res<-res%>%filter_(~Term%in%sel)
+  res<-subset(res,Term%in%sel)
   res<-as.data.frame(res)
   rownames(res)<-res$Term
   cor_mat<-cor(t(res[,2:ncol(res)]))

@@ -1,5 +1,6 @@
 #' KEGG Pathway Enrichment analysis function
-#' @importFrom dplyr filter_
+#' @importFrom dplyr filter
+#' @importFrom rlang sym
 #' @param x vector contains gene names or dataframe with DEGs information
 #' @param kodata GO annotation data
 #' @param ontology KEGG
@@ -48,11 +49,11 @@ richKEGG_internal<-function(x,kodata,pvalue=0.05,padj=NULL,ontology="KEGG",
     }else{
       resultFis<-resultFis[resultFis$Padj<padj,]
     }
-    resultFis<-filter_(resultFis, ~Significant<=maxSize)
+    resultFis<-subset(resultFis, Significant<=maxSize)
     if(keepRich==FALSE){
-      resultFis<-filter_(resultFis, ~Significant>=minSize)
+      resultFis<-subset(resultFis, Significant>=minSize)
     }else{
-      resultFis<-filter_(resultFis, ~Significant>=minSize|(~Annotated/~Significant)==1)
+      resultFis<-subset(resultFis, Significant>=minSize|(Significant/Annotated)==1)
     }
     rownames(resultFis)<-resultFis$Annot
     if(!is.null(filename)){

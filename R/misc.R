@@ -192,15 +192,14 @@ getdetail<-function(rese,resd,sep){
   max(which(intervals <= v))
 }
 
-##' @importFrom dplyr filter_
 ##' @importFrom AnnotationDbi keys
 .get_go_dat<-function(ont="BP"){
   require(GO.db)
   key<-keys(GO.db)
   suppressMessages(go_dat<-AnnotationDbi::select(GO.db, keys=key, columns=c("TERM","ONTOLOGY"),keytype="GOID"))
-  if(ont=="BP") res<-as.data.frame(filter_(go_dat,~ONTOLOGY=="BP"))
-  if(ont=="CC") res<-as.data.frame(filter_(go_dat,~ONTOLOGY=="CC"))
-  if(ont=="MF") res<-as.data.frame(filter_(go_dat,~ONTOLOGY=="MF"))
+  if(ont=="BP") res<-as.data.frame(subset(go_dat,ONTOLOGY=="BP"))
+  if(ont=="CC") res<-as.data.frame(subset(go_dat,ONTOLOGY=="CC"))
+  if(ont=="MF") res<-as.data.frame(subset(go_dat,ONTOLOGY=="MF"))
   rownames(res)<-res[,1]
   res<-res[, 2, drop = FALSE]
   colnames(res)<-"annotation"

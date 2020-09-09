@@ -1,6 +1,4 @@
 #' Enrichment analysis for any type of annotation data
-#' @importFrom dplyr filter_
-#' @importFrom magrittr %>%
 #' @param x vector contains gene names or dataframe with DEGs information
 #' @param ontology ontology type
 #' @param pvalue cutoff pvalue
@@ -45,11 +43,11 @@ enrich_internal<-function(x,annot,pvalue=0.05,padj=NULL,organism=NULL,ontology="
     resultFis<-resultFis[resultFis$Padj<padj,]
   }
   colnames(resultFis)[2]="Term"
-  resultFis<-resultFis%>%filter_(~Significant<=maxSize)
+  resultFis<-subset(resultFis,Significant<=maxSize)
   if(keepRich==FALSE){
-    resultFis<-resultFis%>%filter_(~Significant>=minSize)
+    resultFis<-subset(resultFis,Significant>=minSize)
   }else{
-    resultFis<-resultFis%>%filter_(~Significant>=minSize|(~Annotated/~Significant)==1)
+    resultFis<-subset(resultFis,Significant>=minSize|(Significant/Annotated)==1)
   }
   rownames(resultFis)<-resultFis$Annot
   if(!is.null(filename)){
@@ -158,11 +156,16 @@ richDAVID <- function(gene,keytype="ENTREZ_GENE_ID",species="human",anntype="GOT
                       keepRich=TRUE, filename=NULL,padj.method="BH",sep=",",
                       david.user="richR@und.edu"){
   pkg <- "RDAVIDWebService"
-  pkgs <- installed.packages()[,1]
-  if (! pkg %in% pkgs) {
-    stop("You should have RDAVIDWebService package installed ...")
+  if (!require(pkg,character.only=TRUE)){
+    if(!require("BiocManager",character.only=TRUE)){
+      install.packages("BiocManager")
+    }else{
+      BiocManager::install(pkg)
+    }
+  }else{
+    suppressMessages(requireNamespace(pkg))
   }
-  require(pkg, character.only=TRUE)
+  #require(pkg, character.only=TRUE)
   idtype=keytype
   if(keytype=="SYMBOL"){
     gene<-idconvert(gene,species=species,fkeytype = "SYMBOL",tkeytype = "ENTREZID")
@@ -231,11 +234,11 @@ richDAVID <- function(gene,keytype="ENTREZ_GENE_ID",species="human",anntype="GOT
   }else{
     resultFis<-resultFis[resultFis$Padj<padj,]
   }
-  resultFis<-filter_(resultFis, ~Significant<=maxSize)
+  resultFis<-subset(resultFis, Significant<=maxSize)
   if(keepRich==FALSE){
-    resultFis<-filter_(resultFis, ~Significant>=minSize)
+    resultFis<-subset(resultFis, Significant>=minSize)
   }else{
-    resultFis<-filter_(resultFis, ~Significant>=minSize|(~Annotated/~Significant)==1)
+    resultFis<-subset(resultFis, Significant>=minSize|(Annotated/Significant)==1)
   }
   rownames(resultFis)<-resultFis$Annot
   if(idtype=="SYMBOL"){
