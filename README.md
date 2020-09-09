@@ -62,6 +62,7 @@ ggnetwork(resgo,top=20,weightcut = 0.01)
 ```   
 ### Directly support dplyr filter, select, mutate,group_by ... functions
 ```
+library(dplyr)
 filter(resko,Padj<0.05)%>%head()
 select(resko,Term)
 ```
