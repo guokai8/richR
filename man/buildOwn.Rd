@@ -19,7 +19,7 @@ make annotation database using bioAnno results
 \examples{
 \dontrun{
 fromKEGG(species="ath")
-athgo<-makeOwn(dbname="org.ath.eg.db",anntype="GO")
+athgo<-buildOwn(dbname="org.ath.eg.db",anntype="GO")
 }
 }
 \author{
