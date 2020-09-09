@@ -11,7 +11,7 @@
 ##' @importFrom ggplot2 ggsave
 ##' @importFrom ggplot2 theme_light
 ##' @importFrom ggplot2 labs
-ggbar_internal<-function(resultFis,top=50,pvalue=0.05,order=FALSE,horiz=FALSE,
+ggbar_internal<-function(resultFis,top=50,pvalue=0.05,order=FALSE,horiz=TRUE,
                          low="lightpink",high="red",
                          font.x="bold",font.y="bold",fontsize.x=10,fontsize.y=10,
                          fontsize.text=3,angle=75,padj=NULL,usePadj=TRUE,
@@ -81,6 +81,7 @@ ggbar_internal<-function(resultFis,top=50,pvalue=0.05,order=FALSE,horiz=FALSE,
 ##' @param filename figure output name
 ##' @param width figure width
 ##' @param height figure height
+##' @param horiz horiz or not
 ##' @examples
 ##' \dontrun{
 ##'   hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
@@ -92,9 +93,9 @@ ggbar_internal<-function(resultFis,top=50,pvalue=0.05,order=FALSE,horiz=FALSE,
 ##' @author Kai Guo
 setMethod("ggbar", signature(object = "richResult"),definition = function(object,top=50,pvalue=0.05,padj=NULL,order=FALSE,
                    usePadj=TRUE,fontsize.x=10,fontsize.y=10,fontsize.text=3,angle=75,filename=NULL,
-                   width=10,height=8,...) {
+                   width=10,height=8,horiz=TRUE,...) {
             ggbar_internal(object@result,top=top,pvalue=pvalue,padj=padj,order=order,
-                           usePadj=usePadj,fontsize.x=fontsize.x,fontsize.y=fontsize.y,fontsize.text = fontsize.text,angle=angle,filename=filename, ...)
+                           usePadj=usePadj,fontsize.x=fontsize.x,fontsize.y=fontsize.y,fontsize.text = fontsize.text,angle=angle,filename=filename,horiz=horiz, ...)
           })
 ##' barplot for Enrichment result
 ##' @rdname ggbar
@@ -114,6 +115,7 @@ setMethod("ggbar", signature(object = "richResult"),definition = function(object
 ##' @param filename figure output name
 ##' @param width figure width
 ##' @param height figure height
+##' @param horiz horiz or not
 ##' @examples
 ##' \dontrun{
 ##'   hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
@@ -125,7 +127,7 @@ setMethod("ggbar", signature(object = "richResult"),definition = function(object
 ##' @author Kai Guo
 setMethod("ggbar", signature(object = "data.frame"),definition = function(object,top=50,pvalue=0.05,padj=NULL,order=FALSE,
                                                                           usePadj=TRUE,fontsize.x=10,fontsize.y=10,fontsize.text=3,angle=75,filename=NULL,
-                                                                          width=10,height=8,...) {
+                                                                          width=10,height=8,horiz=horiz,...) {
   ggbar_internal(object,top=top,pvalue=pvalue,padj=padj,order=order,
                  usePadj=usePadj,fontsize.x=fontsize.x,fontsize.y=fontsize.y,fontsize.text = fontsize.text,angle=angle,filename=filename, ...)
           })
