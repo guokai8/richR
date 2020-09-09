@@ -76,7 +76,7 @@ comparedot(res)
 ```
 ### Generate figures with different enrichment results
 ```
-ggnetmap(list(res,resko),top=50,visNet=TRUE,smooth=FALSE)
+ggnetmap(list(resgo,resko),top=50,visNet=TRUE,smooth=FALSE)
 ```
 ### Contact information
 For any questions please contact guokai8@gmail.com
