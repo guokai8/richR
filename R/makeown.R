@@ -34,14 +34,14 @@ buildOwn<-function(dbname,anntype="GO",OP=NULL,species="",keytype=""){
     annof[,2]<-as.vector(annof[,2])
     annof$Annot<-annot[annof[,2],"annotation"]
   }else if(anntype=="KEGGM"){
-    annof=AnnotationDbi::select(dbname,keys=keys(dbname),columns="PATH")
+    annof=AnnotationDbi::select(dbname,keys=keys(dbname),columns="KEGGM")
     annof<-na.omit(annof)
     annot<-.get_kgm.data()
     annof[,1]<-as.vector(annof[,1])
     annof[,2]<-as.vector(annof[,2])
     annof$Annot<-annot[annof[,2],"annotation"]
   }else{
-    annof=AnnotationDbi::select(dbname,keys=keys(dbname),columns="PATH")
+    annof=AnnotationDbi::select(dbname,keys=keys(dbname),columns=anntype)
     annof<-na.omit(annof)
     annof[,1]<-as.vector(annof[,1])
     annof[,2]<-as.vector(annof[,2])
