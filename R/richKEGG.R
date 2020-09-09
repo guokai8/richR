@@ -36,7 +36,11 @@ richKEGG_internal<-function(x,kodata,pvalue=0.05,padj=NULL,ontology="KEGG",
     N=length(unique(kodata[,1]))
     rhs<-hyper_bench_vector(k,M,N,n)
     lhs<-p.adjust(rhs,method=padj.method)
-    all_ko<-.get_kg_dat(builtin=builtin)
+    if(ontology=="KEGGM"){
+      all_ko<-.get_kgm.data()
+    }else{
+      all_ko<-.get_kg_dat(builtin=builtin)
+    }
     rhs_an<-all_ko[names(rhs),]
     rhs_gene<-unlist(lapply(fko2gene, function(x)paste(unique(x),sep="",collapse = sep)))
     resultFis<-data.frame("Annot"=names(rhs),"Term"=rhs_an,"Annotated"=M[names(rhs)],
