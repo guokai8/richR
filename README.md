@@ -38,7 +38,7 @@ ____
 ### Simple example for enrichment analysis
 
 ```{r,fig.height=6,fig.width=6,fig.align="center",dpi=100}
-gene <- sample(unique(hsa_go$GeneID),1000)
+gene <- sample(unique(hsago$GeneID),1000)
 resgo <- richGO(gene,godata = hsago,ontology ="BP")
 head(resgo)
 ggbar(resgo,top = 20,usePadj = F)
