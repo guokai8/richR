@@ -29,6 +29,7 @@ ggbar_internal<-function(resultFis,top=50,pvalue=0.05,order=FALSE,horiz=TRUE,
   }else{
     yheight=1
   }
+  resultFis$Term<-unlist(lapply(resultFis$Term,function(x).paste.char(x)))
   if(order==TRUE){
     resultFis$rich<-as.numeric(resultFis$Significant)/as.numeric(resultFis$Annotated)
     resultFis$Term<-factor(resultFis$Term,levels=resultFis$Term[order(resultFis$rich)])

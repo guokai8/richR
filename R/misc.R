@@ -570,4 +570,11 @@ rbind.GSEAResult<-function(...){
   objects <- lapply(objects,as.data.frame)
   bindROWS(objects[[1L]],objects=objects[-1L])
 }
-
+#' replace the term string with newlines
+.paste.char<-function(x){
+  return(gsub("([^ ]+ [^ ]+ [^ ]+ [^ ]+) ", "\\1\n", x))
+}
+#' remove the newlines
+.clean.char<-function(x){
+  return(gsub('\\\n',' ',x))
+}

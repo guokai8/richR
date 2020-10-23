@@ -80,6 +80,7 @@ comparedot <- function(x,pvalue=0.05,
   }else{
     x<-x[x$Pvalue<pvalue,]
   }
+  x$Term <- unlist(lapply(x$Term,function(x).paste.char(x)))
   if(isTRUE(usePadj)){
     p<-ggplot(x,aes(x=group,y=Term))+geom_point(aes(size=Significant,color=-log10(Padj)),alpha=alpha)+theme_minimal()+
       theme(axis.text.y=element_text(face=font.y,size=fontsize.y),axis.text.x=element_text(face=font.x,color="black",size=fontsize.x))+
