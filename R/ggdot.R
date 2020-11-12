@@ -65,7 +65,7 @@ ggdot_internal<-function(object,top=50,pvalue=0.05,order=FALSE,
       cat("No Pathway enrichment results were found!\n")
     }
   if(!is.null(filename)){
-    ggsave(p,file=paste(filename,"KEGG.pdf",sep="_"),width=width,height=height)
+    ggsave(p,file=paste(filename,"dot.pdf",sep="_"),width=width,height=height)
   }
   p
 }
