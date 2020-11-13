@@ -13,4 +13,12 @@ select.richResult<- function(.data, ...) {
 select.GSEAResult <- select.richResult
 
 
-
+##' @method select richResult
+##' @importFrom magrittr %<>%
+##' @importFrom dplyr select
+##' @export
+select.Annot<- function(.data, ...) {
+  dots <- quos(...)
+  .data@annot %<>% select(!!!dots,)
+  return(.data)
+}

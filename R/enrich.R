@@ -1,6 +1,6 @@
 #' Enrichment analysis for any type of annotation data
 #' @param x vector contains gene names or dataframe with DEGs information
-#' @param ontology ontology type
+#' @param annot ontology type
 #' @param pvalue cutoff pvalue
 #' @param padj cutoff p adjust value
 #' @param organism organism
@@ -13,8 +13,9 @@
 #' @param sep character string used to separate the genes when concatenating
 #' @export
 #' @author Kai Guo
-enrich_internal<-function(x,annot,pvalue=0.05,padj=NULL,organism=NULL,ontology="",minSize=1,maxSize=500,
+enrich_internal<-function(x,annot,pvalue=0.05,padj=NULL,organism=NULL,minSize=1,maxSize=500,
                           keepRich=TRUE,keytype="",filename=NULL,padj.method="BH",sep = ","){
+  ontology=""
   ao2gene<-sf(annot)
   ao2gene_num<-name_table(ao2gene)
   gene2ao<-sf(annot[,c(2,1)])
@@ -87,7 +88,7 @@ enrich_internal<-function(x,annot,pvalue=0.05,padj=NULL,organism=NULL,ontology="
 }
 #' KEGG Pathway Enrichment analysis function
 #' @param x vector contains gene names or dataframe with DEGs information
-#' @param ontology ontology type
+#' @param annot ontology type
 #' @param pvalue cutoff pvalue
 #' @param padj cutoff p adjust value
 #' @param organism organism
@@ -100,7 +101,7 @@ enrich_internal<-function(x,annot,pvalue=0.05,padj=NULL,organism=NULL,ontology="
 #' @param sep character string used to separate the genes when concatenating
 #' @export
 #' @author Kai Guo
-setMethod("enrich", signature(annot = "data.frame"),definition = function(x,annot,pvalue=0.05,padj=NULL,organism=NULL,ontology="",
+setMethod("enrich", signature(annot = "data.frame"),definition = function(x,annot,pvalue=0.05,padj=NULL,organism=NULL,
                                                                              keytype="",filename=NULL,minSize=2,maxSize=500,
                                                                              keepRich=TRUE,padj.method="BH",sep=",") {
   enrich_internal(x,annot=annot,ontology=ontology,pvalue=pvalue,padj=padj,
@@ -124,7 +125,7 @@ setMethod("enrich", signature(annot = "data.frame"),definition = function(x,anno
 #' @param sep character string used to separate the genes when concatenating
 #' @export
 #' @author Kai Guo
-setMethod("enrich", signature(annot = "Annot"),definition = function(x,annot,pvalue=0.05,padj=NULL,organism=NULL,ontology="",
+setMethod("enrich", signature(annot = "Annot"),definition = function(x,annot,pvalue=0.05,padj=NULL,organism=NULL,
                                                                         keytype="",filename=NULL,minSize=2,maxSize=500,
                                                                         keepRich=TRUE,padj.method="BH",builtin=TRUE,sep=",") {
   enrich_internal(x=x,annot=annot@annot,ontology=annot@anntype,pvalue=pvalue,padj=padj,

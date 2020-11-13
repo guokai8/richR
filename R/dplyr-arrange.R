@@ -11,5 +11,12 @@ arrange.richResult<- function(.data, ...) {
 ##' @method arrange GSEAResult
 ##' @export
 arrange.GSEAResult <- arrange.richResult
-
-
+##' @importFrom dplyr arrange
+##' @importFrom magrittr %<>%
+##' @method arrange Annot
+##' @export
+arrange.Annot<- function(.data, ...) {
+  dots <- quos(...)
+  .data@annot%<>%arrange(!!!dots,)
+  return(.data)
+}

@@ -11,6 +11,24 @@
 ##' @importFrom ggplot2 ggsave
 ##' @importFrom ggplot2 theme_light
 ##' @importFrom ggplot2 labs
+##' @rdname ggbar
+##' @param object richResult object
+##' @param top number of terms you want to display,
+##' @param pvalue cutoff value of pvalue (if padj set as NULL)
+##' @param low low color
+##' @param high high color
+##' @param alpha transparency alpha
+##' @param font.x font of x axis
+##' @param font y font of y axis
+##' @param fontsize.x fontsize of x axis
+##' @param fontsize.y fontsize of y axis
+##' @param padj cutoff value of p adjust value
+##' @param usePadj use p adjust value as color or not (should use with padj)
+##' @param font.size font size for xlim or ylim
+##' @param filename figure output name
+##' @param width figure width
+##' @param height figure height
+##' @param horiz horiz or not
 ggbar_internal<-function(resultFis,top=50,pvalue=0.05,order=FALSE,horiz=TRUE,
                          low="lightpink",high="red",
                          font.x="bold",font.y="bold",fontsize.x=10,fontsize.y=10,
@@ -60,7 +78,7 @@ ggbar_internal<-function(resultFis,top=50,pvalue=0.05,order=FALSE,horiz=TRUE,
     }
   }
   if(!is.null(filename)){
-    ggsave(p,file=paste(filename,OP,"enrich.pdf",sep="_"),width=width,height=height)
+    ggsave(p,file=paste(filename,"enrich.pdf",sep="_"),width=width,height=height)
   }
   p
 }

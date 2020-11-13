@@ -8,7 +8,7 @@
 ##' @importFrom igraph V<-
 ##' @importFrom igraph degree
 ##' @importFrom ggplot2 geom_text
-##' @param object Enrichment results
+##' @param object richResult or dataframe
 ##' @param top number of terms to show (default: 50)
 ##' @param pvalue cutoff p value for enrichment result
 ##' @param padj cutoff p adjust value for enrichment result
@@ -99,7 +99,7 @@ ggrich_internal <- function(object,top=50, pvalue=0.05, padj=NULL,
   p
 }
 ##' richplot for Enrichment results
-##' @rdname ggnetplot
+##' @param object richResult or dataframe
 ##' @param top number of terms to show (default: 50)
 ##' @param pvalue cutoff p value for enrichment result
 ##' @param padj cutoff p adjust value for enrichment result
@@ -146,6 +146,7 @@ setMethod("ggnetplot", signature(object = "richResult"),definition = function(ob
 })
 ##' richplot for Enrichment result
 ##' @rdname ggnetplot
+##' @param object richResult or dataframe
 ##' @param top number of terms to show (default: 50)
 ##' @param pvalue cutoff p value for enrichment result
 ##' @param padj cutoff p adjust value for enrichment result
@@ -167,6 +168,7 @@ setMethod("ggnetplot", signature(object = "richResult"),definition = function(ob
 ##' @param node.shape shape of the node
 ##' @param repel use ggrepel text function or not
 ##' @param segment.size segment size for ggrepel text
+##' @param sep character string used to separate the genes when concatenating
 ##' @examples
 ##' \dontrun{
 ##'   hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")

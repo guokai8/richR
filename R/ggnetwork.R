@@ -1,6 +1,6 @@
 ##' generate network based on Enrichment results
 ##' @rdname ggnetwork
-##' @param object data.frame object
+##' @param object richResult,GSEAResult object or dataframe
 ##' @param gene vector contains gene names or dataframe with DEGs information
 ##' @param top number of terms to display
 ##' @param pvalue cutoff value of pvalue (if padj set as NULL)
@@ -175,7 +175,7 @@ ggnetwork_internal<-function (object=object,gene=gene,top = 50, pvalue = 0.05, p
 
 ##' network for Enrichment results
 ##' @rdname ggnetwork
-##' @param object data.frame object
+##' @param object richResult,GSEAResult object or dataframe
 ##' @param gene vector contains gene names or dataframe with DEGs information
 ##' @param top number of terms to display
 ##' @param pvalue cutoff value of pvalue (if padj set as NULL)
@@ -211,7 +211,7 @@ setMethod("ggnetwork", signature(object = "richResult"),definition = function(ob
 })
 ##' network for Enrichment results
 ##' @rdname ggnetwork
-##' @param object data.frame object
+##' @param object richResult,GSEAResult object or dataframe
 ##' @param gene vector contains gene names or dataframe with DEGs information
 ##' @param top number of terms to display
 ##' @param pvalue cutoff value of pvalue (if padj set as NULL)

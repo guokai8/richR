@@ -14,4 +14,12 @@ mutate.richResult <- function(.data, ...) {
 ##' @export
 mutate.GSEAResult <- mutate.richResult
 
-
+##' @importFrom magrittr %<>%
+##' @importFrom dplyr mutate
+##' @importFrom rlang quos
+##' @export
+mutate.Annot<- function(.data, ...) {
+  dots <- quos(...)
+  .data@annot %<>% mutate(!!!dots)
+  return(.data)
+}

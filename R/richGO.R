@@ -54,7 +54,7 @@ richGO_internal<-function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,
   }
   rownames(resultFis)<-resultFis$Annot
   if(!is.null(filename)){
-    write.table(resultFis,file=paste(filename,ontology,"res.txt",sep="_"),sep="\t",quote=F,row.names=F)
+    write.table(resultFis,file=paste(filename,".txt",sep=""),sep="\t",quote=F,row.names=F)
   }
   if(is.data.frame(x)){
     detail<-getdetail(resultFis,x,sep=sep)

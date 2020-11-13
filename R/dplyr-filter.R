@@ -13,5 +13,12 @@ filter.richResult <- function(.data, ..., .preserve = FALSE) {
 ##' @export
 filter.GSEAResult <- filter.richResult
 
-
-
+##' @importFrom dplyr filter
+##' @importFrom magrittr %<>%
+##' @method filter Annot
+##' @export
+filter.Annot<- function(.data, ..., .preserve = FALSE) {
+  dots <- quos(...)
+  .data@annot %<>% filter(!!!dots, .preserve = .preserve)
+  return(.data)
+}

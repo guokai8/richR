@@ -578,3 +578,22 @@ rbind.GSEAResult<-function(...){
 .clean.char<-function(x){
   return(gsub('\\\n',' ',x))
 }
+
+##'
+setAs(from = "richResult", to = "data.frame", def = function(from){
+  result <- as.data.frame(from@result)
+  result
+})
+##'
+setAs(from = "GSEAResult", to = "data.frame", def = function(from){
+  result <- as.data.frame(from@result)
+  result
+})
+
+##'
+setAs(from = "Annot", to = "data.frame", def = function(from){
+  result <- as.data.frame(from@annot)
+  result
+})
+
+
