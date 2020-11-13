@@ -113,7 +113,7 @@ ggbar_internal<-function(resultFis,top=50,pvalue=0.05,order=FALSE,horiz=TRUE,
 ##' @export
 ##' @author Kai Guo
 setMethod("ggbar", signature(object = "richResult"),definition = function(object,top=50,pvalue=0.05,padj=NULL,order=FALSE,
-                   usePadj=TRUE,fontsize.x=10,fontsize.y=10,fontsize.text=3,angle=0,filename=NULL,
+                   usePadj=TRUE,fontsize.x=10,fontsize.y=10,fontsize.text=3,angle=75,filename=NULL,
                    width=10,height=8,horiz=TRUE,...) {
             ggbar_internal(object@result,top=top,pvalue=pvalue,padj=padj,order=order,
                            usePadj=usePadj,fontsize.x=fontsize.x,fontsize.y=fontsize.y,fontsize.text = fontsize.text,angle=angle,filename=filename,horiz=horiz, ...)
@@ -147,7 +147,7 @@ setMethod("ggbar", signature(object = "richResult"),definition = function(object
 ##' @export
 ##' @author Kai Guo
 setMethod("ggbar", signature(object = "data.frame"),definition = function(object,top=50,pvalue=0.05,padj=NULL,order=FALSE,
-                                                                          usePadj=TRUE,fontsize.x=10,fontsize.y=10,fontsize.text=3,angle=0,filename=NULL,
+                                                                          usePadj=TRUE,fontsize.x=10,fontsize.y=10,fontsize.text=3,angle=75,filename=NULL,
                                                                           width=10,height=8,horiz=horiz,...) {
   ggbar_internal(object,top=top,pvalue=pvalue,padj=padj,order=order,
                  usePadj=usePadj,fontsize.x=fontsize.x,fontsize.y=fontsize.y,fontsize.text = fontsize.text,angle=angle,filename=filename, ...)
