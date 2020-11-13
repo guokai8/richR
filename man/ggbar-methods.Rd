@@ -11,16 +11,54 @@ ggbar(
   padj = NULL,
   order = FALSE,
   usePadj = TRUE,
+  fontsize.x = 10,
+  fontsize.y = 10,
+  fontsize.text = 3,
+  angle = 0,
+  filename = NULL,
+  width = 10,
+  height = 8,
+  horiz = TRUE,
   ...
 )
 }
 \arguments{
-\item{object}{richResult or dataframe}
+\item{object}{enrichment result or data.frame}
 
-\item{...}{additional parameters}
+\item{top}{number of terms you want to display,}
+
+\item{pvalue}{cutoff value of pvalue (if padj set as NULL)}
+
+\item{padj}{cutoff value of p adjust value}
+
+\item{usePadj}{use p adjust value as color or not (should use with padj)}
+
+\item{fontsize.x}{fontsize of x axis}
+
+\item{fontsize.y}{fontsize of y axis}
+
+\item{filename}{figure output name}
+
+\item{width}{figure width}
+
+\item{height}{figure height}
+
+\item{horiz}{horiz or not}
+
+\item{low}{low color}
+
+\item{high}{high color}
+
+\item{alpha}{transparency alpha}
+
+\item{font.x}{font of x axis}
+
+\item{font}{y font of y axis}
+
+\item{font.size}{font size for xlim or ylim}
 }
 \value{
-plot
+ggplot2 object
 }
 \description{
 ggbar

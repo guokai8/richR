@@ -37,12 +37,50 @@ ggnetwork(
 )
 }
 \arguments{
-\item{object}{richResult object or dataframe}
+\item{object}{richResult,GSEAResult object or dataframe}
 
-\item{...}{additional paramters}
+\item{gene}{vector contains gene names or dataframe with DEGs information}
+
+\item{top}{number of terms to display}
+
+\item{pvalue}{cutoff value of pvalue (if padj set as NULL)}
+
+\item{padj}{cutoff value of p adjust value}
+
+\item{usePadj}{use p adjust value as color or not (should use with padj)}
+
+\item{low}{color used for small value}
+
+\item{high}{color used for large value}
+
+\item{weightcut}{cutoff valule for edge}
+
+\item{writeCyt}{write out the cytoscape file}
+
+\item{cytoscapeFile}{output cytoscape File}
+
+\item{label.color}{label color}
+
+\item{label.size}{label size}
+
+\item{layout}{layout for the network (layout.fruchterman.reingold)}
+
+\item{savefig}{save the figure or not}
+
+\item{filename}{figure output name}
+
+\item{width}{figure width}
+
+\item{height}{figure height}
+
+\item{segment.size}{size for label segment}
+
+\item{node.alpha}{alpha-transparency scales}
+
+\item{label.font}{label font}
 }
 \value{
-plot
+ggplot2 object
 }
 \description{
 ggnetwork

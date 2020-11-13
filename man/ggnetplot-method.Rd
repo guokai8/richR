@@ -33,10 +33,50 @@ ggnetplot(
 \arguments{
 \item{object}{richResult or dataframe}
 
-\item{...}{additional parameters}
+\item{top}{number of terms to show (default: 50)}
+
+\item{pvalue}{cutoff p value for enrichment result}
+
+\item{padj}{cutoff p adjust value for enrichment result}
+
+\item{usePadj}{use adjust p value for the color or not}
+
+\item{useTerm}{use terms for nodes (default: TRUE)}
+
+\item{low}{color used for small value}
+
+\item{high}{color used for large value}
+
+\item{writeCyt}{write out the cytoscape file}
+
+\item{cytoscapeFile}{output cytoscape File}
+
+\item{label.color}{label color}
+
+\item{label.size}{label size}
+
+\item{node.shape}{shape of the node}
+
+\item{layout}{layout method}
+
+\item{savefig}{save figures or not}
+
+\item{filename}{output figure name}
+
+\item{width}{width for output figure}
+
+\item{height}{height for output figure}
+
+\item{node.alpha}{alpha-transparency scales}
+
+\item{repel}{use ggrepel text function or not}
+
+\item{segment.size}{segment size for ggrepel text}
+
+\item{sep}{character string used to separate the genes when concatenating}
 }
 \value{
-plot
+ggplot2 object
 }
 \description{
 ggnetplot

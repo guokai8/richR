@@ -25,12 +25,40 @@ ggdot(
 )
 }
 \arguments{
-\item{object}{richResult or dataframe}
+\item{object}{enrichment result or data.frame}
 
-\item{...}{additional parameters}
+\item{top}{number of terms you want to display,}
+
+\item{pvalue}{cutoff value of pvalue (if padj set as NULL)}
+
+\item{low}{low color}
+
+\item{high}{high color}
+
+\item{alpha}{transparency alpha}
+
+\item{font.x}{font of x axis}
+
+\item{fontsize.x}{fontsize of x axis}
+
+\item{fontsize.y}{fontsize of y axis}
+
+\item{padj}{cutoff value of p adjust value}
+
+\item{usePadj}{use p adjust value as color or not (should use with padj)}
+
+\item{filename}{figure output name}
+
+\item{width}{figure width}
+
+\item{height}{figure height}
+
+\item{font}{y font of y axis}
+
+\item{font.size}{font size for xlim or ylim}
 }
 \value{
-plot
+ggplot2 object
 }
 \description{
 ggdot

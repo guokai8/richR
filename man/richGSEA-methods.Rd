@@ -21,11 +21,23 @@ richGSEA(
 )
 }
 \arguments{
-\item{x}{vector contains gene names}
+\item{x}{a vector include all log2FC with gene name}
 
-\item{object}{Annot object or dataframe}
+\item{object}{annotation file for all genes}
 
-\item{...}{additional parameters}
+\item{pvalue}{pvalue cutoff value}
+
+\item{padj}{adjust p value cut off method}
+
+\item{minSize}{Minimal size of a gene set to test. All pathways below the threshold are excluded.}
+
+\item{maxSize}{Maximal size of a gene set to test. All pathways above the threshold are excluded.}
+
+\item{padj.method}{p value adjust method}
+
+\item{table}{leadingEdge as vector}
+
+\item{sep}{character string used to separate the genes when concatenating}
 }
 \value{
 GSEAResult

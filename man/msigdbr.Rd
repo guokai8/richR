@@ -17,13 +17,7 @@ buildMSIGDB(
 
 \item{keytype}{the gene ID type}
 
-\item{anntype}{Gene Set anntype}
-
-\item{category}{Gene set category}
-
-\item{save}{save the dataset or not}
-
-\item{path}{path to save the dataset}
+\item{anntype}{gene set anntype (GO,BP,CC,MF,KEGG,REACTOME,BIOCARTA)}
 }
 \description{
 Download database from Msigdb and prepare for enrichment analysis

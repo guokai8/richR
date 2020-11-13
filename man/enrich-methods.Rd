@@ -22,11 +22,29 @@ enrich(
 )
 }
 \arguments{
-\item{x}{vector contains gene names}
+\item{x}{vector contains gene names or dataframe with DEGs information}
 
-\item{annot}{Annotation object or dataframe}
+\item{annot}{ontology type}
 
-\item{...}{additional parameters}
+\item{pvalue}{cutoff pvalue}
+
+\item{padj}{cutoff p adjust value}
+
+\item{organism}{organism}
+
+\item{keytype}{keytype for input genes}
+
+\item{filename}{output filename}
+
+\item{minSize}{minimal number of genes included in significant terms}
+
+\item{maxSize}{maximum number of genes included in significant terms}
+
+\item{keepRich}{keep terms with rich factor value equal 1 or not (default: TRUE)}
+
+\item{padj.method}{pvalue adjust method(default:"BH")}
+
+\item{sep}{character string used to separate the genes when concatenating}
 }
 \value{
 richResult

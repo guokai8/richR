@@ -10,7 +10,6 @@
   pvalue = 0.05,
   padj = NULL,
   organism = NULL,
-  ontology = "",
   keytype = "",
   filename = NULL,
   minSize = 2,
@@ -23,13 +22,13 @@
 \arguments{
 \item{x}{vector contains gene names or dataframe with DEGs information}
 
+\item{annot}{ontology type}
+
 \item{pvalue}{cutoff pvalue}
 
 \item{padj}{cutoff p adjust value}
 
 \item{organism}{organism}
-
-\item{ontology}{ontology type}
 
 \item{keytype}{keytype for input genes}
 
