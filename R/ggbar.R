@@ -150,5 +150,5 @@ setMethod("ggbar", signature(object = "data.frame"),definition = function(object
                                                                           usePadj=TRUE,fontsize.x=10,fontsize.y=10,fontsize.text=3,angle=75,filename=NULL,
                                                                           width=10,height=8,horiz=TRUE,...) {
   ggbar_internal(object,top=top,pvalue=pvalue,padj=padj,order=order,
-                 usePadj=usePadj,fontsize.x=fontsize.x,fontsize.y=fontsize.y,fontsize.text = fontsize.text,angle=angle,filename=filename, ...)
+                 usePadj=usePadj,fontsize.x=fontsize.x,fontsize.y=fontsize.y,fontsize.text = fontsize.text,angle=angle,filename=filename,width=width,height=height,horiz=horiz,...)
           })
