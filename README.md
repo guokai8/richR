@@ -1,4 +1,4 @@
-# richR <a href="https://travis-ci.org/guokai8/richR"><img src="https://travis-ci.org/guokai8/richR.svg" alt="Build status"></a>  [![Project Status:](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)  [![](https://img.shields.io/badge/devel%20version-0.0.15-green.svg)](https://github.com/guokai8/richR) ![](https://img.shields.io/github/languages/code-size/guokai8/richR)
+# richR <a href="https://travis-ci.org/guokai8/richR"><img src="https://travis-ci.org/guokai8/richR.svg" alt="Build status"></a>  [![Project Status:](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)  [![](https://img.shields.io/badge/devel%20version-0.0.16-green.svg)](https://github.com/guokai8/richR) ![](https://img.shields.io/github/languages/code-size/guokai8/richR)
 ## Description
 _richR_ provide functions _richGO_, _richKEGG_,and _enrich_ to do functional enrichment analysis. 
 ## Installation
