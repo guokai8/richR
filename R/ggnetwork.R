@@ -42,9 +42,9 @@
 ##' @importFrom magrittr %>%
 ##' @author Kai Guo
 ggnetwork_internal<-function (object=object,gene=gene,top = 50, pvalue = 0.05, padj = NULL,usePadj=TRUE,low = "orange",high = "red",
-                              weightcut = 0.2, useTerm = TRUE, writeCyt = FALSE,cytoscapeFile = "network-file-for-cytoscape.graphml",
+                              weightcut = 0.2, useTerm = TRUE, writeCyt = FALSE,cytoscapeFile = NULL,
                               label.color = "black", label.size = 2,node.shape=NULL, layout = layout.fruchterman.reingold,savefig=FALSE,
-                              visNet=FALSE,smooth=TRUE,nodeselect=FALSE,edit=FALSE,savehtml=FALSE,filename="network",
+                              visNet=FALSE,smooth=TRUE,nodeselect=FALSE,edit=FALSE,savehtml=FALSE,filename=NULL,
                               width=7,height=7,segment.size=0.2,node.alpha=0.7,sep=",",...){
   if (!is.null(padj)) {
     object <- object[object$Padj < padj, ]
@@ -115,6 +115,9 @@ ggnetwork_internal<-function (object=object,gene=gene,top = 50, pvalue = 0.05, p
   wn <- wn[wn[, 1] != wn[, 2], ]
   wn <- wn[!is.na(wn[, 3]), ]
   wn <- wn[wn[, 3] > 0, ]
+  if(nrow(wn)==0){
+    stop("All the terms share no overlap!")
+  }
   g <- graph.data.frame(wn[, -3], directed = F)
   E(g)$width = sqrt(wn[, 3] * 5)
   pvalue = pvalue[V(g)$name]
@@ -135,9 +138,6 @@ ggnetwork_internal<-function (object=object,gene=gene,top = 50, pvalue = 0.05, p
     names(gs) <- object$Annot
   }
   V(g)$size <- log(gs[V(g)$name], base = 10) * 10
-  if (writeCyt == TRUE) {
-    write_graph(g, file = cytoscapeFile, format="graphml")
-  }
   if(!is.null(node.shape)){
     node.shape=rep(20,length(V(g)$name))
     names(node.shape)<-V(g)$name
@@ -146,7 +146,14 @@ ggnetwork_internal<-function (object=object,gene=gene,top = 50, pvalue = 0.05, p
     node.shape=rep(20,length(V(g)$name))
     names(node.shape)<-V(g)$name
   }
-
+  if (isTRUE(writeCyt)) {
+    if(is.null(cytoscapeFile)){
+      cytoscapeFile="cytoscape-network.graphml"
+    }else{
+      cytoscapeFile=paste0(cytoscapeFile,".graphml")
+    }
+    write_graph(g, file = cytoscapeFile, format="graphml")
+  }
   if (isTRUE(visNet)) {
     graph <- visIgraph(g, smooth = smooth)
     if(nodeselect==TRUE){
@@ -155,10 +162,12 @@ ggnetwork_internal<-function (object=object,gene=gene,top = 50, pvalue = 0.05, p
     }
     if(edit==TRUE){
       graph<-graph%>%visInteraction(navigationButtons = TRUE)%>%visOptions(manipulation = TRUE)
-
     }
     if(savehtml==TRUE){
-      visSave(graph,file = paste(filename,"html",sep="."))
+      if(is.null(filename)){
+        filename="network"
+      }
+      visSave(graph,file = paste0(filename,".html"))
     }
     graph
   }else{
@@ -168,7 +177,10 @@ ggnetwork_internal<-function (object=object,gene=gene,top = 50, pvalue = 0.05, p
                     size=label.size,segment.size=segment.size,color=label.color)+
     theme(legend.position = "none")
   if(savefig==TRUE){
-    ggsave(p,file=paste(filename,"pdf",sep="."),width=width,height = height)
+    if(is.null(filename)){
+      filename="network"
+    }
+    ggsave(p,file=paste0(filename,".pdf"),width=width,height = height)
   }
   print(p)
   }
@@ -200,11 +212,11 @@ ggnetwork_internal<-function (object=object,gene=gene,top = 50, pvalue = 0.05, p
 ##' @export
 ##' @author Kai Guo
 setMethod("ggnetwork", signature(object = "richResult"),definition = function(object,top = 50, pvalue = 0.05, padj = NULL,usePadj=TRUE,low = "orange",high = "red",
-                                                                              weightcut = 0.2, useTerm = TRUE, writeCyt = FALSE,cytoscapeFile = "network-file-for-cytoscape.txt",
+                                                                              weightcut = 0.2, useTerm = TRUE, writeCyt = FALSE,cytoscapeFile = NULL,
                                                                               label.color = "black", label.size = 2,node.shape=NULL, layout = layout.fruchterman.reingold,savefig=FALSE,
-                                                                              visNet=FALSE,smooth=TRUE,nodeselect=FALSE,edit=FALSE,savehtml=FALSE,filename="network",
+                                                                              visNet=FALSE,smooth=TRUE,nodeselect=FALSE,edit=FALSE,savehtml=FALSE,filename=NULL,
                                                                               width=7,height=7,segment.size=0.2,node.alpha=0.7,...) {
-  ggnetwork_internal(object@result,gene=object@gene,top=top,pvalue=pvalue,padj=padj,usePadj=usePadj,weightcut=weightcut,useTerm=useTerm,writeCyt=writeCyt,
+  ggnetwork_internal(object@result,gene=object@gene,top=top,pvalue=pvalue,padj=padj,usePadj=usePadj,weightcut=weightcut,useTerm=useTerm,writeCyt=writeCyt,cytoscapeFile=cytoscapeFile,
                      label.font=label.font,label.color=label.color,label.size=label.size,node.shape=node.shape,
                      layout=layout,savefig=savefig,width=width,height=height,
                      visNet=visNet,smooth=smooth,nodeselect=nodeselect,edit=edit,
@@ -235,12 +247,12 @@ setMethod("ggnetwork", signature(object = "richResult"),definition = function(ob
 ##' @param height figure height
 ##' @export
 ##' @author Kai Guo
-setMethod("ggnetwork", signature(object = "data.frame"),definition = function(object,gene,top = 50, pvalue = 0.05, padj = NULL,usePadj=TRUE,low = "orange",high = "red",
-                                                                              weightcut = 0.2, useTerm = TRUE, writeCyt = FALSE,cytoscapeFile = "network-file-for-cytoscape.txt",
+setMethod("ggnetwork", signature(object = "data.frame"),definition = function(object,gene=NULL,top = 50, pvalue = 0.05, padj = NULL,usePadj=TRUE,low = "orange",high = "red",
+                                                                              weightcut = 0.2, useTerm = TRUE, writeCyt = FALSE,cytoscapeFile = NULL,
                                                                               label.color = "black", label.size = 2,node.shape=NULL, layout = layout.fruchterman.reingold,savefig=FALSE,
-                                                                              visNet=FALSE,smooth=TRUE,nodeselect=FALSE,edit=FALSE,savehtml=FALSE,filename="network",
+                                                                              visNet=FALSE,smooth=TRUE,nodeselect=FALSE,edit=FALSE,savehtml=FALSE,filename=NULL,
                                                                               width=7,height=7,segment.size=0.2,node.alpha=0.7,sep=",",...) {
-  ggnetwork_internal(object,gene=gene,top=top,pvalue=pvalue,padj=padj,usePadj=usePadj,weightcut=weightcut,useTerm=useTerm,writeCyt=writeCyt,
+  ggnetwork_internal(object,gene=gene,top=top,pvalue=pvalue,padj=padj,usePadj=usePadj,weightcut=weightcut,useTerm=useTerm,writeCyt=writeCyt,cytoscapeFile=cytoscapeFile,
                      label.font=label.font,label.color=label.color,label.size=label.size,node.shape=node.shape,
                      layout=layout,savefig=savefig,width=width,height=height,
                      visNet=visNet,smooth=smooth,nodeselect=nodeselect,edit=edit,
@@ -273,7 +285,7 @@ setMethod("ggnetwork", signature(object = "data.frame"),definition = function(ob
 ##' @export
 ##' @author Kai Guo
 setMethod("ggnetwork", signature(object = "GSEAResult"),definition = function(object,gene,top = 50, pvalue = 0.05, padj = NULL,usePadj=TRUE,low = "orange",high = "red",
-                                                                              weightcut = 0.2, useTerm = TRUE, writeCyt = FALSE,cytoscapeFile = "network-file-for-cytoscape.txt",
+                                                                              weightcut = 0.2, useTerm = TRUE, writeCyt = FALSE,cytoscapeFile = NULL,
                                                                               label.color = "black", label.size = 2,node.shape=NULL, layout = layout.fruchterman.reingold,savefig=FALSE,
                                                                               visNet=FALSE,smooth=TRUE,nodeselect=FALSE,edit=FALSE,savehtml=FALSE,filename="network",
                                                                               width=7,height=7,segment.size=0.2,node.alpha=0.7,...) {
@@ -284,7 +296,7 @@ setMethod("ggnetwork", signature(object = "GSEAResult"),definition = function(ob
   object@result$Annot<-object@result$pathway
   object@result<-object@result[,c(9,1:3,7,8)]
   colnames(object@result)<-c("Annot","Term","Pvalue","Padj","Significant","GeneID")
-  ggnetwork_internal(object@result,gene=object@gene,top=top,pvalue=pvalue,padj=padj,usePadj=usePadj,weightcut=weightcut,useTerm=useTerm,writeCyt=writeCyt,
+  ggnetwork_internal(object@result,gene=object@gene,top=top,pvalue=pvalue,padj=padj,usePadj=usePadj,weightcut=weightcut,useTerm=useTerm,writeCyt=writeCyt,cytoscapeFile=cytoscapeFile,
                      label.font=label.font,label.color=label.color,label.size=label.size,node.shape=node.shape,
                      layout=layout,savefig=savefig,width=width,height=height,
                      visNet=visNet,smooth=smooth,nodeselect=nodeselect,edit=edit,
