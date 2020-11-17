@@ -37,7 +37,7 @@ ggbar_internal(
   fontsize.x = 10,
   fontsize.y = 10,
   fontsize.text = 3,
-  angle = 0,
+  angle = 75,
   filename = NULL,
   width = 10,
   height = 8,
@@ -55,11 +55,11 @@ ggbar_internal(
   fontsize.x = 10,
   fontsize.y = 10,
   fontsize.text = 3,
-  angle = 0,
+  angle = 75,
   filename = NULL,
   width = 10,
   height = 8,
-  horiz = horiz,
+  horiz = TRUE,
   ...
 )
 }
