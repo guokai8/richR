@@ -34,6 +34,7 @@
 ##' @importFrom igraph E<-
 ##' @importFrom igraph V
 ##' @importFrom igraph V<-
+##' @importFrom igraph write_graph
 ##' @importFrom visNetwork visIgraph
 ##' @importFrom visNetwork visSave
 ##' @importFrom visNetwork visInteraction
