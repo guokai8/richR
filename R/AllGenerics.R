@@ -120,7 +120,7 @@ setGeneric("richGSEA", function(x,object,keytype="",pvalue=0.05,padj=NULL,minSiz
 ##' }
 ##' @export
 ##' @author Kai Guo
-setGeneric("enrich", function(x,annot,pvalue=0.05,padj=NULL,organism=NULL,ontology="",
+setGeneric("enrich", function(x,annot,ontology=NULL,pvalue=0.05,padj=NULL,organism=NULL,ontology="",
                               keytype="",filename=NULL,minSize=2,maxSize=500,
                               keepRich=TRUE,padj.method="BH",sep=",",...)
   standardGeneric("enrich"))
