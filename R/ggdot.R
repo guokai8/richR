@@ -24,6 +24,7 @@
 ##' @param font y font of y axis
 ##' @param fontsize.x fontsize of x axis
 ##' @param fontsize.y fontsize of y axis
+##' @param short automatic short name or not
 ##' @param padj cutoff value of p adjust value
 ##' @param usePadj use p adjust value as color or not (should use with padj)
 ##' @param font.size font size for xlim or ylim
@@ -33,6 +34,7 @@
 ggdot_internal<-function(object,top=50,pvalue=0.05,order=FALSE,
                          low="lightpink",high="red",alpha=0.7,
                          font.x="bold",font.y="bold",fontsize.x=10,fontsize.y=10,
+                         short=FALSE,
                          padj=NULL,usePadj=TRUE,filename=NULL,width=10,height=8){
   if(!is.null(padj)){
     object<-object[object$Padj<padj,]
@@ -47,7 +49,9 @@ ggdot_internal<-function(object,top=50,pvalue=0.05,order=FALSE,
   if(nrow(dd)>=1){
     dd[,3]<-dd[,4]/dd[,3]
     colnames(dd)[3]<-"rich";
-    dd$Term<-unlist(lapply(dd$Term,function(x).paste.char(x)))
+    if(isTRUE(short)){
+      dd$Term<-unlist(lapply(dd$Term,function(x).paste.char(x)))
+    }
     if(order==TRUE){
       dd$Term<-factor(dd$Term,levels=dd$Term[order(dd$rich)])
     }
@@ -81,6 +85,7 @@ ggdot_internal<-function(object,top=50,pvalue=0.05,order=FALSE,
 ##' @param font y font of y axis
 ##' @param fontsize.x fontsize of x axis
 ##' @param fontsize.y fontsize of y axis
+##' @param short automatic short name or not
 ##' @param padj cutoff value of p adjust value
 ##' @param usePadj use p adjust value as color or not (should use with padj)
 ##' @param font.size font size for xlim or ylim
@@ -99,6 +104,7 @@ ggdot_internal<-function(object,top=50,pvalue=0.05,order=FALSE,
 setMethod("ggdot", signature(object = "richResult"),definition = function(object,top=50,pvalue=0.05,order=FALSE,
                                                                           low="lightpink",high="red",alpha=0.7,
                                                                           font.x="bold",font.y="bold",fontsize.x=10,fontsize.y=10,
+                                                                          short=FALSE,
                                                                           padj=NULL,usePadj=TRUE,filename=NULL,width=10,height=8) {
             ggdot_internal(object@result,top=top,pvalue=pvalue,order=order,
                            low=low,high=high,alpha=alpha,
@@ -117,6 +123,7 @@ setMethod("ggdot", signature(object = "richResult"),definition = function(object
 ##' @param font y font of y axis
 ##' @param fontsize.x fontsize of x axis
 ##' @param fontsize.y fontsize of y axis
+##' @param short automatic short name or not
 ##' @param padj cutoff value of p adjust value
 ##' @param usePadj use p adjust value as color or not (should use with padj)
 ##' @param font.size font size for xlim or ylim
@@ -135,6 +142,7 @@ setMethod("ggdot", signature(object = "richResult"),definition = function(object
 setMethod("ggdot", signature(object = "data.frame"),definition = function(object,top=50,pvalue=0.05,order=FALSE,
                                                                           low="lightpink",high="red",alpha=0.7,
                                                                           font.x="bold",font.y="bold",fontsize.x=10,fontsize.y=10,
+                                                                          short=FALSE,
                                                                           padj=NULL,usePadj=TRUE,filename=NULL,width=10,height=8) {
             ggdot_internal(object,top=top,pvalue=pvalue,order=order,
                            low=low,high=high,alpha=alpha,

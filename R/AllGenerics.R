@@ -120,7 +120,7 @@ setGeneric("richGSEA", function(x,object,keytype="",pvalue=0.05,padj=NULL,minSiz
 ##' }
 ##' @export
 ##' @author Kai Guo
-setGeneric("enrich", function(x,annot,ontology=NULL,pvalue=0.05,padj=NULL,organism=NULL,ontology="",
+setGeneric("enrich", function(x,annot,ontology="",pvalue=0.05,padj=NULL,organism=NULL,
                               keytype="",filename=NULL,minSize=2,maxSize=500,
                               keepRich=TRUE,padj.method="BH",sep=",",...)
   standardGeneric("enrich"))
@@ -141,6 +141,7 @@ setGeneric("enrich", function(x,annot,ontology=NULL,pvalue=0.05,padj=NULL,organi
 ##' @param font y font of y axis
 ##' @param fontsize.x fontsize of x axis
 ##' @param fontsize.y fontsize of y axis
+##' @param short automatic short name or not
 ##' @param padj cutoff value of p adjust value
 ##' @param usePadj use p adjust value as color or not (should use with padj)
 ##' @param font.size font size for xlim or ylim
@@ -160,6 +161,7 @@ setGeneric("enrich", function(x,annot,ontology=NULL,pvalue=0.05,padj=NULL,organi
 setGeneric("ggdot", function(object,top=50,pvalue=0.05,order=FALSE,
                              low="lightpink",high="red",alpha=0.7,
                              font.x="bold",font.y="bold",fontsize.x=10,fontsize.y=10,
+                             short=FALSE,
                              padj=NULL,usePadj=TRUE,filename=NULL,width=10,height=8,...)
     standardGeneric("ggdot"))
 
@@ -178,6 +180,7 @@ setGeneric("ggdot", function(object,top=50,pvalue=0.05,order=FALSE,
 ##' @param font y font of y axis
 ##' @param fontsize.x fontsize of x axis
 ##' @param fontsize.y fontsize of y axis
+##' @param short automatic short name or not
 ##' @param padj cutoff value of p adjust value
 ##' @param usePadj use p adjust value as color or not (should use with padj)
 ##' @param font.size font size for xlim or ylim
@@ -196,7 +199,7 @@ setGeneric("ggdot", function(object,top=50,pvalue=0.05,order=FALSE,
 ##' @export
 ##' @author Kai Guo
 setGeneric("ggbar", function(object,top=50,pvalue=0.05,padj=NULL,order=FALSE,
-                             usePadj=TRUE,fontsize.x=10,fontsize.y=10,fontsize.text=3,angle=0,filename=NULL,
+                             usePadj=TRUE,fontsize.x=10,fontsize.y=10,short=FALSE,fontsize.text=3,angle=0,filename=NULL,
                              width=10,height=8,horiz=TRUE,...)
     standardGeneric("ggbar"))
 ##' ggnetplot

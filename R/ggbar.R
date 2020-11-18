@@ -22,6 +22,7 @@
 ##' @param font y font of y axis
 ##' @param fontsize.x fontsize of x axis
 ##' @param fontsize.y fontsize of y axis
+##' @param short automatic short name or not
 ##' @param padj cutoff value of p adjust value
 ##' @param usePadj use p adjust value as color or not (should use with padj)
 ##' @param font.size font size for xlim or ylim
@@ -32,6 +33,7 @@
 ggbar_internal<-function(resultFis,top=50,pvalue=0.05,order=FALSE,horiz=TRUE,
                          low="lightpink",high="red",
                          font.x="bold",font.y="bold",fontsize.x=10,fontsize.y=10,
+                         short=FALSE,
                          fontsize.text=3,angle=75,padj=NULL,usePadj=TRUE,
                          filename=NULL,width=10,height=8){
   if(!is.null(padj)){
@@ -47,7 +49,9 @@ ggbar_internal<-function(resultFis,top=50,pvalue=0.05,order=FALSE,horiz=TRUE,
   }else{
     yheight=1
   }
-  resultFis$Term<-unlist(lapply(resultFis$Term,function(x).paste.char(x)))
+  if(isTRUE(short)){
+    resultFis$Term<-unlist(lapply(resultFis$Term,function(x).paste.char(x)))
+  }
   if(order==TRUE){
     resultFis$rich<-as.numeric(resultFis$Significant)/as.numeric(resultFis$Annotated)
     resultFis$Term<-factor(resultFis$Term,levels=resultFis$Term[order(resultFis$rich)])
@@ -96,6 +100,7 @@ ggbar_internal<-function(resultFis,top=50,pvalue=0.05,order=FALSE,horiz=TRUE,
 ##' @param font y font of y axis
 ##' @param fontsize.x fontsize of x axis
 ##' @param fontsize.y fontsize of y axis
+##' @param short automatic short name or not
 ##' @param padj cutoff value of p adjust value
 ##' @param usePadj use p adjust value as color or not (should use with padj)
 ##' @param font.size font size for xlim or ylim
@@ -113,10 +118,10 @@ ggbar_internal<-function(resultFis,top=50,pvalue=0.05,order=FALSE,horiz=TRUE,
 ##' @export
 ##' @author Kai Guo
 setMethod("ggbar", signature(object = "richResult"),definition = function(object,top=50,pvalue=0.05,padj=NULL,order=FALSE,
-                   usePadj=TRUE,fontsize.x=10,fontsize.y=10,fontsize.text=3,angle=75,filename=NULL,
+                   usePadj=TRUE,fontsize.x=10,fontsize.y=10,short=FALSE,fontsize.text=3,angle=75,filename=NULL,
                    width=10,height=8,horiz=TRUE,...) {
             ggbar_internal(object@result,top=top,pvalue=pvalue,padj=padj,order=order,
-                           usePadj=usePadj,fontsize.x=fontsize.x,fontsize.y=fontsize.y,fontsize.text = fontsize.text,angle=angle,filename=filename,horiz=horiz, ...)
+                           usePadj=usePadj,fontsize.x=fontsize.x,fontsize.y=fontsize.y,short=short,fontsize.text = fontsize.text,angle=angle,filename=filename,horiz=horiz, ...)
           })
 ##' barplot for Enrichment result
 ##' @rdname ggbar
@@ -130,6 +135,7 @@ setMethod("ggbar", signature(object = "richResult"),definition = function(object
 ##' @param font y font of y axis
 ##' @param fontsize.x fontsize of x axis
 ##' @param fontsize.y fontsize of y axis
+##' @param short automatic short name or not
 ##' @param padj cutoff value of p adjust value
 ##' @param usePadj use p adjust value as color or not (should use with padj)
 ##' @param font.size font size for xlim or ylim
@@ -147,8 +153,8 @@ setMethod("ggbar", signature(object = "richResult"),definition = function(object
 ##' @export
 ##' @author Kai Guo
 setMethod("ggbar", signature(object = "data.frame"),definition = function(object,top=50,pvalue=0.05,padj=NULL,order=FALSE,
-                                                                          usePadj=TRUE,fontsize.x=10,fontsize.y=10,fontsize.text=3,angle=75,filename=NULL,
+                                                                          usePadj=TRUE,fontsize.x=10,fontsize.y=10,short=FALSE,fontsize.text=3,angle=75,filename=NULL,
                                                                           width=10,height=8,horiz=TRUE,...) {
   ggbar_internal(object,top=top,pvalue=pvalue,padj=padj,order=order,
-                 usePadj=usePadj,fontsize.x=fontsize.x,fontsize.y=fontsize.y,fontsize.text = fontsize.text,angle=angle,filename=filename,width=width,height=height,horiz=horiz,...)
+                 usePadj=usePadj,fontsize.x=fontsize.x,fontsize.y=fontsize.y,short=short,fontsize.text = fontsize.text,angle=angle,filename=filename,width=width,height=height,horiz=horiz,...)
           })
