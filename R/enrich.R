@@ -148,10 +148,10 @@ setMethod("enrich", signature(annot = "Annot"),definition = function(x,annot,pva
 #' @return Annot object
 #' @examples
 #' \dontrun{
-#'   hsako<-buildAnnot(species="human",keytype="ENTREZID",anntype = "KEGG")
-#'   hsako<-as.data.frame(hsako)
-#'   gene=sample(unique(hsako$GeneID),1000)
-#'   res<-richDAVID(gene,keytype="ENTREZID",species="human")
+#' hsako<-buildAnnot(species="human",keytype="ENTREZID",anntype = "KEGG")
+#' hsako<-as.data.frame(hsako)
+#' gene=sample(unique(hsako$GeneID),1000)
+#' res<-richDAVID(gene,keytype="ENTREZID",species="human")
 #' }
 #' @export
 #' @author Kai Guo
