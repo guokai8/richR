@@ -53,6 +53,7 @@ compareResult<-function(x,pvalue=0.05,padj=NULL){
 ##' @param font.y font of y axis
 ##' @param fontsize.x fontsize of x axis
 ##' @param fontsize.y fontsize of y axis
+##' @param short automatic short name or not
 ##' @param padj cutoff value of p adjust value
 ##' @param usePadj use p adjust value as color or not (should use with padj)
 ##' @param filename figure output name
@@ -74,13 +75,16 @@ compareResult<-function(x,pvalue=0.05,padj=NULL){
 comparedot <- function(x,pvalue=0.05,
                        low="lightpink",high="red",alpha=0.7,
                        font.x="bold",font.y="bold",fontsize.x=10,fontsize.y=10,
+                       short=FALSE,
                        padj=NULL,usePadj=TRUE,filename=NULL,width=10,height=8){
   if(!is.null(padj)){
     x<-x[x$Padj<padj,]
   }else{
     x<-x[x$Pvalue<pvalue,]
   }
-  x$Term <- unlist(lapply(x$Term,function(x).paste.char(x)))
+  if(isTRUE(short)){
+      x$Term <- unlist(lapply(x$Term,function(x).paste.char(x)))
+  }
   if(isTRUE(usePadj)){
     p<-ggplot(x,aes(x=group,y=Term))+geom_point(aes(size=Significant,color=-log10(Padj)),alpha=alpha)+theme_minimal()+
       theme(axis.text.y=element_text(face=font.y,size=fontsize.y),axis.text.x=element_text(face=font.x,color="black",size=fontsize.x))+
