@@ -19,10 +19,10 @@
 ##' @return richResult
 ##' @examples
 #' \dontrun{
-#'   hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "GO")
-#'   hsago<-as.data.frame(hsago)
-#'   gene=sample(unique(hsago$GeneID),1000)
-#'   res<-richGO(gene,godata = hsago,ontology ="BP")
+#' hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "GO")
+#' hsago<-as.data.frame(hsago)
+#' gene=sample(unique(hsago$GeneID),1000)
+#' res<-richGO(gene,godata = hsago,ontology ="BP")
 #' }
 ##' @export
 ##' @author Kai Guo
@@ -115,6 +115,8 @@ setGeneric("richGSEA", function(x,object,keytype="",pvalue=0.05,padj=NULL,minSiz
 ##' library(bioAnno)
 ##' fromKEGG(species="ath")
 ##' athgo<-buildOwn(dbname="org.ath.eg.db",anntype="GO")
+##' athgo<-as.data.frame(athgo)
+##' athgo<-na.omit(athgo)
 ##' gene=sample(unique(athgo$GeneID),1000)
 ##' res<-enrich(gene,athgo)
 ##' }
