@@ -17,6 +17,7 @@
   font.y = "bold",
   fontsize.x = 10,
   fontsize.y = 10,
+  short = FALSE,
   padj = NULL,
   usePadj = TRUE,
   filename = NULL,
@@ -36,6 +37,7 @@
   font.y = "bold",
   fontsize.x = 10,
   fontsize.y = 10,
+  short = FALSE,
   padj = NULL,
   usePadj = TRUE,
   filename = NULL,
@@ -61,6 +63,8 @@
 \item{fontsize.x}{fontsize of x axis}
 
 \item{fontsize.y}{fontsize of y axis}
+
+\item{short}{automatic short name or not}
 
 \item{padj}{cutoff value of p adjust value}
 

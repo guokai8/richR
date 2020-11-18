@@ -18,6 +18,7 @@ ggbar_internal(
   font.y = "bold",
   fontsize.x = 10,
   fontsize.y = 10,
+  short = FALSE,
   fontsize.text = 3,
   angle = 75,
   padj = NULL,
@@ -36,6 +37,7 @@ ggbar_internal(
   usePadj = TRUE,
   fontsize.x = 10,
   fontsize.y = 10,
+  short = FALSE,
   fontsize.text = 3,
   angle = 75,
   filename = NULL,
@@ -54,6 +56,7 @@ ggbar_internal(
   usePadj = TRUE,
   fontsize.x = 10,
   fontsize.y = 10,
+  short = FALSE,
   fontsize.text = 3,
   angle = 75,
   filename = NULL,
@@ -79,6 +82,8 @@ ggbar_internal(
 \item{fontsize.x}{fontsize of x axis}
 
 \item{fontsize.y}{fontsize of y axis}
+
+\item{short}{automatic short name or not}
 
 \item{padj}{cutoff value of p adjust value}
 

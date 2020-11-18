@@ -7,10 +7,10 @@
 enrich(
   x,
   annot,
+  ontology = "",
   pvalue = 0.05,
   padj = NULL,
   organism = NULL,
-  ontology = "",
   keytype = "",
   filename = NULL,
   minSize = 2,

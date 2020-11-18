@@ -7,6 +7,7 @@
 enrich_internal(
   x,
   annot,
+  ontology = "",
   pvalue = 0.05,
   padj = NULL,
   organism = NULL,
@@ -23,6 +24,8 @@ enrich_internal(
 \item{x}{vector contains gene names or dataframe with DEGs information}
 
 \item{annot}{ontology type}
+
+\item{ontology}{ontology type}
 
 \item{pvalue}{cutoff pvalue}
 

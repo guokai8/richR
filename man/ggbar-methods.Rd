@@ -13,6 +13,7 @@ ggbar(
   usePadj = TRUE,
   fontsize.x = 10,
   fontsize.y = 10,
+  short = FALSE,
   fontsize.text = 3,
   angle = 0,
   filename = NULL,
@@ -36,6 +37,8 @@ ggbar(
 \item{fontsize.x}{fontsize of x axis}
 
 \item{fontsize.y}{fontsize of y axis}
+
+\item{short}{automatic short name or not}
 
 \item{filename}{figure output name}
 

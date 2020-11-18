@@ -2,11 +2,12 @@
 % Please edit documentation in R/enrich.R
 \name{enrich,ANY,data.frame-method}
 \alias{enrich,ANY,data.frame-method}
-\title{KEGG Pathway Enrichment analysis function}
+\title{Enrichment analysis function}
 \usage{
 \S4method{enrich}{ANY,data.frame}(
   x,
   annot,
+  ontology = "",
   pvalue = 0.05,
   padj = NULL,
   organism = NULL,
@@ -23,6 +24,8 @@
 \item{x}{vector contains gene names or dataframe with DEGs information}
 
 \item{annot}{ontology type}
+
+\item{ontology}{ontology type}
 
 \item{pvalue}{cutoff pvalue}
 
@@ -45,7 +48,7 @@
 \item{sep}{character string used to separate the genes when concatenating}
 }
 \description{
-KEGG Pathway Enrichment analysis function
+Enrichment analysis function
 }
 \author{
 Kai Guo
