@@ -245,7 +245,7 @@ buildMSIGDB<-function(species="human",keytype="SYMBOL",anntype="GO",
   roid<-data.frame("GeneID"=unlist(roid),"Term"=rep(names(roid),times=lapply(roid, length)),row.names=NULL)
   ll<-lapply(lhs,function(x)unique(x))
   roan<-data.frame("Term"=unlist(ll),"Annot"=rep(names(ll),times=lapply(ll,length)),row.names=NULL)
-  roan<-sub('.*@ ','',sub(':','@',roan$Annot))
+  roan$Annot<-sub('.*@ ','',sub(':','@',roan$Annot))
   res<-left_join(roid,roan,by=c("Term"="Term"))
   if(keytype!="ENTREZID"){
     keys = idconvert(species = species,keys = res$GeneID,fkeytype = "ENTREZID",tkeytype = keytype)
