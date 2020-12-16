@@ -19,7 +19,8 @@ comparedot(
   usePadj = TRUE,
   filename = NULL,
   width = 10,
-  height = 8
+  height = 8,
+  include.all = FALSE
 )
 }
 \arguments{
@@ -52,6 +53,8 @@ comparedot(
 \item{width}{figure width}
 
 \item{height}{figure height}
+
+\item{include.all}{include all richResults even empty}
 }
 \description{
 draw dotplot for multiple enrichment results

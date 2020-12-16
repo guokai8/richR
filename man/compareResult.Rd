@@ -4,7 +4,7 @@
 \alias{compareResult}
 \title{compare enrichment results across different samples}
 \usage{
-compareResult(x, pvalue = 0.05, padj = NULL)
+compareResult(x, pvalue = 0.05, padj = NULL, include.all = FALSE)
 }
 \arguments{
 \item{x}{list of richResults}
@@ -12,6 +12,8 @@ compareResult(x, pvalue = 0.05, padj = NULL)
 \item{pvalue}{cutoff pvalue}
 
 \item{padj}{cutoff p adjust value}
+
+\item{include.all}{include all richResults even empty}
 }
 \description{
 compare enrichment results across different samples

@@ -57,6 +57,8 @@ enrich
 library(bioAnno)
 fromKEGG(species="ath")
 athgo<-buildOwn(dbname="org.ath.eg.db",anntype="GO")
+athgo<-as.data.frame(athgo)
+athgo<-na.omit(athgo)
 gene=sample(unique(athgo$GeneID),1000)
 res<-enrich(gene,athgo)
 }
