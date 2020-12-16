@@ -2,6 +2,7 @@
 #' @param x list of richResults
 #' @param pvalue cutoff pvalue
 #' @param padj cutoff p adjust value
+#' @param include.all include all richResults even empty
 #' @examples
 #' \dontrun{
 #' hsako <- buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
@@ -14,18 +15,28 @@
 #' }
 #' @author Kai Guo
 #' @export
-compareResult<-function(x,pvalue=0.05,padj=NULL){
-  if(!is.null(padj)){
+compareResult<-function (x, pvalue = 0.05, padj = NULL,include.all=FALSE)
+{
+  if (!is.null(padj)) {
     pvalue <- 1
-  }else{
+  }
+  else {
     padj <- 1
   }
-  if(is.null(names(x))){
-    names(x) <- paste("Group",  seq_along(x))
+  if (is.null(names(x))) {
+    names(x) <- paste("Group", seq_along(x))
   }
-  tmp <- lapply(x, function(x)filter(x,Padj<padj,Pvalue<pvalue))
-  tmp <- lapply(names(x), function(x)mutate(tmp[[x]],group=x))
-  dx<-do.call(rbind,tmp)
+  tmp <- lapply(x, function(x) filter(x, Padj < padj, Pvalue <
+                                        pvalue))
+  tmp <- lapply(names(x), function(x) mutate(tmp[[x]], group = x))
+  dx <- do.call(rbind, tmp)
+  if(isTRUE(include.all)){
+    id<-setdiff(names(x),unique(dx$group))
+    dd<-data.frame(Annot=dx$Annot[1],Term=dx$Term[1],
+                   Annotated=min(dx$Annotated),Significant=min(dx$Significant),Pvalue=1,
+                   Padj=1,GeneID="",group=id)
+    dx<-rbind(dx,dd)
+  }
   return(dx)
 }
 ##' draw dotplot for multiple enrichment results
@@ -59,6 +70,7 @@ compareResult<-function(x,pvalue=0.05,padj=NULL){
 ##' @param filename figure output name
 ##' @param width figure width
 ##' @param height figure height
+##' @param include.all include all richResults even empty
 ##' @examples
 #' \dontrun{
 #' hsako <- buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
@@ -72,32 +84,47 @@ compareResult<-function(x,pvalue=0.05,padj=NULL){
 #' }
 #' @author Kai Guo
 #' @export
-comparedot <- function(x,pvalue=0.05,
-                       low="lightpink",high="red",alpha=0.7,
-                       font.x="bold",font.y="bold",fontsize.x=10,fontsize.y=10,
-                       short=FALSE,
-                       padj=NULL,usePadj=TRUE,filename=NULL,width=10,height=8){
-  if(!is.null(padj)){
-    x<-x[x$Padj<padj,]
-  }else{
-    x<-x[x$Pvalue<pvalue,]
+comparedot<-function (x, pvalue = 0.05, low = "lightpink", high = "red",
+                      alpha = 0.7, font.x = "bold", font.y = "bold", fontsize.x = 10,
+                      fontsize.y = 10, short = FALSE, padj = NULL, usePadj = TRUE,
+                      filename = NULL, width = 10, height = 8,include.all=FALSE)
+{
+  if(isTRUE(include.all)){
+    padj<-pvalue<-1.1
+    low<-"white"
   }
-  if(isTRUE(short)){
-      x$Term <- unlist(lapply(x$Term,function(x).paste.char(x)))
+  if (!is.null(padj)) {
+    x <- x[x$Padj < padj, ]
   }
-  if(isTRUE(usePadj)){
-    p<-ggplot(x,aes(x=group,y=Term))+geom_point(aes(size=Significant,color=-log10(Padj)),alpha=alpha)+theme_minimal()+
-      theme(axis.text.y=element_text(face=font.y,size=fontsize.y),axis.text.x=element_text(face=font.x,color="black",size=fontsize.x))+
-      scale_color_gradient(low=low,high=high)+ylab("Pathway name")+
-      xlab("")+labs(size="Gene number")+guides(color=guide_colourbar(order = 1),size=guide_legend(order = 2))
-  }else{
-    p<-ggplot(x,aes(x=group,y=Term))+geom_point(aes(size=Significant,color=-log10(Pvalue)),alpha=alpha)+theme_minimal()+
-      theme(axis.text.y=element_text(face=font.y,size=fontsize.y),axis.text.x=element_text(face=font.x,color="black",size=fontsize.x))+
-      scale_color_gradient(low=low,high=high)+ylab("Pathway name")+
-      xlab("")+labs(size="Gene number")+guides(color=guide_colourbar(order = 1),size=guide_legend(order = 2))
+  else {
+    x <- x[x$Pvalue < pvalue, ]
   }
-  if(!is.null(filename)){
-    ggsave(p,file=paste(filename,"KEGG.pdf",sep="_"),width=width,height=height)
+  if (isTRUE(short)) {
+    x$Term <- unlist(lapply(x$Term, function(x) .paste.char(x)))
+  }
+  if (isTRUE(usePadj)) {
+    p <- ggplot(x, aes(x = group, y = Term)) + geom_point(aes(size = Significant,
+                                                              color = -log10(Padj)), alpha = alpha) + theme_minimal() +
+      theme(axis.text.y = element_text(face = font.y, size = fontsize.y),
+            axis.text.x = element_text(face = font.x, color = "black",
+                                       size = fontsize.x)) + scale_color_gradient(low = low,
+                                                                                  high = high) + ylab("Pathway name") + xlab("") +
+      labs(size = "Gene number") + guides(color = guide_colourbar(order = 1),
+                                          size = guide_legend(order = 2))
+  }
+  else {
+    p <- ggplot(x, aes(x = group, y = Term)) + geom_point(aes(size = Significant,
+                                                              color = -log10(Pvalue)), alpha = alpha) + theme_minimal() +
+      theme(axis.text.y = element_text(face = font.y, size = fontsize.y),
+            axis.text.x = element_text(face = font.x, color = "black",
+                                       size = fontsize.x)) + scale_color_gradient(low = low,
+                                                                                  high = high) + ylab("Pathway name") + xlab("") +
+      labs(size = "Gene number") + guides(color = guide_colourbar(order = 1),
+                                          size = guide_legend(order = 2))
+  }
+  if (!is.null(filename)) {
+    ggsave(p, file = paste(filename, "KEGG.pdf", sep = "_"),
+           width = width, height = height)
   }
   p
 }
