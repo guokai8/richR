@@ -29,6 +29,7 @@ richGSEA_internal<-function(x,object,keytype="",pvalue=0.05,padj=NULL,minSize=15
     res<-res[res$padj<padj,]
   }
   res<-res[order(res$pval),]
+  res <- res[!is.na(res$pathway),]                          
   if(is.null(organism)){
     organism=character()
   }
