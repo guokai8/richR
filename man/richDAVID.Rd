@@ -42,10 +42,10 @@ Functional enrichment analysis with DAVID
 }
 \examples{
 \dontrun{
-  hsako<-buildAnnot(species="human",keytype="ENTREZID",anntype = "KEGG")
-  hsako<-as.data.frame(hsako)
-  gene=sample(unique(hsako$GeneID),1000)
-  res<-richDAVID(gene,keytype="ENTREZID",species="human")
+hsako<-buildAnnot(species="human",keytype="ENTREZID",anntype = "KEGG")
+hsako<-as.data.frame(hsako)
+gene=sample(unique(hsako$GeneID),1000)
+res<-richDAVID(gene,keytype="ENTREZID",species="human")
 }
 }
 \author{

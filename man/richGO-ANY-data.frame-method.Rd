@@ -11,7 +11,7 @@
   pvalue = 0.05,
   padj = NULL,
   organism = NULL,
-  keytype = "SYMBOL",
+  keytype = NULL,
   minSize = 2,
   maxSize = 500,
   keepRich = TRUE,
