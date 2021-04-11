@@ -73,6 +73,9 @@ richGO_internal<-function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,
   if(is.null(organism)){
     organism=character()
   }
+  if(is.null(keytype)){
+    keytype=character()
+  }
   result<-new("richResult",
               result=resultFis,
               detail=detail,
@@ -112,8 +115,9 @@ richGO_internal<-function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,
 #' @export
 #' @author Kai Guo
 setMethod("richGO", signature(godata = "data.frame"),definition = function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,
-                                                                           organism=NULL,keytype="SYMBOL",minSize=2,maxSize=500,
+                                                                           organism=NULL,keytype=NULL,minSize=2,maxSize=500,
                                                                            keepRich=TRUE, filename=NULL,padj.method="BH",sep=",") {
+ # godata<-as(godata,"Annot")
   richGO_internal(x,godata,ontology=ontology,pvalue=pvalue,padj=padj,
                   organism=organism,keytype=keytype,minSize=minSize,maxSize=maxSize,
                   keepRich=keepRich,filename=filename,padj.method=padj.method,sep=sep)

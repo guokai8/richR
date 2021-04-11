@@ -505,9 +505,7 @@ setAs(from = "data.frame", to = "Annot", def = function(from){
   anntype <- character()
   GeneID <- as.vector(from[,1])
   Term<-as.vector(from[,2])
-  if(ncol(from)==3){
-    Annot=from[,3]
-  }
+  Annot=from$Annot
   annot <- data.frame(GeneID, Term, Annot)
   new("Annot",
       species = species,
@@ -596,4 +594,53 @@ setAs(from = "Annot", to = "data.frame", def = function(from){
   result
 })
 
+##' kappa function
+.kappa<-function(x,y,geneall){
+  x<-unlist(strsplit(x,","))
+  y<-unlist(strsplit(y,","))
+  if(length(intersect(x,y))==0){
+    kab=0
+  }else{
+    tmp<-matrix(0,2,2)
+    tmp[1,1]<-length(intersect(x,y))
+    tmp[2,1]<-length(setdiff(x,y))
+    tmp[1,2]<-length(setdiff(y,x))
+    tmp[2,2]<-length(setdiff(geneall,union(x,y)))
+    oab<-(tmp[1,1]+tmp[2,2])/sum(tmp)
+    aab<-((tmp[1,1]+tmp[2,1])*(tmp[1,1]+tmp[1,2])+(tmp[1,2]+tmp[2,2])*(tmp[2,1]+tmp[2,2]))/(sum(tmp)*sum(tmp))
+    if(aab==1){
+      kab=0
+    }else{
+      kab<-(oab-aab)/(1-aab)
+    }
+  }
+  return(kab)
+}
+##' calculate enrichment score
+.calculate_Enrichment_Score<-function(x,df){
+  pvalue <- df[x,"Pvalue"]
+  esp = ifelse(pvalue==0,16,-log10(pvalue))
+  es = sum(esp);
+}
+
+##' merge term
+.merge_term<-function(x,overlap){
+  ml <- x
+  res<-list();
+  for(i in names(ml)){
+    lhs <- setdiff(names(ml),i)
+    for(j in lhs){
+      ov<-intersect(ml[[i]],ml[[j]])
+      un<-union(ml[[i]],ml[[j]])
+      ovl<-length(ov)/length(un)
+      if(ovl > overlap){
+        res[[i]]<-c(i,un)
+        ml <- ml[setdiff(names(ml),j)]
+      }else{
+        res[[i]]<-c(i,ml[[i]])
+      }
+    }
+  }
+  return(res)
+}
 

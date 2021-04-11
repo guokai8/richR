@@ -125,8 +125,9 @@ setMethod("richKEGG", signature(kodata = "data.frame"),definition = function(x,k
                                                                              keytype=NULL,minSize=2,maxSize=500,
                                                                              keepRich=TRUE,filename=NULL,padj.method="BH",builtin=TRUE,sep=",") {
   richKEGG_internal(x,kodata=kodata,pvalue=pvalue,padj=padj,
-                  organism=organism,ontology=ontology,keytype=keytype,minSize=minSize,maxSize=maxSize,keepRich=keepRich,
-                  filename=filename,padj.method=padj.method,builtin=builtin,sep=sep)
+                    organism=organism,ontology=ontology,keytype=keytype,minSize=minSize,
+                    maxSize=maxSize,keepRich=keepRich,filename=filename,
+                    padj.method=padj.method,builtin=builtin,sep=sep)
 })
 
 #' KEGG Enrichment analysis function
