@@ -1,4 +1,4 @@
-# richR <a href="https://travis-ci.org/guokai8/richR"><img src="https://travis-ci.org/guokai8/richR.svg" alt="Build status"></a>  [![Project Status:](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)  [![](https://img.shields.io/badge/devel%20version-0.0.18-green.svg)](https://github.com/guokai8/richR) ![](https://img.shields.io/github/languages/code-size/guokai8/richR)
+# richR <a href="https://travis-ci.org/guokai8/richR"><img src="https://travis-ci.org/guokai8/richR.svg" alt="Build status"></a>  [![Project Status:](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)  [![](https://img.shields.io/badge/devel%20version-0.0.19-green.svg)](https://github.com/guokai8/richR) ![](https://img.shields.io/github/languages/code-size/guokai8/richR)
 ## Description
 _richR_ provide functions _richGO_, _richKEGG_,and _enrich_ to do functional enrichment analysis. 
 ## Installation
@@ -43,7 +43,12 @@ resgo <- richGO(gene,godata = hsago,ontology ="BP")
 head(resgo)
 ggbar(resgo,top = 20,usePadj = F)
 ```       
-
+### cluster GO enrichment result
+```{r}
+resc<-richCluster(resgo)
+ggdot(resc)
+```
+             
 ```{r,fig.height=6,fig.width=6,fig.align="center"}
 resko<-richKEGG(gene,hsako,pvalue=0.05)
 head(resko)
