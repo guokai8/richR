@@ -16,6 +16,16 @@ idconvert(species, keys, fkeytype, tkeytype)
 \description{
 Convert ID between ENTREZID to SYMBOL or other type ID based on bioconductor annotation package
 }
+\examples{
+\dontrun{
+  hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+  hsako<-as.data.frame(hsako)
+  gene=sample(unique(hsako$GeneID),1000)
+  id<-idconvert(species="human",fkeytype="SYMBOL",tkeytype="ENTREZID")
+}
+}
 \author{
+Kai Guo
+
 Kai Guo
 }

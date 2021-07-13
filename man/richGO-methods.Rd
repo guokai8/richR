@@ -10,6 +10,8 @@ richGO(
   ontology = "BP",
   pvalue = 0.05,
   padj = NULL,
+  organism = NULL,
+  keytype = NULL,
   minSize = 2,
   maxSize = 500,
   keepRich = TRUE,
@@ -30,6 +32,10 @@ richGO(
 
 \item{padj}{cutoff p adjust value}
 
+\item{organism}{organism}
+
+\item{keytype}{keytype for input genes}
+
 \item{minSize}{minimal number of genes included in significant terms}
 
 \item{maxSize}{maximum number of genes included in significant terms}
@@ -41,10 +47,6 @@ richGO(
 \item{padj.method}{pvalue adjust method(default:"BH")}
 
 \item{sep}{character string used to separate the genes when concatenating}
-
-\item{organism}{organism}
-
-\item{keytype}{keytype for input genes}
 }
 \value{
 richResult
