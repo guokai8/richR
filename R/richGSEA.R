@@ -69,7 +69,7 @@ richGSEA_internal<-function(x,object,keytype="",pvalue=0.05,padj=NULL,minSize=15
 #' name=sample(unique(hsako$GeneID),1000)
 #' gene<-rnorm(1000)
 #' names(gene)<-name
-#' res<-richKEGG(gene,object = hsako)
+#' res<-richGSEA(gene,object = hsako)
 #' }
 #' @author Kai Guo
 setMethod("richGSEA", signature(object = "data.frame"),definition = function(x,object,keytype="",pvalue=0.05,padj=NULL,minSize=15,ontology=ontology,
