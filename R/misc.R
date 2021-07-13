@@ -162,6 +162,8 @@ detail.GSEAResult<-function(x){
   as.data.frame(x@detail)
 }
 ##' @importFrom dplyr left_join
+#' @param rese richResult or GSEAResult
+#' @param resd dataframe with input gene as rownames 
 getdetail<-function(rese,resd,sep){
   if(!is.data.frame(resd)){
     resd=data.frame(gene=resd)
