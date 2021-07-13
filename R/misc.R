@@ -151,19 +151,58 @@ result.richResult<-function(x){
 result.GSEAResult<-function(x){
   as.data.frame(x@result)
 }
+#' extract the gene information and related pathway
 ##' @method detail richResult
+##' @param x richResult object
+#' @examples
+#' \dontrun{
+#'   hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+#'   hsako<-as.data.frame(hsako)
+#'   gene=sample(unique(hsako$GeneID),1000)
+#'   res<-richKEGG(gene,kodata = hsako)
+#'   head(detail(res))
+#' }
+#' @export
+#' @author Kai Guo
 ##' @export
 detail.richResult<-function(x){
   as.data.frame(x@detail)
 }
+#' extract the gene information and related pathway
 ##' @method detail GSEAResult
+##' @param x GSEAResult object
+#' @examples
+#' \dontrun{
+#' hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+#' hsako<-as.data.frame(hsako)
+#' name=sample(unique(hsako$GeneID),1000)
+#' gene<-rnorm(1000)
+#' names(gene)<-name
+#' res<-richKEGG(gene,object = hsako)
+#' head(detail(res))
+#' }
+#' @author Kai Guo
 ##' @export
 detail.GSEAResult<-function(x){
   as.data.frame(x@detail)
 }
+##' get detail and integrate with the input gene information
 ##' @importFrom dplyr left_join
 #' @param rese richResult or GSEAResult
-#' @param resd dataframe with input gene as rownames 
+#' @param resd dataframe with input gene as rownames
+#' @param sep character string used to separate the genes when concatenating
+#' @examples
+#' \dontrun{
+#'   hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+#'   hsako<-as.data.frame(hsako)
+#'   gene=sample(unique(hsako$GeneID),1000)
+#'   res<-richKEGG(gene,kodata = hsako)
+#'   gened<-data.frame(lfc=rnorm(length(gene)))
+#'   rownames(gened)<-gene
+#'   head(getdetail(res,gened))
+#' }
+#' @export
+#' @author Kai Guo
 getdetail<-function(rese,resd,sep){
   if(!is.data.frame(resd)){
     resd=data.frame(gene=resd)
@@ -284,6 +323,15 @@ GO_child <- function(node = "GO:0008150", ontology = "BP") {
 #' @param species: you can check the support species by using showData()
 #' @param fkeytype: the gene type you want to convert
 #' @param tkeytype: the gene type you want to get
+#' @examples
+#' \dontrun{
+#'   hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+#'   hsako<-as.data.frame(hsako)
+#'   gene=sample(unique(hsako$GeneID),1000)
+#'   id<-idconvert(species="human",fkeytype="SYMBOL",tkeytype="ENTREZID")
+#' }
+#' @export
+#' @author Kai Guo
 #' @export
 #' @author Kai Guo
 idconvert<-function(species,keys,fkeytype,tkeytype){
