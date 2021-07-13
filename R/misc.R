@@ -178,7 +178,7 @@ detail.richResult<-function(x){
 #' name=sample(unique(hsako$GeneID),1000)
 #' gene<-rnorm(1000)
 #' names(gene)<-name
-#' res<-richKEGG(gene,object = hsako)
+#' res<-richGSEA(gene,object = hsako)
 #' head(detail(res))
 #' }
 #' @author Kai Guo
