@@ -46,6 +46,7 @@
   dy <-data.frame(AnnotationCluster=1:length(es),EnrichmentScore=es,filteredClusterSize=tl)
   rs<-cbind(dy,dx)
   rs<-rs[order(rs$EnrichmentScore,decreasing = T),]
+  rs$Cluster<-unlist(lapply(res[rownames(rs)],function(x)paste(x,collapse=",",sep="")))[rownames(rs)]
   return(rs)
 }
 #' kappa cluster analysis
