@@ -3,7 +3,7 @@
 ##' @param gene (Optional).a vector of gene list
 ##' @param useTerm to use the term or not (TRUE/FALSE)
 ##' @param cutoff kappa score threshold for significant dispersion results
-##' @param overlap
+##' @param overlap overlap between clusters
 ##' @param minSize minimal number of terms in the cluster
 ##' @param escore kappa enrichment score cutoff value (default: 3)
 ##' @author Kai Guo

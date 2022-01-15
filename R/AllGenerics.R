@@ -266,6 +266,7 @@ setGeneric("ggnetplot",function(object,top=50, pvalue=0.05, padj=NULL,
 ##' @param high color used for large value
 ##' @param writeCyt write out the cytoscape file
 ##' @param cytoscapeFile output cytoscape File
+##' @param cytoscapeFormat Character string giving the output file format
 ##' @param segment.size size for label segment
 ##' @param node.alpha alpha-transparency scales
 ##' @param label.font label font
@@ -285,7 +286,7 @@ setGeneric("ggnetplot",function(object,top=50, pvalue=0.05, padj=NULL,
 #' }
 ##' @export
 setGeneric("ggnetwork", function(object,gene,top = 50, pvalue = 0.05, padj = NULL,usePadj=TRUE,low = "orange",high = "red",
-                                 weightcut = 0.2, useTerm = TRUE, writeCyt = FALSE,cytoscapeFile = NULL,
+                                 weightcut = 0.2, useTerm = TRUE, writeCyt = FALSE,cytoscapeFile = NULL,cytoscapeFormat="graphml",
                                  label.color = "black", label.size = 2,node.shape=NULL, layout = layout.fruchterman.reingold,savefig=FALSE,
                                  visNet=FALSE,smooth=TRUE,nodeselect=FALSE,edit=FALSE,savehtml=FALSE,filename=NULL,
                                  width=7,height=7,segment.size=0.2,node.alpha=0.7,sep=",",...)

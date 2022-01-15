@@ -153,7 +153,11 @@ ggnetwork_internal<-function (object=object,gene=gene,top = 50, pvalue = 0.05, p
     }else{
       cytoscapeFile=paste0(cytoscapeFile,cytoscapeFormat)
     }
-    write_graph(g, file = cytoscapeFile, format=cytoscapeFormat)
+    if(cytoscapeFormat=="edgelist"){
+      write.table(igraph::get.data.frame(g),file=cytoscapeFile,sep="\t",row.names=FALSE)
+    }else{
+      write_graph(g, file = cytoscapeFile, format=cytoscapeFormat)
+    }
   }
   if (isTRUE(visNet)) {
     graph <- visIgraph(g, smooth = smooth)
@@ -218,7 +222,8 @@ setMethod("ggnetwork", signature(object = "richResult"),definition = function(ob
                                                                               label.color = "black", label.size = 2,node.shape=NULL, layout = layout.fruchterman.reingold,savefig=FALSE,
                                                                               visNet=FALSE,smooth=TRUE,nodeselect=FALSE,edit=FALSE,savehtml=FALSE,filename=NULL,
                                                                               width=7,height=7,segment.size=0.2,node.alpha=0.7,...) {
-  ggnetwork_internal(object@result,gene=object@gene,top=top,pvalue=pvalue,padj=padj,usePadj=usePadj,weightcut=weightcut,useTerm=useTerm,writeCyt=writeCyt,cytoscapeFile=cytoscapeFile,cytoscapeFormat=cytoscapeFormat,
+  ggnetwork_internal(object@result,gene=object@gene,top=top,pvalue=pvalue,padj=padj,usePadj=usePadj,weightcut=weightcut,useTerm=useTerm,
+                     writeCyt=writeCyt,cytoscapeFile=cytoscapeFile,cytoscapeFormat=cytoscapeFormat,
                      label.font=label.font,label.color=label.color,label.size=label.size,node.shape=node.shape,
                      layout=layout,savefig=savefig,width=width,height=height,
                      visNet=visNet,smooth=smooth,nodeselect=nodeselect,edit=edit,
@@ -255,7 +260,8 @@ setMethod("ggnetwork", signature(object = "data.frame"),definition = function(ob
                                                                               label.color = "black", label.size = 2,node.shape=NULL, layout = layout.fruchterman.reingold,savefig=FALSE,
                                                                               visNet=FALSE,smooth=TRUE,nodeselect=FALSE,edit=FALSE,savehtml=FALSE,filename=NULL,
                                                                               width=7,height=7,segment.size=0.2,node.alpha=0.7,sep=",",...) {
-  ggnetwork_internal(object,gene=gene,top=top,pvalue=pvalue,padj=padj,usePadj=usePadj,weightcut=weightcut,useTerm=useTerm,writeCyt=writeCyt,cytoscapeFile=cytoscapeFile,cytoscapeFormat=cytoscapeFormat,
+  ggnetwork_internal(object,gene=gene,top=top,pvalue=pvalue,padj=padj,usePadj=usePadj,weightcut=weightcut,useTerm=useTerm,writeCyt=writeCyt,cytoscapeFile=cytoscapeFile,
+                     cytoscapeFormat=cytoscapeFormat,
                      label.font=label.font,label.color=label.color,label.size=label.size,node.shape=node.shape,
                      layout=layout,savefig=savefig,width=width,height=height,
                      visNet=visNet,smooth=smooth,nodeselect=nodeselect,edit=edit,
@@ -300,7 +306,8 @@ setMethod("ggnetwork", signature(object = "GSEAResult"),definition = function(ob
   object@result$Annot<-object@result$pathway
   object@result<-object@result[,c(9,1:3,7,8)]
   colnames(object@result)<-c("Annot","Term","Pvalue","Padj","Significant","GeneID")
-  ggnetwork_internal(object@result,gene=object@gene,top=top,pvalue=pvalue,padj=padj,usePadj=usePadj,weightcut=weightcut,useTerm=useTerm,writeCyt=writeCyt,cytoscapeFile=cytoscapeFile,cytoscapeFormat=cytoscapeFormat,
+  ggnetwork_internal(object@result,gene=object@gene,top=top,pvalue=pvalue,padj=padj,usePadj=usePadj,weightcut=weightcut,useTerm=useTerm,
+                     writeCyt=writeCyt,cytoscapeFile=cytoscapeFile,cytoscapeFormat=cytoscapeFormat,
                      label.font=label.font,label.color=label.color,label.size=label.size,node.shape=node.shape,
                      layout=layout,savefig=savefig,width=width,height=height,
                      visNet=visNet,smooth=smooth,nodeselect=nodeselect,edit=edit,
