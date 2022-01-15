@@ -20,6 +20,7 @@ ggnetwork_internal(
   useTerm = TRUE,
   writeCyt = FALSE,
   cytoscapeFile = NULL,
+  cytoscapeFormat = "graphml",
   label.color = "black",
   label.size = 2,
   node.shape = NULL,
@@ -52,6 +53,7 @@ ggnetwork_internal(
   useTerm = TRUE,
   writeCyt = FALSE,
   cytoscapeFile = NULL,
+  cytoscapeFormat = "graphml",
   label.color = "black",
   label.size = 2,
   node.shape = NULL,
@@ -84,6 +86,7 @@ ggnetwork_internal(
   useTerm = TRUE,
   writeCyt = FALSE,
   cytoscapeFile = NULL,
+  cytoscapeFormat = "graphml",
   label.color = "black",
   label.size = 2,
   node.shape = NULL,
@@ -116,6 +119,7 @@ ggnetwork_internal(
   useTerm = TRUE,
   writeCyt = FALSE,
   cytoscapeFile = NULL,
+  cytoscapeFormat = "graphml",
   label.color = "black",
   label.size = 2,
   node.shape = NULL,
@@ -157,6 +161,8 @@ ggnetwork_internal(
 \item{writeCyt}{write out the cytoscape file}
 
 \item{cytoscapeFile}{output cytoscape File}
+
+\item{cytoscapeFormat}{Character string giving the output file format}
 
 \item{label.color}{label color}
 

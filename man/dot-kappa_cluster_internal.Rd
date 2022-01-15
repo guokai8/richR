@@ -23,6 +23,8 @@
 
 \item{cutoff}{kappa score threshold for significant dispersion results}
 
+\item{overlap}{overlap between clusters}
+
 \item{minSize}{minimal number of terms in the cluster}
 
 \item{escore}{kappa enrichment score cutoff value (default: 3)}

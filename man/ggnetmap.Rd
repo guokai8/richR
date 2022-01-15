@@ -17,7 +17,8 @@ ggnetmap(
   weightcut = 0.2,
   useTerm = TRUE,
   writeCyt = FALSE,
-  cytoscapeFile = "network-file-for-cytoscape.txt",
+  cytoscapeFile = "cytoscape.txt",
+  cytoscapeFormat = "graphml",
   label.color = "black",
   label.size = 2,
   node.shape = NULL,
@@ -60,6 +61,8 @@ ggnetmap(
 \item{writeCyt}{write out the cytoscape file}
 
 \item{cytoscapeFile}{output cytoscape File}
+
+\item{cytoscapeFormat}{Character string giving the output file format}
 
 \item{label.color}{label color}
 
