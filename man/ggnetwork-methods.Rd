@@ -60,7 +60,7 @@ ggnetwork(
 
 \item{cytoscapeFile}{output cytoscape File}
 
-\item{cytoscapeFormat}{Character string giving the output file format}
+\item{cytoscapeFormat}{output file format ("edgelist", "pajek", "ncol", "lgl", "graphml", "dimacs", "gml", "dot","leda")}
 
 \item{label.color}{label color}
 
