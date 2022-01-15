@@ -12,6 +12,7 @@
 ##' @param high color used for large value
 ##' @param writeCyt write out the cytoscape file
 ##' @param cytoscapeFile output cytoscape File
+##' @param cytoscapeFormat Character string giving the output file format
 ##' @param segment.size size for label segment
 ##' @param node.alpha alpha-transparency scales
 ##' @param label.font label font
@@ -200,6 +201,7 @@ ggnetwork_internal<-function (object=object,gene=gene,top = 50, pvalue = 0.05, p
 ##' @param high color used for large value
 ##' @param writeCyt write out the cytoscape file
 ##' @param cytoscapeFile output cytoscape File
+##' @param cytoscapeFormat Character string giving the output file format
 ##' @param segment.size size for label segment
 ##' @param node.alpha alpha-transparency scales
 ##' @param label.font label font
@@ -236,6 +238,7 @@ setMethod("ggnetwork", signature(object = "richResult"),definition = function(ob
 ##' @param high color used for large value
 ##' @param writeCyt write out the cytoscape file
 ##' @param cytoscapeFile output cytoscape File
+##' @param cytoscapeFormat Character string giving the output file format
 ##' @param segment.size size for label segment
 ##' @param node.alpha alpha-transparency scales
 ##' @param label.font label font
@@ -273,6 +276,7 @@ setMethod("ggnetwork", signature(object = "data.frame"),definition = function(ob
 ##' @param high color used for large value
 ##' @param writeCyt write out the cytoscape file
 ##' @param cytoscapeFile output cytoscape File
+##' @param cytoscapeFormat Character string giving the output file format
 ##' @param segment.size size for label segment
 ##' @param node.alpha alpha-transparency scales
 ##' @param label.font label font
