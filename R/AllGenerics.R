@@ -266,7 +266,7 @@ setGeneric("ggnetplot",function(object,top=50, pvalue=0.05, padj=NULL,
 ##' @param high color used for large value
 ##' @param writeCyt write out the cytoscape file
 ##' @param cytoscapeFile output cytoscape File
-##' @param cytoscapeFormat Character string giving the output file format
+##' @param cytoscapeFormat output file format ("edgelist", "pajek", "ncol", "lgl", "graphml", "dimacs", "gml", "dot","leda")
 ##' @param segment.size size for label segment
 ##' @param node.alpha alpha-transparency scales
 ##' @param label.font label font
