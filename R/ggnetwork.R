@@ -151,7 +151,7 @@ ggnetwork_internal<-function (object=object,gene=gene,top = 50, pvalue = 0.05, p
     if(is.null(cytoscapeFile)){
       cytoscapeFile="cytoscape-network.txt"
     }else{
-      cytoscapeFile=paste0(cytoscapeFile,cytoscapeFormat)
+      cytoscapeFile=paste0(cytoscapeFile,".",cytoscapeFormat)
     }
     if(cytoscapeFormat=="edgelist"){
       write.table(igraph::get.data.frame(g),file=cytoscapeFile,sep="\t",row.names=FALSE)
