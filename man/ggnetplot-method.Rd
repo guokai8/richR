@@ -18,7 +18,7 @@ ggnetplot(
   label.color = "black",
   label.size = 2,
   node.shape = NULL,
-  layout = layout.fruchterman.reingold,
+  layout = "fruchtermanreingold",
   savefig = FALSE,
   filename = NULL,
   width = 7,

@@ -24,7 +24,7 @@ ggnetwork_internal(
   label.color = "black",
   label.size = 2,
   node.shape = NULL,
-  layout = layout.fruchterman.reingold,
+  layout = "fruchtermanreingold",
   savefig = FALSE,
   visNet = FALSE,
   smooth = TRUE,
@@ -57,7 +57,7 @@ ggnetwork_internal(
   label.color = "black",
   label.size = 2,
   node.shape = NULL,
-  layout = layout.fruchterman.reingold,
+  layout = "fruchtermanreingold",
   savefig = FALSE,
   visNet = FALSE,
   smooth = TRUE,
@@ -90,7 +90,7 @@ ggnetwork_internal(
   label.color = "black",
   label.size = 2,
   node.shape = NULL,
-  layout = layout.fruchterman.reingold,
+  layout = "fruchtermanreingold",
   savefig = FALSE,
   visNet = FALSE,
   smooth = TRUE,
@@ -123,7 +123,7 @@ ggnetwork_internal(
   label.color = "black",
   label.size = 2,
   node.shape = NULL,
-  layout = layout.fruchterman.reingold,
+  layout = "fruchtermanreingold",
   savefig = FALSE,
   visNet = FALSE,
   smooth = TRUE,
@@ -168,7 +168,7 @@ ggnetwork_internal(
 
 \item{label.size}{label size}
 
-\item{layout}{layout for the network (layout.fruchterman.reingold)}
+\item{layout}{layout method ('fruchtermanreingold','kamadakawai','target','circle')}
 
 \item{savefig}{save the figure or not}
 

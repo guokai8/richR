@@ -19,7 +19,7 @@
   label.color = "black",
   label.size = 2,
   node.shape = NULL,
-  layout = layout.fruchterman.reingold,
+  layout = "fruchtermanreingold",
   savefig = FALSE,
   filename = "network",
   width = 7,
@@ -44,7 +44,7 @@
   label.color = "black",
   label.size = 2,
   node.shape = NULL,
-  layout = layout.fruchterman.reingold,
+  layout = "fruchtermanreingold",
   savefig = FALSE,
   filename = "network",
   width = 7,
@@ -82,7 +82,7 @@
 
 \item{node.shape}{shape of the node}
 
-\item{layout}{layout method}
+\item{layout}{layout method ('fruchtermanreingold','kamadakawai','target','circle')}
 
 \item{savefig}{save figures or not}
 

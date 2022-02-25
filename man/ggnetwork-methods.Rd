@@ -21,7 +21,7 @@ ggnetwork(
   label.color = "black",
   label.size = 2,
   node.shape = NULL,
-  layout = layout.fruchterman.reingold,
+  layout = "fruchtermanreingold",
   savefig = FALSE,
   visNet = FALSE,
   smooth = TRUE,
