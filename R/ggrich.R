@@ -31,7 +31,6 @@
 ##' @param repel use ggrepel text function or not
 ##' @param segment.size segment size for ggrepel text
 ##' @param sep character string used to separate the genes when concatenating
-##' @export
 ggrich_internal <- function(object,top=50, pvalue=0.05, padj=NULL,
                             usePadj =TRUE, useTerm=TRUE,low="orange",high="red",
                             writeCyt=FALSE, cytoscapeFile="network-file-for-cytoscape.txt",
@@ -77,9 +76,10 @@ ggrich_internal <- function(object,top=50, pvalue=0.05, padj=NULL,
   cols <- .color_scale(high, low)
   V(g)$color <- cols[sapply(pvalue, .getIdx, min(pvalue), max(pvalue))]
   if(!is.null(node.shape)){
-    node.shape=rep(20,length(V(g)$name))
-    names(node.shape)<-V(g)$name
-    node.shape[names(node.shape)]<-node.shape
+    shape=rep(20,length(V(g)$name))
+    names(shape)<-V(g)$name
+    shape[names(node.shape)]<-node.shape
+    node.shape <- shape
   }else{
     node.shape=rep(20,length(V(g)$name))
     names(node.shape)<-V(g)$name

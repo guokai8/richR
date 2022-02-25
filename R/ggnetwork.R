@@ -140,9 +140,10 @@ ggnetwork_internal<-function (object=object,gene=gene,top = 50, pvalue = 0.05, p
   }
   V(g)$size <- log(gs[V(g)$name], base = 10) * 10
   if(!is.null(node.shape)){
-    node.shape=rep(20,length(V(g)$name))
-    names(node.shape)<-V(g)$name
-    node.shape[names(node.shape)]<-node.shape
+    shape=rep(20,length(V(g)$name))
+    names(shape)<-V(g)$name
+    shape[names(node.shape)]<-node.shape
+    node.shape <- shape
   }else{
     node.shape=rep(20,length(V(g)$name))
     names(node.shape)<-V(g)$name
@@ -187,7 +188,7 @@ ggnetwork_internal<-function (object=object,gene=gene,top = 50, pvalue = 0.05, p
     }
     ggsave(p,file=paste0(filename,".pdf"),width=width,height = height)
   }
-  print(p)
+  p
   }
 }
 
