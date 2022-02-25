@@ -8,7 +8,7 @@
 ##' @param padj cutoff value of p adjust value
 ##' @param weightcut cutoff valule for edge
 ##' @param usePadj use adjust p value as color or not (should use with padj)
-##' @param layout layout for the network (layout.fruchterman.reingold)
+##' @param layout layout method ('fruchtermanreingold','kamadakawai','target','circle')
 ##' @param low color used for small value
 ##' @param high color used for large value
 ##' @param writeCyt write out the cytoscape file
@@ -36,7 +36,7 @@
 ##' @author Kai Guo
 ggnetmap<-function(richRes,gene=NULL,top=50,top.display=NULL,pvalue = 0.05, padj = NULL,usePadj=TRUE,low = "orange",high = "red",
                    weightcut = 0.2, useTerm = TRUE, writeCyt = FALSE,cytoscapeFile = "cytoscape.txt",cytoscapeFormat="graphml",
-                   label.color = "black", label.size = 2,node.shape=NULL, layout = layout.fruchterman.reingold,savefig=FALSE,
+                   label.color = "black", label.size = 2,node.shape=NULL, layout = "fruchtermanreingold",savefig=FALSE,
                    visNet=FALSE,smooth=TRUE,nodeselect=FALSE,edit=FALSE,savehtml=FALSE,filename="network",
                    width=7,height=7,segment.size=0.2,node.alpha=0.7,...){
   if(!is.null(top)){

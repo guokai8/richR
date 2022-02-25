@@ -7,7 +7,7 @@
 ##' @param padj cutoff value of p adjust value
 ##' @param weightcut cutoff valule for edge
 ##' @param usePadj use p adjust value as color or not (should use with padj)
-##' @param layout layout for the network (layout.fruchterman.reingold)
+##' @param layout layout method ('fruchtermanreingold','kamadakawai','target','circle')
 ##' @param low color used for small value
 ##' @param high color used for large value
 ##' @param writeCyt write out the cytoscape file
@@ -44,7 +44,7 @@
 ##' @author Kai Guo
 ggnetwork_internal<-function (object=object,gene=gene,top = 50, pvalue = 0.05, padj = NULL,usePadj=TRUE,low = "orange",high = "red",
                               weightcut = 0.2, useTerm = TRUE, writeCyt = FALSE,cytoscapeFile = NULL,cytoscapeFormat="graphml",
-                              label.color = "black", label.size = 2,node.shape=NULL, layout = layout.fruchterman.reingold,savefig=FALSE,
+                              label.color = "black", label.size = 2,node.shape=NULL, layout = "fruchtermanreingold",savefig=FALSE,
                               visNet=FALSE,smooth=TRUE,nodeselect=FALSE,edit=FALSE,savehtml=FALSE,filename=NULL,
                               width=7,height=7,segment.size=0.2,node.alpha=0.7,sep=",",...){
   if (!is.null(padj)) {
@@ -177,7 +177,7 @@ ggnetwork_internal<-function (object=object,gene=gene,top = 50, pvalue = 0.05, p
     }
     graph
   }else{
-  p<-ggnet2(g, node.size = V(g)$size, node.color = V(g)$color,
+  p<-ggnet2(g, node.size = V(g)$size, node.color = V(g)$color,mode=layout,
             edge.size = E(g)$width/20,node.shape=node.shape,node.alpha=node.alpha) +
     geom_text_repel(label = V(g)$name,
                     size=label.size,segment.size=segment.size,color=label.color)+
@@ -201,7 +201,7 @@ ggnetwork_internal<-function (object=object,gene=gene,top = 50, pvalue = 0.05, p
 ##' @param padj cutoff value of p adjust value
 ##' @param weightcut cutoff valule for edge
 ##' @param usePadj use p adjust value as color or not (should use with padj)
-##' @param layout layout for the network (layout.fruchterman.reingold)
+##' @param layout layout method ('fruchtermanreingold','kamadakawai','target','circle')
 ##' @param low color used for small value
 ##' @param high color used for large value
 ##' @param writeCyt write out the cytoscape file
@@ -220,7 +220,7 @@ ggnetwork_internal<-function (object=object,gene=gene,top = 50, pvalue = 0.05, p
 ##' @author Kai Guo
 setMethod("ggnetwork", signature(object = "richResult"),definition = function(object,top = 50, pvalue = 0.05, padj = NULL,usePadj=TRUE,low = "orange",high = "red",
                                                                               weightcut = 0.2, useTerm = TRUE, writeCyt = FALSE,cytoscapeFile = NULL,cytoscapeFormat="graphml",
-                                                                              label.color = "black", label.size = 2,node.shape=NULL, layout = layout.fruchterman.reingold,savefig=FALSE,
+                                                                              label.color = "black", label.size = 2,node.shape=NULL, layout = "fruchtermanreingold",savefig=FALSE,
                                                                               visNet=FALSE,smooth=TRUE,nodeselect=FALSE,edit=FALSE,savehtml=FALSE,filename=NULL,
                                                                               width=7,height=7,segment.size=0.2,node.alpha=0.7,...) {
   ggnetwork_internal(object@result,gene=object@gene,top=top,pvalue=pvalue,padj=padj,usePadj=usePadj,weightcut=weightcut,useTerm=useTerm,
@@ -239,7 +239,7 @@ setMethod("ggnetwork", signature(object = "richResult"),definition = function(ob
 ##' @param padj cutoff value of p adjust value
 ##' @param weightcut cutoff valule for edge
 ##' @param usePadj use p adjust value as color or not (should use with padj)
-##' @param layout layout for the network (layout.fruchterman.reingold)
+##' @param layout layout method ('fruchtermanreingold','kamadakawai','target','circle')
 ##' @param low color used for small value
 ##' @param high color used for large value
 ##' @param writeCyt write out the cytoscape file
@@ -258,7 +258,7 @@ setMethod("ggnetwork", signature(object = "richResult"),definition = function(ob
 ##' @author Kai Guo
 setMethod("ggnetwork", signature(object = "data.frame"),definition = function(object,gene=NULL,top = 50, pvalue = 0.05, padj = NULL,usePadj=TRUE,low = "orange",high = "red",
                                                                               weightcut = 0.2, useTerm = TRUE, writeCyt = FALSE,cytoscapeFile = NULL,cytoscapeFormat="graphml",
-                                                                              label.color = "black", label.size = 2,node.shape=NULL, layout = layout.fruchterman.reingold,savefig=FALSE,
+                                                                              label.color = "black", label.size = 2,node.shape=NULL, layout = "fruchtermanreingold",savefig=FALSE,
                                                                               visNet=FALSE,smooth=TRUE,nodeselect=FALSE,edit=FALSE,savehtml=FALSE,filename=NULL,
                                                                               width=7,height=7,segment.size=0.2,node.alpha=0.7,sep=",",...) {
   ggnetwork_internal(object,gene=gene,top=top,pvalue=pvalue,padj=padj,usePadj=usePadj,weightcut=weightcut,useTerm=useTerm,writeCyt=writeCyt,cytoscapeFile=cytoscapeFile,
@@ -278,7 +278,7 @@ setMethod("ggnetwork", signature(object = "data.frame"),definition = function(ob
 ##' @param padj cutoff value of p adjust value
 ##' @param weightcut cutoff valule for edge
 ##' @param usePadj use p adjust value as color or not (should use with padj)
-##' @param layout layout for the network (layout.fruchterman.reingold)
+##' @param layout layout method ('fruchtermanreingold','kamadakawai','target','circle')
 ##' @param low color used for small value
 ##' @param high color used for large value
 ##' @param writeCyt write out the cytoscape file
@@ -297,7 +297,7 @@ setMethod("ggnetwork", signature(object = "data.frame"),definition = function(ob
 ##' @author Kai Guo
 setMethod("ggnetwork", signature(object = "GSEAResult"),definition = function(object,gene,top = 50, pvalue = 0.05, padj = NULL,usePadj=TRUE,low = "orange",high = "red",
                                                                               weightcut = 0.2, useTerm = TRUE, writeCyt = FALSE,cytoscapeFile = NULL,cytoscapeFormat="graphml",
-                                                                              label.color = "black", label.size = 2,node.shape=NULL, layout = layout.fruchterman.reingold,savefig=FALSE,
+                                                                              label.color = "black", label.size = 2,node.shape=NULL, layout = "fruchtermanreingold",savefig=FALSE,
                                                                               visNet=FALSE,smooth=TRUE,nodeselect=FALSE,edit=FALSE,savehtml=FALSE,filename="network",
                                                                               width=7,height=7,segment.size=0.2,node.alpha=0.7,...) {
   sep=object@sep

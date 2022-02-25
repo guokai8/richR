@@ -21,7 +21,7 @@
 ##' @param label.color label color
 ##' @param label.size label size
 ##' @param node.shape vector of shape and names of the vector should be the terms (default: 20)
-##' @param layout layout method
+##' @param layout layout method ('fruchtermanreingold','kamadakawai','target','circle')
 ##' @param savefig save figures or not
 ##' @param filename output figure name
 ##' @param width width for output figure
@@ -35,7 +35,7 @@ ggrich_internal <- function(object,top=50, pvalue=0.05, padj=NULL,
                             usePadj =TRUE, useTerm=TRUE,low="orange",high="red",
                             writeCyt=FALSE, cytoscapeFile="network-file-for-cytoscape.txt",
                             label.color = "black", label.size = 2, node.shape=NULL,
-                            layout = layout.fruchterman.reingold,savefig=FALSE,filename="network",
+                            layout = "fruchtermanreingold",savefig=FALSE,filename="network",
                             width=7,height=7,node.alpha=0.7,repel=TRUE,segment.size=0.2,sep=","){
   if(!is.null(padj)){
     object<-object[object$Padj<padj,]
@@ -85,7 +85,7 @@ ggrich_internal <- function(object,top=50, pvalue=0.05, padj=NULL,
     names(node.shape)<-V(g)$name
   }
   p <- ggnet2(g, node.size = degree(g), node.color = V(g)$color,
-              node.shape=node.shape,legend.position = "none",
+              node.shape=node.shape,legend.position = "none",mode=layout,
               node.alpha=node.alpha,edge.size=0.05)
   if(isTRUE(repel)){
     p <- p + geom_text_repel(label = V(g)$name,size=label.size, color=label.color,
@@ -112,7 +112,7 @@ ggrich_internal <- function(object,top=50, pvalue=0.05, padj=NULL,
 ##' @param label.color label color
 ##' @param label.size label size
 ##' @param node.shape vector of shape and names of the vector should be the terms (default: 20)
-##' @param layout layout method
+##' @param layout layout method ('fruchtermanreingold','kamadakawai','target','circle')
 ##' @param savefig save figures or not
 ##' @param filename output figure name
 ##' @param width width for output figure
@@ -135,7 +135,7 @@ setMethod("ggnetplot", signature(object = "richResult"),definition = function(ob
                                                                            usePadj =TRUE, useTerm=TRUE,low="orange",high="red",
                                                                            writeCyt=FALSE, cytoscapeFile="network-file-for-cytoscape.txt",
                                                                            label.color = "black", label.size = 2, node.shape=NULL,
-                                                                           layout = layout.fruchterman.reingold,savefig=FALSE,filename="network",
+                                                                           layout = "fruchtermanreingold",savefig=FALSE,filename="network",
                                                                            width=7,height=7,node.alpha=0.7,repel=TRUE,segment.size=0.2,sep=",") {
   ggrich_internal(object@result,top=top,pvalue=pvalue,padj=padj,
                  usePadj=usePadj,useTerm=useTerm,low=low,high=high,
@@ -159,7 +159,7 @@ setMethod("ggnetplot", signature(object = "richResult"),definition = function(ob
 ##' @param label.color label color
 ##' @param label.size label size
 ##' @param node.shape vector of shape and names of the vector should be the terms (default: 20)
-##' @param layout layout method
+##' @param layout layout method ('fruchtermanreingold','kamadakawai','target','circle')
 ##' @param savefig save figures or not
 ##' @param filename output figure name
 ##' @param width width for output figure
@@ -182,7 +182,7 @@ setMethod("ggnetplot", signature(object = "data.frame"),definition = function(ob
                                                                            usePadj =TRUE, useTerm=TRUE,low="orange",high="red",
                                                                            writeCyt=FALSE, cytoscapeFile="network-file-for-cytoscape.txt",
                                                                            label.color = "black", label.size = 2, node.shape=NULL,
-                                                                           layout = layout.fruchterman.reingold,savefig=FALSE,filename="network",
+                                                                           layout = "fruchtermanreingold",savefig=FALSE,filename="network",
                                                                            width=7,height=7,node.alpha=0.7,repel=TRUE,segment.size=0.2,sep=",") {
   ggrich_internal(object,top=top,pvalue=pvalue,padj=padj,
                   usePadj=usePadj,useTerm=useTerm,low=low,high=high,
@@ -206,7 +206,7 @@ setMethod("ggnetplot", signature(object = "data.frame"),definition = function(ob
 ##' @param label.color label color
 ##' @param label.size label size
 ##' @param node.shape vector of shape and names of the vector should be the terms (default: 20)
-##' @param layout layout method
+##' @param layout layout method ('fruchtermanreingold','kamadakawai','target','circle')
 ##' @param savefig save figures or not
 ##' @param filename output figure name
 ##' @param width width for output figure
@@ -229,7 +229,7 @@ setMethod("ggnetplot", signature(object = "GSEAResult"),definition = function(ob
                                                                               usePadj =TRUE, useTerm=TRUE,low="orange",high="red",
                                                                               writeCyt=FALSE, cytoscapeFile="network-file-for-cytoscape.txt",
                                                                               label.color = "black", label.size = 2, node.shape=NULL,
-                                                                              layout = layout.fruchterman.reingold,savefig=FALSE,filename="network",
+                                                                              layout = "fruchtermanreingold",savefig=FALSE,filename="network",
                                                                               width=7,height=7,node.alpha=0.7,repel=TRUE,segment.size=0.2,sep=",") {
   object<-object@result
   sep <- object@sep

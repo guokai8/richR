@@ -244,7 +244,7 @@ setGeneric("ggnetplot",function(object,top=50, pvalue=0.05, padj=NULL,
                                 usePadj =TRUE, useTerm=TRUE,low="orange",high="red",
                                 writeCyt=FALSE, cytoscapeFile=NULL,
                                 label.color = "black", label.size = 2, node.shape=NULL,
-                                layout = layout.fruchterman.reingold,savefig=FALSE,filename=NULL,
+                                layout = "fruchtermanreingold",savefig=FALSE,filename=NULL,
                                 width=7,height=7,node.alpha=0.7,repel=TRUE,segment.size=0.2,sep=",",...)
   standardGeneric("ggnetplot"))
 
@@ -287,7 +287,7 @@ setGeneric("ggnetplot",function(object,top=50, pvalue=0.05, padj=NULL,
 ##' @export
 setGeneric("ggnetwork", function(object,gene,top = 50, pvalue = 0.05, padj = NULL,usePadj=TRUE,low = "orange",high = "red",
                                  weightcut = 0.2, useTerm = TRUE, writeCyt = FALSE,cytoscapeFile = NULL,cytoscapeFormat="graphml",
-                                 label.color = "black", label.size = 2,node.shape=NULL, layout = layout.fruchterman.reingold,savefig=FALSE,
+                                 label.color = "black", label.size = 2,node.shape=NULL, layout = "fruchtermanreingold",savefig=FALSE,
                                  visNet=FALSE,smooth=TRUE,nodeselect=FALSE,edit=FALSE,savehtml=FALSE,filename=NULL,
                                  width=7,height=7,segment.size=0.2,node.alpha=0.7,sep=",",...)
   standardGeneric("ggnetwork"))
