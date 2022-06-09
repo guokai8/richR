@@ -7,6 +7,7 @@ Maintainer: Kai Guo <guokai8@gmail.com>
 Description: This package is used for for enrichment analysis and network construction.
 License: GPL-3
 LazyData: TRUE
+Depends: R (>= 3.5.0)
 Imports:
     Rcpp,
     ggplot2,
