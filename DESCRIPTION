@@ -28,7 +28,6 @@ Imports:
     rlang,
     S4Vectors,
     sna
-Depends:
 LinkingTo: Rcpp
 Suggests:
     knitr,
