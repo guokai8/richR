@@ -18,7 +18,7 @@ buildOwn<-function(dbname,anntype="GO",OP=NULL,species="",keytype=""){
   }
   dbname<-eval(parse(text=dbname))
   if(anntype=="GO"){
-    annof<-AnnotationDbi::select(dbname,keys=keys(dbname),columns=c("GOALL","ONTOLOGYALL"))
+    annof<-AnnotationDbi::select(dbname,keys=keys(dbname,keytype=keytype),keytype=keytype,columns=c("GOALL","ONTOLOGYALL"))
     colnames(annof)[1]<-"GeneID"
     annof<-distinct_(annof,~GeneID, ~GOALL, ~ONTOLOGYALL)
     annot <- getann("GO")
@@ -27,21 +27,21 @@ buildOwn<-function(dbname,anntype="GO",OP=NULL,species="",keytype=""){
       annof<-annof[annof$ONTOLOGYALL==OP,]
     }
   }else if(anntype=="KEGG"){
-    annof=AnnotationDbi::select(dbname,keys=keys(dbname),columns="PATH")
+    annof=AnnotationDbi::select(dbname,keys=keys(dbname,keytype=keytype),keytype=keytype,columns="PATH")
     annof<-na.omit(annof)
     annot<-getann("KEGG")
     annof[,1]<-as.vector(annof[,1])
     annof[,2]<-as.vector(annof[,2])
     annof$Annot<-annot[annof[,2],"annotation"]
   }else if(anntype=="KEGGM"){
-    annof=AnnotationDbi::select(dbname,keys=keys(dbname),columns="KEGGM")
+    annof=AnnotationDbi::select(dbname,keys=keys(dbname,keytype=keytype),keytype=keytype,columns="KEGGM")
     annof<-na.omit(annof)
     annot<-.get_kgm.data()
     annof[,1]<-as.vector(annof[,1])
     annof[,2]<-as.vector(annof[,2])
     annof$Annot<-annot[annof[,2],"annotation"]
   }else{
-    annof=AnnotationDbi::select(dbname,keys=keys(dbname),columns=anntype)
+    annof=AnnotationDbi::select(dbname,keys=keys(dbname,keytype=keytype),keytype=keytype,columns=anntype)
     annof<-na.omit(annof)
     annof[,1]<-as.vector(annof[,1])
     annof[,2]<-as.vector(annof[,2])
