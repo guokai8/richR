@@ -264,7 +264,7 @@ getdetail<-function(rese,resd,sep){
 ##'
 .get_kgm.data <- function(){
   module <-  cbind(keggList('module'))
-  rownames(module)<-sub('M','',rownames(module))
+  rownames(module)<-sub('md:','',rownames(module))
   colnames(module)<-"annotation"
   module<-as.data.frame(module)
   module$annotation<-as.vector(module$annotation)
