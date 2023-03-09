@@ -253,7 +253,7 @@ getdetail<-function(rese,resd,sep){
     return(kegg.db)
   }else{
     pathway<-cbind(keggList('pathway'))
-    rownames(pathway)<-sub('path:map','',rownames(pathway))
+    rownames(pathway)<-sub('.*map','',rownames(pathway))
     colnames(pathway)<-"annotation"
     pathway<-as.data.frame(pathway)
     pathway$annotation<-as.vector(pathway$annotation)
@@ -264,7 +264,7 @@ getdetail<-function(rese,resd,sep){
 ##'
 .get_kgm.data <- function(){
   module <-  cbind(keggList('module'))
-  rownames(module)<-sub('md:','',rownames(module))
+  rownames(module)<-sub('M','',rownames(module))
   colnames(module)<-"annotation"
   module<-as.data.frame(module)
   module$annotation<-as.vector(module$annotation)
