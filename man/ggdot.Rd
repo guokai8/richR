@@ -101,6 +101,4 @@ dotplot for Enrichment results
 }
 \author{
 Kai Guo
-
-Kai Guo
 }

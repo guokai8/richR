@@ -124,6 +124,4 @@ barplot for Enrichment result
 }
 \author{
 Kai Guo
-
-Kai Guo
 }

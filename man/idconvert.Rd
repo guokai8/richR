@@ -26,6 +26,4 @@ Convert ID between ENTREZID to SYMBOL or other type ID based on bioconductor ann
 }
 \author{
 Kai Guo
-
-Kai Guo
 }
