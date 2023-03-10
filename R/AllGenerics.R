@@ -128,6 +128,39 @@ setGeneric("enrich", function(x,annot,ontology="",pvalue=0.05,padj=NULL,organism
   standardGeneric("enrich"))
 
 
+##' richLevel
+##'
+##' @name richLevel
+##' @rdname richLevel-methods
+##' @title richLevel method
+#' @importFrom dplyr filter left_join
+#' @param x vector contains gene names or dataframe with DEGs information
+#' @param kodata KEGG annotation data
+#' @param pvalue cutoff pvalue
+#' @param padj cutoff p adjust value
+#' @param organism organism
+#' @param keytype keytype for input genes
+#' @param ontology ontology type
+#' @param minSize minimal number of genes included in significant terms
+#' @param maxSize maximum number of genes included in significant terms
+#' @param keepRich keep terms with rich factor value equal 1 or not (default: TRUE)
+#' @param bulitin use KEGG bulit in KEGG annotation or not(set FALSE if you want use newest KEGG data)
+#' @param filename output filename
+#' @param padj.method pvalue adjust method(default:"BH")
+#' @param sep character string used to separate the genes when concatenating
+#' @examples
+#' \dontrun{
+#'   hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+#'   gene=sample(unique(hsako$GeneID),1000)
+#'   res<-richLevel(gene,kodata = hsako,level="Level2")
+#' }
+#' @export
+#' @author Kai Guo
+setGeneric("richLevel", function(x,kodata,level="Level2",pvalue =0.05, padj=NULL,
+                                 organism=NULL,keytype="SYMBOL",ontology="",minSize=2,maxSize=500,
+                                 keepRich=TRUE, filename=NULL,padj.method="BH",sep=",",...)
+  standardGeneric("richLevel"))
+
 ##' ggdot
 ##'
 ##' @name ggdot

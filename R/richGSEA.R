@@ -29,7 +29,7 @@ richGSEA_internal<-function(x,object,keytype="",pvalue=0.05,padj=NULL,minSize=15
     res<-res[res$padj<padj,]
   }
   res<-res[order(res$pval),]
-  res <- res[!is.na(res$pathway),]                          
+  res <- res[!is.na(res$pathway),]
   if(is.null(organism)){
     organism=character()
   }
@@ -148,4 +148,69 @@ ggGSEA<-function(x,term,object,gseaRes=gseaRes,top=10, default = TRUE){
     plotEnrichment(annod[[term]],stats=x)
   }
 }
+
+#' plot multiple significant pathways
+#' @importFrom ggplot2 ggplot geom_hline aes geom_point geom_segment
+#' @importFrom ggplot2 geom_line theme_bw element_blank theme scale_color_manual
+#' @param x a vector include all log2FC with gene name
+#' @param object Annot object
+#' @param gseaRes GSEAResult object
+#' @param mycol a vector indicate the colors used for the figure
+#' @param top number of terms you want to display,
+#' @param pvalue cutoff value of pvalue (if padj set as NULL)
+#' @param padj cutoff value of p adjust value
+#' @examples
+#' \dontrun{
+#' set.seed(123)
+#' hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+#' name=sample(unique(hsako$GeneID),1000)
+#' gene<-rnorm(1000)
+#' names(gene)<-name
+#' res<-richGSEA(gene,object = hsako)
+#' plotGSEA(hsako,res,object = hsako)
+#' }
+#' @export
+#' @author Kai Guo
+plotGSEA<-function(x, object,gseaRes,mycol=NULL,top=10,pvalue=0.05,padj=NULL,
+                   gseaParam = 1, ticksSize = 0.2){
+  if(!is.null(padj)){
+    cutoff <- padj
+    sigpathway<-gseaRes$pathway[gseaRes$padj<cutoff]
+  }else{
+    cutoff<-pvalue
+    sigpathway<-gseaRes$pathway[gseaRes$pval<cutoff]
+  }
+  if(top>length(sigpathway)){
+    top<-length(sigpathway)
+  }
+  if(is.null(mycol)){
+    mycol <- c("darkgreen","chocolate4","blueviolet","#223D6C","#D20A13","#088247","#58CDD9",
+                          "#7A142C","#5D90BA","#431A3D","#91612D","#6E568C","#E0367A","#D8D155","#64495D",
+                          "#7CC767")
+  }
+  sigpathway<-sigpathway[1:top]
+  fc <- x
+  res<-lapply(sigpathway,function(x).calGSEA(object,x,fc,gseaParam=gseaParam,ticksSize=ticksSize))
+  toPlot<-do.call(rbind,lapply(res,'[[','toPlot'))
+  pathway<-do.call(rbind,lapply(res,'[[','pathway'))
+  tops<-unlist(lapply(res,'[[','tops'))
+  bottoms<-unlist(lapply(res,'[[','bottoms'))
+  diff <- (max(tops) - min(bottoms))/8
+  p<-ggplot(toPlot, aes(x = x, y = y,color=Group)) + geom_point(size = 0.1) +
+    geom_hline(yintercept = max(tops), colour = "red",
+               linetype = "dashed") + geom_hline(yintercept = min(bottoms),
+                                                 colour = "red", linetype = "dashed") +
+    geom_hline(yintercept = 0, colour = "black") + geom_line() + theme_bw()
+  p <- p+geom_segment(data =pathway, mapping = aes(x = x,
+                                              y = -diff/4, xend = x,
+                                              yend = diff/4,color=Group),
+                 size = ticksSize) +
+    theme(panel.border = element_blank(), panel.grid.minor = element_blank()) +
+    scale_color_manual(values=mycol)+labs(x = "rank", y = "Enrichment score")
+  return(p)
+}
+
+
+
+
 

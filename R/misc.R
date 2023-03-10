@@ -694,3 +694,29 @@ setAs(from = "Annot", to = "data.frame", def = function(from){
   return(res)
 }
 
+###
+.calGSEA<-function (obj,sigpathway, fc, gseaParam = 1, ticksSize = 0.2){
+  obj<-split(obj[,1],obj[,3])
+  pathway <- obj[[sigpathway]]
+  stats <- fc
+  rnk <- rank(-stats)
+  ord <- order(rnk)
+  statsAdj <- stats[ord]
+  statsAdj <- sign(statsAdj) * (abs(statsAdj)^gseaParam)
+  statsAdj <- statsAdj/max(abs(statsAdj))
+  pathway <- unname(as.vector(na.omit(match(pathway, names(statsAdj)))))
+  pathway <- sort(pathway)
+  gseaRes <- fgsea::calcGseaStat(statsAdj, selectedStats = pathway,
+                                 returnAllExtremes = TRUE)
+  bottoms <- gseaRes$bottoms
+  tops <- gseaRes$tops
+  n <- length(statsAdj)
+  xs <- as.vector(rbind(pathway - 1, pathway))
+  ys <- as.vector(rbind(bottoms, tops))
+  toPlot <- data.frame(x = c(0, xs, n + 1), y = c(0, ys, 0))
+  diff <- (max(tops) - min(bottoms))/8
+  pathway<-data.frame(x = pathway,Group=sigpathway)
+  toPlot$Group<-sigpathway
+  return(list(toPlot=toPlot,pathway=pathway,tops=max(tops),bottoms=min(bottoms)))
+}
+
