@@ -47,6 +47,7 @@ buildOwn<-function(dbname,anntype="GO",OP=NULL,species="",keytype=""){
     annof[,2]<-as.vector(annof[,2])
     annof$Annot<-annof[,2]
   }
+  annof <- na.omit(annof)
   result<-new("Annot",
               species = species,
               anntype = anntype,
