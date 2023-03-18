@@ -76,6 +76,7 @@ richKEGG_internal<-function(x,kodata,pvalue=0.05,padj=NULL,ontology="KEGG",
                         "Padj"=rep(resultFis$Padj,times=unlist(lapply(gene,length)))
       )
     }else{
+      gene <- x
       names(gene)<-resultFis$Annot
       gened<-data.frame("TERM"="",
                         "Annot"="",
