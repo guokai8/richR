@@ -252,22 +252,24 @@ getdetail<-function(rese,resd,sep){
     data(kegg)
     return(kegg.db)
   }else{
-    pathway<-cbind(keggList('pathway'))
-    rownames(pathway)<-sub('.*map','',rownames(pathway))
-    colnames(pathway)<-"annotation"
-    pathway<-as.data.frame(pathway)
-    pathway$annotation<-as.vector(pathway$annotation)
+   # pathway<-cbind(keggList('pathway'))
+    #rownames(pathway)<-sub('.*map','',rownames(pathway))
+    #colnames(pathway)<-"annotation"
+    #pathway<-as.data.frame(pathway)
+    #pathway$annotation<-as.vector(pathway$annotation)
+    data(pathway)
     return(pathway)
   }
 }
 ##' @importFrom KEGGREST keggList
 ##'
 .get_kgm.data <- function(){
-  module <-  cbind(keggList('module'))
-  rownames(module)<-sub('md:','',rownames(module))
-  colnames(module)<-"annotation"
-  module<-as.data.frame(module)
-  module$annotation<-as.vector(module$annotation)
+  #module <-  cbind(keggList('module'))
+  #rownames(module)<-sub('md:','',rownames(module))
+  #colnames(module)<-"annotation"
+  #module<-as.data.frame(module)
+  #module$annotation<-as.vector(module$annotation)
+  data(module)
   return(module)
 }
 
