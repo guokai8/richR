@@ -15,7 +15,7 @@ Imports:
     dplyr,
     magrittr,
     msigdbr,
-    KEGGREST (>=1.38.0),
+    KEGGREST,
     igraph,
     visNetwork,
     AnnotationDbi,
