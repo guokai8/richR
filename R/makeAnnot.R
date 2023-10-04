@@ -107,7 +107,7 @@ buildAnnot<-function(species="human",keytype="SYMBOL",anntype="GO",builtin=TRUE,
 }
 
 ##' Download database from Msigdb and prepare for enrichment analysis
-##' @name msigdbr
+##' @name buildMSIGDB
 ##' @importFrom msigdbr msigdbr
 ##' @importFrom dplyr filter
 ##' @importFrom dplyr select
@@ -115,88 +115,92 @@ buildAnnot<-function(species="human",keytype="SYMBOL",anntype="GO",builtin=TRUE,
 ##' @importFrom magrittr %>%
 ##' @param species the species for query
 ##' @param keytype the gene ID type
-##' @param anntype gene set anntype (GO,BP,CC,MF,KEGG,REACTOME,BIOCARTA)
+##' @param anntype anntotaion type of  gene set (GO,BP,CC,MF,KEGG,REACTOME,
+##' BIOCARTA,HALLMARK)
 ##' @examples
 ##' \dontrun{
-##' hsamsi<-buildMSIGDB(species="human",keytype="SYMBOL",anntype="GO")
+##' hsamsi<-buildMSIGDB(species = "human", keytype = "SYMBOL", anntype = "GO")
 ##' }
 ##' @export
 ##' @author Kai Guo
-buildMSIGDB<-function(species="human",keytype="SYMBOL",anntype="GO",
-                     category=NULL){
-  flag=0
-  anntypes<-NULL
+buildMSIGDB<-function(species="human",keytype="SYMBOL",anntype="GO"){
+  flag <- 0
+  anntypes <- NULL
   if(!is.null(anntype)){
-    if(anntype=="CGP"){
-      category<-"C2"
+    if(anntype=="HALLMARK"){
+        category <- "H"
+        anntype <- ""
     }
-    if(anntype=="CP"){
-      category<-"C2"
+    if(anntype == "CGP"){
+      category <- "C2"
     }
-    if(anntype=="KEGG"){
-      anntypes<-"CP:KEGG"
-      category<-"C2"
+    if(anntype == "CP"){
+      category <- "C2"
     }
-    if(anntype=="REACTOME"){
-      anntypes<-"CP:REACTOME"
-      category<-"C2"
+    if(anntype == "KEGG"){
+      anntypes <- "CP:KEGG"
+      category <- "C2"
     }
-    if(anntype=="BIOCARTA"){
-      anntypes<-"CP:BIOCARTA"
-      category<-"C2"
+    if(anntype == "REACTOME"){
+      anntypes <- "CP:REACTOME"
+      category <- "C2"
     }
-    if(anntype=="MIR"){
-      category<-"C3"
+    if(anntype == "BIOCARTA"){
+      anntypes <- "CP:BIOCARTA"
+      category <- "C2"
     }
-    if(anntype=="TFT"){
-      category<-"C3"
+    if(anntype == "MIR"){
+      category <- "C3"
     }
-    if(anntype=="CGN"){
-      category=="C4"
+    if(anntype == "TFT"){
+      category <- "C3"
     }
-    if(anntype=="CM"){
-      category<-"C4"
+    if(anntype == "CGN"){
+      category == "C4"
     }
-    if(anntype=="GO"){
-      category<-"C5"
+    if(anntype == "CM"){
+      category <- "C4"
     }
-    if(anntype=="BP"){
-      anntypes<-"GO:BP"
-      category<-"C5"
+    if(anntype == "GO"){
+      category <- "C5"
     }
-    if(anntype=="CC"){
-      anntypes<-"GO:CC"
-      category<-"C5"
+    if(anntype == "BP"){
+      anntypes <- "GO:BP"
+      category <- "C5"
     }
-    if(anntype=="MF"){
-      anntypes<-"GO:MF"
-      category<-"C5"
+    if(anntype == "CC"){
+      anntypes <- "GO:CC"
+      category <- "C5"
+    }
+    if(anntype == "MF"){
+      anntypes <- "GO:MF"
+      category <- "C5"
     }
   }
   mspe<-.getmsig(species)
   if(is.null(mspe)){
     stop(cat("can't find support species!\n"))
   }
-  if(keytype=="SYMBOL"){
-    key="gene_symbol"
-  }else if(keytype=="ENTREZID"){
-    key="entrez_gene"
+  if(keytype == "SYMBOL"){
+    key = "gene_symbol"
+  }else if(keytype == "ENTREZID"){
+    key = "entrez_gene"
   }else{
-    key="entrez_gene"
-    flag=1
+    key = "entrez_gene"
+    flag = 1
   }
   cat("Downloading msigdb datasets ...\n")
-  res <- msigdbr(species=mspe)
-  res <- subset(res,gs_cat==category)
+  res <- msigdbr(species = mspe)
+  res <- subset(res, gs_cat == category)
   if(!is.null(anntypes)){
-    res <- subset(res,gs_subcat==anntypes)
+    res <- subset(res, gs_subcat == anntypes)
   }
-  if(anntype%in%c("GO","BP","CC","MF")){
-    res <- res[,c(key,"gs_exact_source","gs_name")]
-    res<-as.data.frame(res)
-    colnames(res)<-c("GeneID","GOALL","Annot")
-    res$Annot<-sub('.*@','',sub('_','@',res$Annot))
-  }else if(anntype=="KEGG"){
+  if(anntype%in%c("GO", "BP", "CC", "MF")){
+    res <- res[, c(key, "gs_exact_source", "gs_name")]
+    res <- as.data.frame(res)
+    colnames(res) <- c("GeneID","GOALL","Annot")
+    res$Annot <- sub('.*@','',sub('_','@',res$Annot))
+  }else if(anntype == "KEGG"){
     res <- res[,c(key,"gs_exact_source","gs_name")]
     res<-as.data.frame(res)
     colnames(res)<-c("GeneID","PATH","Annot")
@@ -209,7 +213,8 @@ buildMSIGDB<-function(species="human",keytype="SYMBOL",anntype="GO",
     res$Annot<-res[,2]
   }
   if(flag==1){
-    res[,1]<-idconvert(species,keys=res[,1],fkeytype="ENTREZID", tkeytype=keytype)
+    res[,1]<-idconvert(species, keys=res[,1], fkeytype="ENTREZID",
+                      tkeytype=keytype)
     res<-na.omit(res)
   }
   result<-new("Annot",
