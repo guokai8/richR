@@ -17,7 +17,7 @@ buildMSIGDB(
 
 \item{keytype}{the gene ID type}
 
-\item{anntype}{gene set anntype (GO,BP,CC,MF,KEGG,REACTOME,BIOCARTA)}
+\item{anntype}{gene set anntype (HALLMARK,GO,BP,CC,MF,KEGG,REACTOME,BIOCARTA)}
 }
 \description{
 Download database from Msigdb and prepare for enrichment analysis
