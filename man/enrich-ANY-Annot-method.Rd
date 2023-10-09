@@ -6,7 +6,7 @@
 \usage{
 \S4method{enrich}{ANY,Annot}(
   x,
-  annot,
+  object,
   pvalue = 0.05,
   padj = NULL,
   organism = NULL,
@@ -23,7 +23,7 @@
 \arguments{
 \item{x}{vector contains gene names or dataframe with DEGs information}
 
-\item{annot}{ontology type}
+\item{object}{annotation data}
 
 \item{pvalue}{cutoff pvalue}
 

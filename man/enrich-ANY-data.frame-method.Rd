@@ -6,7 +6,7 @@
 \usage{
 \S4method{enrich}{ANY,data.frame}(
   x,
-  annot,
+  object,
   ontology = "",
   pvalue = 0.05,
   padj = NULL,
@@ -23,7 +23,7 @@
 \arguments{
 \item{x}{vector contains gene names or dataframe with DEGs information}
 
-\item{annot}{ontology type}
+\item{object}{annotation data}
 
 \item{ontology}{ontology type}
 
