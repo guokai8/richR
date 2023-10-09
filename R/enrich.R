@@ -111,6 +111,13 @@ enrich_internal<-function(x,object,ontology= "",pvalue=0.05,padj=NULL,organism=N
 #' @param filename output filename
 #' @param padj.method pvalue adjust method(default:"BH")
 #' @param sep character string used to separate the genes when concatenating
+#' @examples
+#' \dontrun{
+#'   hsago <- buildAnnot(species="human",keytype="SYMBOL",anntype = "GO")
+#'   hsago <- as.data.frame(hsago)
+#'   gene <- sample(unique(hsago$GeneID),1000)
+#'   res<-enrich(gene,godata = hsago)
+#' }
 #' @export
 #' @author Kai Guo
 setMethod("enrich", signature(object = "data.frame"),definition = function(x,object,ontology="",pvalue=0.05,padj=NULL,organism=NULL,
@@ -158,10 +165,10 @@ setMethod("enrich", signature(object = "Annot"),definition = function(x,object,p
 #' @return Annot object
 #' @examples
 #' \dontrun{
-#' hsako<-buildAnnot(species="human",keytype="ENTREZID",anntype = "KEGG")
-#' hsako<-as.data.frame(hsako)
-#' gene=sample(unique(hsako$GeneID),1000)
-#' res<-richDAVID(gene,keytype="ENTREZID",species="human")
+#' hsako <- buildAnnot(species="human",keytype="ENTREZID",anntype = "KEGG")
+#' hsako <- as.data.frame(hsako)
+#' gene <- sample(unique(hsako$GeneID),1000)
+#' res <- richDAVID(gene,keytype="ENTREZID",species="human")
 #' }
 #' @export
 #' @author Kai Guo

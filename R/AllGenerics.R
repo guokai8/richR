@@ -19,10 +19,10 @@
 ##' @return richResult
 ##' @examples
 #' \dontrun{
-#' hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "GO")
-#' hsago<-as.data.frame(hsago)
-#' gene=sample(unique(hsago$GeneID),1000)
-#' res<-richGO(gene,godata = hsago,ontology ="BP")
+#' hsago <- buildAnnot(species="human",keytype="SYMBOL",anntype = "GO")
+#' hsago <- as.data.frame(hsago)
+#' gene <- sample(unique(hsago$GeneID),1000)
+#' res <- richGO(gene,godata = hsago,ontology ="BP")
 #' }
 ##' @export
 ##' @author Kai Guo
@@ -52,9 +52,9 @@ setGeneric("richGO", function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,organ
 ##' @return richResult
 #' @examples
 #' \dontrun{
-#' hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
-#' gene=sample(unique(hsako$GeneID),1000)
-#' res<-richKEGG(gene,kodata = hsako)
+#' hsako <- buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+#' gene <- sample(unique(hsako$GeneID),1000)
+#' res <- richKEGG(gene,kodata = hsako)
 #' }
 ##' @export
 ##' @author Kai Guo
@@ -81,11 +81,11 @@ setGeneric("richKEGG", function(x,kodata,pvalue=0.05,padj=NULL,organism=NULL,ont
 #' @examples
 #' \dontrun{
 #' set.seed(123)
-#' hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
-#' name=sample(unique(hsako$GeneID),1000)
+#' hsako <- buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+#' name <- sample(unique(hsako$GeneID),1000)
 #' gene<-rnorm(1000)
-#' names(gene)<-name
-#' res<-richGSEA(gene,object = hsako)
+#' names(gene) <- name
+#' res <- richGSEA(gene,object = hsako)
 #' }
 ##' @export
 ##' @author Kai Guo
@@ -114,11 +114,11 @@ setGeneric("richGSEA", function(x,object,keytype="",pvalue=0.05,padj=NULL,minSiz
 ##' \dontrun{
 ##' library(bioAnno)
 ##' fromKEGG(species="ath")
-##' athgo<-buildOwn(dbname="org.ath.eg.db",anntype="GO")
-##' athgo<-as.data.frame(athgo)
-##' athgo<-na.omit(athgo)
-##' gene=sample(unique(athgo$GeneID),1000)
-##' res<-enrich(gene,athgo)
+##' athgo <- buildOwn(dbname="org.ath.eg.db",anntype="GO")
+##' athgo <- as.data.frame(athgo)
+##' athgo <- na.omit(athgo)
+##' gene <- sample(unique(athgo$GeneID),1000)
+##' res <- enrich(gene,athgo)
 ##' }
 ##' @export
 ##' @author Kai Guo
@@ -150,9 +150,9 @@ setGeneric("enrich", function(x,object,ontology="",pvalue=0.05,padj=NULL,organis
 #' @param sep character string used to separate the genes when concatenating
 #' @examples
 #' \dontrun{
-#'   hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
-#'   gene=sample(unique(hsako$GeneID),1000)
-#'   res<-richLevel(gene,kodata = hsako,level="Level2")
+#'   hsako <- buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+#'   gene <- sample(unique(hsako$GeneID),1000)
+#'   res <- richLevel(gene,kodata = hsako,level="Level2")
 #' }
 #' @export
 #' @author Kai Guo
@@ -177,18 +177,18 @@ setGeneric("richLevel", function(x,kodata,level="Level2",pvalue =0.05, padj=NULL
 ##' @param fontsize.x fontsize of x axis
 ##' @param fontsize.y fontsize of y axis
 ##' @param short automatic short name or not
-##' @param padj cutoff value of p adjust value
+##' @param order order by Term or richFactor
 ##' @param usePadj use p adjust value as color or not (should use with padj)
 ##' @param font.size font size for xlim or ylim
-##' @param filename figure output name
+##' @param orderp order by p value(adjusted p value)
 ##' @param width figure width
 ##' @param height figure height
 ##' @return ggplot2 object
 ##' @examples
 #' \dontrun{
-#'   hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
-#'   gene=sample(unique(hsako$GeneID),1000)
-#'   res<-richKEGG(gene,kodata = hsako)
+#'   hsako <- buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+#'   gene <- sample(unique(hsako$GeneID),1000)
+#'   res <- richKEGG(gene,kodata = hsako)
 #'   ggdot(res)
 #' }
 ##' @export
@@ -197,7 +197,7 @@ setGeneric("ggdot", function(object,top=50,pvalue=0.05,order=FALSE,
                              low="lightpink",high="red",alpha=0.7,
                              font.x="bold",font.y="bold",fontsize.x=10,fontsize.y=10,
                              short=FALSE,
-                             padj=NULL,usePadj=TRUE,filename=NULL,width=10,height=8,...)
+                             padj=NULL,usePadj=TRUE,orderp=FALSE,filename=NULL,width=10,height=8,...)
     standardGeneric("ggdot"))
 
 ##' ggbar
@@ -216,9 +216,10 @@ setGeneric("ggdot", function(object,top=50,pvalue=0.05,order=FALSE,
 ##' @param fontsize.x fontsize of x axis
 ##' @param fontsize.y fontsize of y axis
 ##' @param short automatic short name or not
-##' @param padj cutoff value of p adjust value
+##' @param order order by Term or richFactor
 ##' @param usePadj use p adjust value as color or not (should use with padj)
 ##' @param font.size font size for xlim or ylim
+##' @param orderp order by p value(adjusted p value)
 ##' @param filename figure output name
 ##' @param width figure width
 ##' @param height figure height
@@ -234,7 +235,8 @@ setGeneric("ggdot", function(object,top=50,pvalue=0.05,order=FALSE,
 ##' @export
 ##' @author Kai Guo
 setGeneric("ggbar", function(object,top=50,pvalue=0.05,padj=NULL,order=FALSE,
-                             usePadj=TRUE,fontsize.x=10,fontsize.y=10,short=FALSE,fontsize.text=3,angle=0,filename=NULL,
+                             usePadj=TRUE,fontsize.x=10,fontsize.y=10,short=FALSE,fontsize.text=3,angle=0,orderp=FALSE,
+                             filename=NULL,
                              width=10,height=8,horiz=TRUE,...)
     standardGeneric("ggbar"))
 ##' ggnetplot
@@ -267,7 +269,7 @@ setGeneric("ggbar", function(object,top=50,pvalue=0.05,padj=NULL,order=FALSE,
 ##' @examples
 #' \dontrun{
 #'   hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
-#'   gene=sample(unique(hsako$GeneID),1000)
+#'   gene<-sample(unique(hsako$GeneID),1000)
 #'   res<-richKEGG(gene,kodata = hsako)
 #'   ggnetplot(res)
 #' }
@@ -313,7 +315,7 @@ setGeneric("ggnetplot",function(object,top=50, pvalue=0.05, padj=NULL,
 ##' @examples
 #' \dontrun{
 #'   hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
-#'   gene=sample(unique(hsako$GeneID),1000)
+#'   gene<-sample(unique(hsako$GeneID),1000)
 #'   res<-richKEGG(gene,kodata = hsako)
 #'   ggnetwork(res)
 #' }
@@ -351,7 +353,7 @@ detail<-function(x){
 #' @examples
 #' \dontrun{
 #'   hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "GO")
-#'   gene=sample(unique(hsago$GeneID),1000)
+#'   gene<-ample(unique(hsago$GeneID),1000)
 #'   res<-richGO(gene,godata = hsago,ontology ="BP")
 #'   resc<-richCluster(res)
 #' }

@@ -25,9 +25,10 @@
 ##' @param fontsize.x fontsize of x axis
 ##' @param fontsize.y fontsize of y axis
 ##' @param short automatic short name or not
-##' @param padj cutoff value of p adjust value
+##' @param order order by Term or richFactor
 ##' @param usePadj use p adjust value as color or not (should use with padj)
 ##' @param font.size font size for xlim or ylim
+##' @param orderp order by p value(adjusted p value)
 ##' @param filename figure output name
 ##' @param width figure width
 ##' @param height figure height
@@ -35,7 +36,7 @@ ggdot_internal<-function(object,top=50,pvalue=0.05,order=FALSE,
                          low="lightpink",high="red",alpha=0.7,
                          font.x="bold",font.y="bold",fontsize.x=10,fontsize.y=10,
                          short=FALSE,
-                         padj=NULL,usePadj=TRUE,filename=NULL,width=10,height=8){
+                         padj=NULL,usePadj=TRUE,orderp=FALSE,filename=NULL,width=10,height=8){
   if(!is.null(padj)){
     object<-object[object$Padj<padj,]
   }else{
@@ -52,8 +53,12 @@ ggdot_internal<-function(object,top=50,pvalue=0.05,order=FALSE,
     if(isTRUE(short)){
       dd$Term<-unlist(lapply(dd$Term,function(x).paste.char(x)))
     }
-    if(order==TRUE){
-      dd$Term<-factor(dd$Term,levels=dd$Term[order(dd$rich)])
+    if(isTRUE(order)){
+      if(isTRUE(orderp)){
+        dd$Term<-factor(dd$Term,levels=dd$Term[order(dd$Pvalue)])
+      }else{
+        dd$Term<-factor(dd$Term,levels=dd$Term[order(dd$rich)])
+      }
     }
     if(usePadj==FALSE){
       p<-ggplot(dd,aes(x=rich,y=Term))+geom_point(aes(size=Significant,color=-log10(Pvalue)),alpha=alpha)+theme_minimal()+
@@ -86,9 +91,10 @@ ggdot_internal<-function(object,top=50,pvalue=0.05,order=FALSE,
 ##' @param fontsize.x fontsize of x axis
 ##' @param fontsize.y fontsize of y axis
 ##' @param short automatic short name or not
-##' @param padj cutoff value of p adjust value
+##' @param order order by Term or richFactor
 ##' @param usePadj use p adjust value as color or not (should use with padj)
 ##' @param font.size font size for xlim or ylim
+##' @param orderp order by p value(adjusted p value)
 ##' @param filename figure output name
 ##' @param width figure width
 ##' @param height figure height
@@ -105,11 +111,11 @@ setMethod("ggdot", signature(object = "richResult"),definition = function(object
                                                                           low="lightpink",high="red",alpha=0.7,
                                                                           font.x="bold",font.y="bold",fontsize.x=10,fontsize.y=10,
                                                                           short=FALSE,
-                                                                          padj=NULL,usePadj=TRUE,filename=NULL,width=10,height=8) {
+                                                                          padj=NULL,usePadj=TRUE,orderp=FALSE,filename=NULL,width=10,height=8) {
             ggdot_internal(object@result,top=top,pvalue=pvalue,order=order,
                            low=low,high=high,alpha=alpha,
                            font.x=font.x,font.y=font.y,fontsize.x=fontsize.x,fontsize.y=fontsize.y,
-                           padj=padj,usePadj=usePadj,filename=filename,width=width,height=height)
+                           padj=padj,usePadj=usePadj,orderp=orderp,filename=filename,width=width,height=height)
           })
 ##' dotplot for Enrichment results
 ##' @rdname ggdot
@@ -125,8 +131,10 @@ setMethod("ggdot", signature(object = "richResult"),definition = function(object
 ##' @param fontsize.y fontsize of y axis
 ##' @param short automatic short name or not
 ##' @param padj cutoff value of p adjust value
+##' @param order order by Term or richFactor
 ##' @param usePadj use p adjust value as color or not (should use with padj)
 ##' @param font.size font size for xlim or ylim
+##' @param orderp order by p value(adjusted p value)
 ##' @param filename figure output name
 ##' @param width figure width
 ##' @param height figure height
@@ -143,9 +151,9 @@ setMethod("ggdot", signature(object = "data.frame"),definition = function(object
                                                                           low="lightpink",high="red",alpha=0.7,
                                                                           font.x="bold",font.y="bold",fontsize.x=10,fontsize.y=10,
                                                                           short=FALSE,
-                                                                          padj=NULL,usePadj=TRUE,filename=NULL,width=10,height=8) {
+                                                                          padj=NULL,usePadj=TRUE,orderp=FALSE,filename=NULL,width=10,height=8) {
             ggdot_internal(object,top=top,pvalue=pvalue,order=order,
                            low=low,high=high,alpha=alpha,
                            font.x=font.x,font.y=font.y,fontsize.x=fontsize.x,fontsize.y=fontsize.y,
-                           padj=padj,usePadj=usePadj,filename=filename,width=width,height=height)
+                           padj=padj,usePadj=usePadj,orderp=orderp,filename=filename,width=width,height=height)
           })
