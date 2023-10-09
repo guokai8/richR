@@ -98,7 +98,7 @@ setGeneric("richGSEA", function(x,object,keytype="",pvalue=0.05,padj=NULL,minSiz
 ##' @rdname enrich-methods
 ##' @title enrich method
 #' @param x vector contains gene names or dataframe with DEGs information
-#' @param annot ontology type
+#' @param object annotation data
 #' @param pvalue cutoff pvalue
 #' @param padj cutoff p adjust value
 #' @param organism organism
@@ -122,7 +122,7 @@ setGeneric("richGSEA", function(x,object,keytype="",pvalue=0.05,padj=NULL,minSiz
 ##' }
 ##' @export
 ##' @author Kai Guo
-setGeneric("enrich", function(x,annot,ontology="",pvalue=0.05,padj=NULL,organism=NULL,
+setGeneric("enrich", function(x,object,ontology="",pvalue=0.05,padj=NULL,organism=NULL,
                               keytype="",filename=NULL,minSize=2,maxSize=500,
                               keepRich=TRUE,padj.method="BH",sep=",",...)
   standardGeneric("enrich"))

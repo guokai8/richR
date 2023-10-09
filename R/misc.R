@@ -258,6 +258,10 @@ getdetail<-function(rese,resd,sep){
     pathway<-as.data.frame(pathway)
     pathway$annotation<-as.vector(pathway$annotation)
     #data(pathway)
+    if(is.na(pathway['04148',])){
+      data(kegg)
+      pathway<-kegg.db
+    }
     return(pathway)
   }
 }

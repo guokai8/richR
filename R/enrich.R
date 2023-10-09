@@ -1,6 +1,6 @@
 #' Enrichment analysis for any type of annotation data
 #' @param x vector contains gene names or dataframe with DEGs information
-#' @param annot ontology type
+#' @param object annotation data
 #' @param ontology ontology type
 #' @param pvalue cutoff pvalue
 #' @param padj cutoff p adjust value
@@ -14,12 +14,12 @@
 #' @param sep character string used to separate the genes when concatenating
 #' @export
 #' @author Kai Guo
-enrich_internal<-function(x,annot,ontology= "",pvalue=0.05,padj=NULL,organism=NULL,minSize=1,maxSize=500,
+enrich_internal<-function(x,object,ontology= "",pvalue=0.05,padj=NULL,organism=NULL,minSize=1,maxSize=500,
                           keepRich=TRUE,keytype="",filename=NULL,padj.method="BH",sep = ","){
   ontology=""
-  ao2gene<-sf(annot)
+  ao2gene<-sf(object)
   ao2gene_num<-name_table(ao2gene)
-  gene2ao<-sf(annot[,c(2,1)])
+  gene2ao<-sf(object[,c(2,1)])
   if(is.data.frame(x)){
     input<-rownames(x)
   }else{
@@ -30,7 +30,7 @@ enrich_internal<-function(x,annot,ontology= "",pvalue=0.05,padj=NULL,organism=NU
   k=name_table(fao2gene)
   n=length(unique(unlist(fao2gene)))
   M=ao2gene_num[names(k)]
-  N=length(unique(annot[,1]))
+  N=length(unique(object[,1]))
   rhs<-hyper_bench_vector(k,M,N,n)
   lhs<-p.adjust(rhs,method=padj.method)
   rhs_gene<-unlist(lapply(fao2gene, function(x)paste(unique(x),sep="",collapse = sep)))
@@ -99,7 +99,7 @@ enrich_internal<-function(x,annot,ontology= "",pvalue=0.05,padj=NULL,organism=NU
 }
 #' Enrichment analysis function
 #' @param x vector contains gene names or dataframe with DEGs information
-#' @param annot ontology type
+#' @param object annotation data
 #' @param ontology ontology type
 #' @param pvalue cutoff pvalue
 #' @param padj cutoff p adjust value
@@ -113,17 +113,17 @@ enrich_internal<-function(x,annot,ontology= "",pvalue=0.05,padj=NULL,organism=NU
 #' @param sep character string used to separate the genes when concatenating
 #' @export
 #' @author Kai Guo
-setMethod("enrich", signature(annot = "data.frame"),definition = function(x,annot,ontology="",pvalue=0.05,padj=NULL,organism=NULL,
+setMethod("enrich", signature(object = "data.frame"),definition = function(x,object,ontology="",pvalue=0.05,padj=NULL,organism=NULL,
                                                                              keytype="",filename=NULL,minSize=2,maxSize=500,
                                                                              keepRich=TRUE,padj.method="BH",sep=",") {
-  enrich_internal(x,annot=annot,ontology=ontology,pvalue=pvalue,padj=padj,
+  enrich_internal(x,object=object,ontology=ontology,pvalue=pvalue,padj=padj,
                     organism=organism,keytype=keytype,minSize=minSize,maxSize=maxSize,keepRich=keepRich,
                     filename=filename,padj.method=padj.method,sep=sep)
 })
 
 #' Enrichment analysis function
 #' @param x vector contains gene names or dataframe with DEGs information
-#' @param annot ontology type
+#' @param object annotation data
 #' @param ontology ontology type
 #' @param pvalue cutoff pvalue
 #' @param padj cutoff p adjust value
@@ -138,11 +138,11 @@ setMethod("enrich", signature(annot = "data.frame"),definition = function(x,anno
 #' @param sep character string used to separate the genes when concatenating
 #' @export
 #' @author Kai Guo
-setMethod("enrich", signature(annot = "Annot"),definition = function(x,annot,pvalue=0.05,padj=NULL,organism=NULL,
+setMethod("enrich", signature(object = "Annot"),definition = function(x,object,pvalue=0.05,padj=NULL,organism=NULL,
                                                                         keytype="",filename=NULL,minSize=2,maxSize=500,
                                                                         keepRich=TRUE,padj.method="BH",builtin=TRUE,sep=",") {
-  enrich_internal(x=x,annot=annot@annot,ontology=annot@anntype,pvalue=pvalue,padj=padj,
-                    organism=annot@species,keytype=annot@keytype,minSize=minSize,maxSize=maxSize,keepRich=keepRich,
+  enrich_internal(x=x,object=object@annot,ontology=object@anntype,pvalue=pvalue,padj=padj,
+                    organism=object@species,keytype=object@keytype,minSize=minSize,maxSize=maxSize,keepRich=keepRich,
                     filename=filename,padj.method=padj.method,sep=sep)
 })
 

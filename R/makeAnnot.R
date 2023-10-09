@@ -39,7 +39,7 @@ buildAnnot<-function(species="human",keytype="SYMBOL",anntype="GO",builtin=TRUE,
 #' @param species you can check the support species by using showData()
 #' @param keytype the gene ID type
 #' @param OP BP,CC,MF default use all
-#' @importFrom dplyr distinct_
+#' @importFrom dplyr distinct
 #' @author Kai Guo
 .makeGOdata<-function(species="human",keytype="ENTREZID",OP=NULL){
   dbname<-.getdbname(species);
@@ -55,7 +55,8 @@ buildAnnot<-function(species="human",keytype="SYMBOL",anntype="GO",builtin=TRUE,
   dbname<-eval(parse(text=dbname))
   GO_FILE<-AnnotationDbi::select(dbname,keys=keys(dbname,keytype=keytype),keytype=keytype,columns=c("GOALL","ONTOLOGYALL"))
   colnames(GO_FILE)[1]<-"GeneID"
-  GO_FILE<-distinct_(GO_FILE,~GeneID, ~GOALL, ~ONTOLOGYALL)
+  #GO_FILE<-distinct_(GO_FILE,~GeneID, ~GOALL, ~ONTOLOGYALL)
+  GO_FILE <- distinct(GO_FILE[,c('GeneID','GOALL','ONTOLOGYALL')])
   annot <- getann("GO")
   GO_FILE$Annot <- annot[GO_FILE[,2],"annotation"]
   if(!is.null(OP)){
