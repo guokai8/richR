@@ -19,6 +19,7 @@ ggdot(
   short = FALSE,
   padj = NULL,
   usePadj = TRUE,
+  orderp = FALSE,
   filename = NULL,
   width = 10,
   height = 8,
@@ -31,6 +32,8 @@ ggdot(
 \item{top}{number of terms you want to display,}
 
 \item{pvalue}{cutoff value of pvalue (if padj set as NULL)}
+
+\item{order}{order by Term or richFactor}
 
 \item{low}{low color}
 
@@ -46,11 +49,9 @@ ggdot(
 
 \item{short}{automatic short name or not}
 
-\item{padj}{cutoff value of p adjust value}
-
 \item{usePadj}{use p adjust value as color or not (should use with padj)}
 
-\item{filename}{figure output name}
+\item{orderp}{order by p value(adjusted p value)}
 
 \item{width}{figure width}
 
@@ -68,9 +69,9 @@ ggdot
 }
 \examples{
 \dontrun{
-  hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
-  gene=sample(unique(hsako$GeneID),1000)
-  res<-richKEGG(gene,kodata = hsako)
+  hsako <- buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+  gene <- sample(unique(hsako$GeneID),1000)
+  res <- richKEGG(gene,kodata = hsako)
   ggdot(res)
 }
 }

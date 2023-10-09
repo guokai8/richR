@@ -16,6 +16,7 @@ ggbar(
   short = FALSE,
   fontsize.text = 3,
   angle = 0,
+  orderp = FALSE,
   filename = NULL,
   width = 10,
   height = 8,
@@ -30,7 +31,7 @@ ggbar(
 
 \item{pvalue}{cutoff value of pvalue (if padj set as NULL)}
 
-\item{padj}{cutoff value of p adjust value}
+\item{order}{order by Term or richFactor}
 
 \item{usePadj}{use p adjust value as color or not (should use with padj)}
 
@@ -39,6 +40,8 @@ ggbar(
 \item{fontsize.y}{fontsize of y axis}
 
 \item{short}{automatic short name or not}
+
+\item{orderp}{order by p value(adjusted p value)}
 
 \item{filename}{figure output name}
 

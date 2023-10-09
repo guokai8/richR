@@ -84,7 +84,7 @@ ggnetplot
 \examples{
 \dontrun{
   hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
-  gene=sample(unique(hsako$GeneID),1000)
+  gene<-sample(unique(hsako$GeneID),1000)
   res<-richKEGG(gene,kodata = hsako)
   ggnetplot(res)
 }

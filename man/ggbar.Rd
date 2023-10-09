@@ -23,6 +23,7 @@ ggbar_internal(
   angle = 75,
   padj = NULL,
   usePadj = TRUE,
+  orderp = FALSE,
   filename = NULL,
   width = 10,
   height = 8
@@ -40,6 +41,7 @@ ggbar_internal(
   short = FALSE,
   fontsize.text = 3,
   angle = 75,
+  orderp = orderp,
   filename = NULL,
   width = 10,
   height = 8,
@@ -59,6 +61,7 @@ ggbar_internal(
   short = FALSE,
   fontsize.text = 3,
   angle = 75,
+  orderp = FALSE,
   filename = NULL,
   width = 10,
   height = 8,
@@ -70,6 +73,8 @@ ggbar_internal(
 \item{top}{number of terms you want to display,}
 
 \item{pvalue}{cutoff value of pvalue (if padj set as NULL)}
+
+\item{order}{order by Term or richFactor}
 
 \item{horiz}{horiz or not}
 
@@ -88,6 +93,8 @@ ggbar_internal(
 \item{padj}{cutoff value of p adjust value}
 
 \item{usePadj}{use p adjust value as color or not (should use with padj)}
+
+\item{orderp}{order by p value(adjusted p value)}
 
 \item{filename}{figure output name}
 

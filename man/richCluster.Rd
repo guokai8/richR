@@ -35,7 +35,7 @@ kappa cluster analysis
 \examples{
 \dontrun{
   hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "GO")
-  gene=sample(unique(hsago$GeneID),1000)
+  gene<-ample(unique(hsago$GeneID),1000)
   res<-richGO(gene,godata = hsago,ontology ="BP")
   resc<-richCluster(res)
 }

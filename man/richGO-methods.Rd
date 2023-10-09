@@ -56,10 +56,10 @@ richGO
 }
 \examples{
 \dontrun{
-hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "GO")
-hsago<-as.data.frame(hsago)
-gene=sample(unique(hsago$GeneID),1000)
-res<-richGO(gene,godata = hsago,ontology ="BP")
+hsago <- buildAnnot(species="human",keytype="SYMBOL",anntype = "GO")
+hsago <- as.data.frame(hsago)
+gene <- sample(unique(hsago$GeneID),1000)
+res <- richGO(gene,godata = hsago,ontology ="BP")
 }
 }
 \author{

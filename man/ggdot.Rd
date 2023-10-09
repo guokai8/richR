@@ -20,6 +20,7 @@
   short = FALSE,
   padj = NULL,
   usePadj = TRUE,
+  orderp = FALSE,
   filename = NULL,
   width = 10,
   height = 8
@@ -40,6 +41,7 @@
   short = FALSE,
   padj = NULL,
   usePadj = TRUE,
+  orderp = FALSE,
   filename = NULL,
   width = 10,
   height = 8
@@ -51,6 +53,8 @@
 \item{top}{number of terms you want to display,}
 
 \item{pvalue}{cutoff value of pvalue (if padj set as NULL)}
+
+\item{order}{order by Term or richFactor}
 
 \item{low}{low color}
 
@@ -69,6 +73,8 @@
 \item{padj}{cutoff value of p adjust value}
 
 \item{usePadj}{use p adjust value as color or not (should use with padj)}
+
+\item{orderp}{order by p value(adjusted p value)}
 
 \item{filename}{figure output name}
 
