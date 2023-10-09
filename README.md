@@ -56,7 +56,14 @@ ggdot(resc)
 resko<-richKEGG(gene,hsako,pvalue=0.05)
 head(resko)
 ggdot(resko,top=10,usePadj = F)
-```   
+##GSEA
+set.seed(123)
+hsako <- buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+name <- sample(unique(hsako$GeneID),1000)
+gene<-rnorm(1000)
+names(gene) <- name
+res <- richGSEA(gene,object = hsako)
+```  
 ### Support DAVID analysis (Online)
 ```
 gene <- sample(unique(hsako$GeneID),1000)
