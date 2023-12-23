@@ -44,6 +44,7 @@ richGSEA_internal<-function(x,object,keytype="",pvalue=0.05,padj=NULL,minSize=15
               genenumber    = length(x),
               organism       = organism,
               gene           = names(x),
+              input = x,
               ontology = ontology,
               keytype        = keytype,
               sep = sep
@@ -209,8 +210,5 @@ plotGSEA<-function(x, object,gseaRes,mycol=NULL,top=10,pvalue=0.05,padj=NULL,
     scale_color_manual(values=mycol)+labs(x = "rank", y = "Enrichment score")
   return(p)
 }
-
-
-
 
 

@@ -128,3 +128,109 @@ comparedot<-function (x, pvalue = 0.05, low = "lightpink", high = "red",
   }
   p
 }
+
+#'
+#' compare GSEA enrichment results across different samples and generate figure
+#' @importFrom ggplot2 facet_wrap
+#' @importFrom ggplot2 ggplot geom_hline aes geom_point geom_segment
+#' @importFrom ggplot2 geom_line theme_bw element_blank theme scale_color_manual
+#' @param x list of GSEAResult
+#' @param object Annot object
+#' @param gene list of a vector include all log2FC with gene name (optional)
+#' @param pathway pathways you want to display (optional)
+#' @param mycol a vector indicate the colors used for the figure
+#' @param top number of terms you want to display,
+#' @param pvalue cutoff value of pvalue (if padj set as NULL)
+#' @param padj cutoff value of p adjust value
+#' @examples
+#' \dontrun{
+#' hsako <- buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+#' gene1 <- sample(unique(hsako$GeneID),1000)
+#' gene2 <- sample(unique(hsako$GeneID),1000)
+#' fc1<-rnorm(1000,11,2)
+#' names(fc1)<-gene1
+#' fc2<-rnorm(1000,11,2)
+#' names(fc2)<-gene2
+#' resko1 <-richGSEA(fc1,kodata = hsako)
+#' resko2 <-richGSEA(fc2,kodata = hsako)
+#' res<-compareGSEA(list(S1=resko1,S2=resko2),hsako)
+#' }
+#' @author Kai Guo
+#' @export
+compareGSEA<-function(x,object,gene=NULL,pathway=NULL,
+                      mycol=NULL,pvalue = 0.05, padj = NULL,
+                      gseaParam = 1, ticksSize = 0.2,ncol=2){
+  if (!is.null(padj)) {
+    Pvalue <- 1
+  }
+  else {
+    Padj <- 1
+  }
+  Pvalue=pvalue
+  if (is.null(names(x))) {
+    names(x) <- paste("Group", seq_along(x))
+  }
+  if(is.null(mycol)){
+    mycol <- c("darkgreen","chocolate4","blueviolet","#223D6C","#D20A13","#088247","#58CDD9",
+               "#7A142C","#5D90BA","#431A3D","#91612D","#6E568C","#E0367A","#D8D155","#64495D",
+               "#7CC767")
+  }
+  tmp <- lapply(x, function(x) filter(x, padj < Padj, pval <
+                                        Pvalue))
+  sigpathway <- lapply(tmp, function(x) x$pathway)
+ # names(tmp)<-names(x)
+  if(is.null(gene)){
+    fc <- lapply(x,function(x){
+      fc<-x@input
+      names(fc)<-x@gene
+      return(fc)
+    })}else{
+    fc<-gene
+    names(fc)<-names(tmp)
+  }
+#  names(fc)<-names(x)
+  res<-list()
+  for(i in names(tmp)){
+    sigp<-sigpathway[[i]]
+    fct<-fc[[i]]
+    sigt<-lapply(sigp,function(x).calGSEA(object,x,fct,gseaParam=gseaParam,ticksSize=ticksSize))
+    res[[i]]<-sigt
+  }
+  ####
+  toPlot<-lapply(res,function(x)lapply(x,'[[','toPlot'))
+  path<-lapply(res,function(x)lapply(x,'[[','pathway'))
+  tops<-lapply(res,function(x)lapply(x,'[[','tops'))
+  bottoms<-lapply(res,function(x)lapply(x,'[[','bottoms'))
+  ######
+  toPlot<-do.call(rbind,lapply(toPlot, function(x)do.call(rbind,x)))
+  path<-do.call(rbind,lapply(path, function(x)do.call(rbind,x)))
+  tops<-do.call(rbind,lapply(tops, function(x)do.call(rbind,x)))
+  bottoms<-do.call(rbind,lapply(bottoms, function(x)do.call(rbind,x)))
+  ####
+  toPlot$group<-sub("(\\.)\\d+$", "", rownames(toPlot))
+  path$group<-sub("(\\.)\\d+$", "", rownames(path))
+  if(!is.null(pathway)){
+    toPlot<-subset(toPlot,Group%in%pathway)
+    path<-subset(path,Group%in%pathway)
+  }
+#  tops$group<-sub("(\\.)\\d+$", "", rownames(tops))
+#  bottoms$group<-sub("(\\.)\\d+$", "", rownames(bottoms))
+  ####
+  diff <- (max(tops) - min(bottoms))/8
+  p<-ggplot(toPlot, aes(x = x, y = y,color=group)) + geom_point(size = 0.1) +
+    geom_hline(yintercept = max(tops), colour = "red",
+               linetype = "dashed") + geom_hline(yintercept = min(bottoms),
+                                                 colour = "red", linetype = "dashed") +
+    geom_hline(yintercept = 0, colour = "black") + geom_line() + theme_bw()
+  p <- p+geom_segment(data =path, mapping = aes(x = x,
+                                                   y = -diff/4, xend = x,
+                                                   yend = diff/4,color=group),
+                      size = ticksSize) +
+    theme(panel.border = element_blank(), panel.grid.minor = element_blank()) +
+    scale_color_manual(values=mycol)+labs(x = "rank", y = "Enrichment score")
+  if(!is.null(pathway)){
+    p<-p+facet_wrap(.~Group,ncol=ncol)
+  }
+  p
+}
+

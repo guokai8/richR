@@ -18,7 +18,7 @@
 ##' @slot ontology biological ontology
 ##' @slot gene Gene IDs
 ##' @slot keytype Gene ID type
-##' @slot sep character string used to separate the genes when concatenating 
+##' @slot sep character string used to separate the genes when concatenating
 ##' @exportClass richResult
 ##' @author Kai Guo
 ##' @keywords classes
@@ -54,7 +54,7 @@ setClass("richResult",
 ##' @slot ontology biological ontology
 ##' @slot gene Gene IDs
 ##' @slot keytype Gene ID type
-##' @slot sep character string used to separate the genes when concatenating 
+##' @slot sep character string used to separate the genes when concatenating
 ##' @exportClass GSEAResult
 ##' @author Kai Guo
 ##' @keywords classes
@@ -67,6 +67,7 @@ setClass("GSEAResult",
            genenumber    = "numeric",
            organism       = "character",
            gene           = "character",
+           input = 'numeric',
            ontology = "character",
            keytype        = "character",
            sep = "character"
