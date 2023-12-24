@@ -231,9 +231,7 @@ compareGSEA<-function(x,object,gene=NULL,pathway=NULL,
                       size = ticksSize) +
     theme(panel.border = element_blank(), panel.grid.minor = element_blank()) +
     scale_color_manual(values=mycol)+labs(x = "rank", y = "Enrichment score")
-  if(!is.null(pathway)){
-    p<-p+facet_wrap(.~Group,ncol=ncol,scales = scales)
-  }
+  p<-p+facet_wrap(.~Group,ncol=ncol,scales = scales)
   p
 }
 
