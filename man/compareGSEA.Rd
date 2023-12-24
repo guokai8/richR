@@ -12,6 +12,7 @@ compareGSEA(
   mycol = NULL,
   pvalue = 0.05,
   padj = NULL,
+  label = FALSE,
   gseaParam = 1,
   ticksSize = 0.2,
   ncol = 2,
@@ -32,6 +33,8 @@ compareGSEA(
 \item{pvalue}{cutoff value of pvalue (if padj set as NULL)}
 
 \item{padj}{cutoff value of p adjust value}
+
+\item{label}{display the NES values or not}
 
 \item{scales}{Should scales be fixed ("fixed", the default), free ("free"), or free in one dimension ("free_x", "free_y")?}
 
