@@ -142,6 +142,7 @@ comparedot<-function (x, pvalue = 0.05, low = "lightpink", high = "red",
 #' @param top number of terms you want to display,
 #' @param pvalue cutoff value of pvalue (if padj set as NULL)
 #' @param padj cutoff value of p adjust value
+#' @param label display the NES values or not
 #' @param scales Should scales be fixed ("fixed", the default), free ("free"), or free in one dimension ("free_x", "free_y")?
 #' @examples
 #' \dontrun{
@@ -159,7 +160,7 @@ comparedot<-function (x, pvalue = 0.05, low = "lightpink", high = "red",
 #' @author Kai Guo
 #' @export
 compareGSEA<-function(x,object,gene=NULL,pathway=NULL,
-                      mycol=NULL,pvalue = 0.05, padj = NULL,
+                      mycol=NULL,pvalue = 0.05, padj = NULL,label=FALSE,
                       gseaParam = 1, ticksSize = 0.2,ncol=2,scales="fixed"){
   if (!is.null(padj)) {
     Pvalue <- 1
@@ -179,7 +180,38 @@ compareGSEA<-function(x,object,gene=NULL,pathway=NULL,
   tmp <- lapply(x, function(x) filter(x, padj < Padj, pval <
                                         Pvalue))
   sigpathway <- lapply(tmp, function(x) x$pathway)
- # names(tmp)<-names(x)
+  NES <- do.call(rbind, lapply(tmp, function(x) {
+    nes <-x$NES
+    names(nes) <-x$pathway
+    return(nes)
+    }))
+  NES<-as.data.frame(NES)
+  NES$group <- rownames(NES)
+  NES<-gather(NES,Group,NES,-group)
+  NES$hjustvar<-1.5
+  NES$vjustvar<-2
+  NES$annotateText <- paste0(NES$group,":(NES=",round(NES$NES,2),")\n")
+  padjs <- do.call(rbind, lapply(tmp, function(x) {
+    pad<-x$padj
+    names(pad)<-x$pathway
+    return(pad)
+    }))
+  padjs<-as.data.frame(padjs)
+  padjs$group <- rownames(padjs)
+  padjs<-gather(padjs,Group,Padj,-group)
+  padjs$hjustvar<-1.5
+  padjs$vjustvar<-2
+  pvals <- do.call(rbind,lapply(tmp, function(x) {
+    pva<-x$pval
+    names(pva)<-x$pathway
+    return(pva)
+    }))
+  pvals <- as.data.frame(pvals)
+  pvals$group <- rownames(pvals)
+  pvals<-gather(pvals,Group,Pvalue,-group)
+  pvals$hjustvar<-1.5
+  pvals$vjustvar<-2
+  # names(tmp)<-names(x)
   if(is.null(gene)){
     fc <- lapply(x,function(x){
       fc<-x@input
@@ -205,17 +237,18 @@ compareGSEA<-function(x,object,gene=NULL,pathway=NULL,
   ######
   toPlot<-do.call(rbind,lapply(toPlot, function(x)do.call(rbind,x)))
   path<-do.call(rbind,lapply(path, function(x)do.call(rbind,x)))
- # tops<-do.call(rbind,lapply(tops, function(x)do.call(rbind,x)))
- # bottoms<-do.call(rbind,lapply(bottoms, function(x)do.call(rbind,x)))
   ####
   toPlot$group<-sub("(\\.)\\d+$", "", rownames(toPlot))
   path$group<-sub("(\\.)\\d+$", "", rownames(path))
+ # toPlot$join<-paste0(toPlot$Group,"@",toPlot$group)
+  NES$join<-paste0(NES$Group,"@",NES$group)
+  NES<-toPlot%>%group_by(Group,group)%>%summarise(ypos=max(y))%>%mutate(join=paste0(Group,"@",group))%>%ungroup()%>%select(join,ypos)%>%right_join(NES,by=c("join"="join"))
+  NES$xpos<-Inf
   if(!is.null(pathway)){
     toPlot<-subset(toPlot,Group%in%pathway)
     path<-subset(path,Group%in%pathway)
+    NES<-subset(NES,Group%in%pathway)
   }
-#  tops$group<-sub("(\\.)\\d+$", "", rownames(tops))
-#  bottoms$group<-sub("(\\.)\\d+$", "", rownames(bottoms))
   tops<-max(toPlot$y)
   bottoms<-min(toPlot$y)
   ####
@@ -231,6 +264,9 @@ compareGSEA<-function(x,object,gene=NULL,pathway=NULL,
                       size = ticksSize) +
     theme(panel.border = element_blank(), panel.grid.minor = element_blank()) +
     scale_color_manual(values=mycol)+labs(x = "rank", y = "Enrichment score")
+  if(isTRUE(label)){
+    p <- p+geom_text(data=NES,aes(x = xpos, y = ypos,hjust = hjustvar, vjust = vjustvar,  label = annotateText),show.legend = FALSE)
+  }
   p<-p+facet_wrap(.~Group,ncol=ncol,scales = scales)
   p
 }
