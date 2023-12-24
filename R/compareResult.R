@@ -142,6 +142,7 @@ comparedot<-function (x, pvalue = 0.05, low = "lightpink", high = "red",
 #' @param top number of terms you want to display,
 #' @param pvalue cutoff value of pvalue (if padj set as NULL)
 #' @param padj cutoff value of p adjust value
+#' @param scales Should scales be fixed ("fixed", the default), free ("free"), or free in one dimension ("free_x", "free_y")?
 #' @examples
 #' \dontrun{
 #' hsako <- buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
@@ -159,7 +160,7 @@ comparedot<-function (x, pvalue = 0.05, low = "lightpink", high = "red",
 #' @export
 compareGSEA<-function(x,object,gene=NULL,pathway=NULL,
                       mycol=NULL,pvalue = 0.05, padj = NULL,
-                      gseaParam = 1, ticksSize = 0.2,ncol=2){
+                      gseaParam = 1, ticksSize = 0.2,ncol=2,scales="fixed"){
   if (!is.null(padj)) {
     Pvalue <- 1
   }
@@ -204,8 +205,8 @@ compareGSEA<-function(x,object,gene=NULL,pathway=NULL,
   ######
   toPlot<-do.call(rbind,lapply(toPlot, function(x)do.call(rbind,x)))
   path<-do.call(rbind,lapply(path, function(x)do.call(rbind,x)))
-  tops<-do.call(rbind,lapply(tops, function(x)do.call(rbind,x)))
-  bottoms<-do.call(rbind,lapply(bottoms, function(x)do.call(rbind,x)))
+ # tops<-do.call(rbind,lapply(tops, function(x)do.call(rbind,x)))
+ # bottoms<-do.call(rbind,lapply(bottoms, function(x)do.call(rbind,x)))
   ####
   toPlot$group<-sub("(\\.)\\d+$", "", rownames(toPlot))
   path$group<-sub("(\\.)\\d+$", "", rownames(path))
@@ -215,11 +216,13 @@ compareGSEA<-function(x,object,gene=NULL,pathway=NULL,
   }
 #  tops$group<-sub("(\\.)\\d+$", "", rownames(tops))
 #  bottoms$group<-sub("(\\.)\\d+$", "", rownames(bottoms))
+  tops<-max(toPlot$y)
+  bottoms<-min(toPlot$y)
   ####
   diff <- (max(tops) - min(bottoms))/8
   p<-ggplot(toPlot, aes(x = x, y = y,color=group)) + geom_point(size = 0.1) +
-    geom_hline(yintercept = max(tops), colour = "red",
-               linetype = "dashed") + geom_hline(yintercept = min(bottoms),
+    geom_hline(yintercept = tops, colour = "red",
+               linetype = "dashed") + geom_hline(yintercept = bottoms,
                                                  colour = "red", linetype = "dashed") +
     geom_hline(yintercept = 0, colour = "black") + geom_line() + theme_bw()
   p <- p+geom_segment(data =path, mapping = aes(x = x,
@@ -229,7 +232,7 @@ compareGSEA<-function(x,object,gene=NULL,pathway=NULL,
     theme(panel.border = element_blank(), panel.grid.minor = element_blank()) +
     scale_color_manual(values=mycol)+labs(x = "rank", y = "Enrichment score")
   if(!is.null(pathway)){
-    p<-p+facet_wrap(.~Group,ncol=ncol)
+    p<-p+facet_wrap(.~Group,ncol=ncol,scales = scales)
   }
   p
 }
