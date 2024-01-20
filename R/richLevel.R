@@ -22,7 +22,7 @@ richLevel_internal<-function(x,kodata,level="Level2",pvalue =0.05, padj=NULL,
   annot<-left_join(kodata,path,by=c('PATH'="ko"))
   annot<-annot[,c("GeneID",level)]
   annot<-annot[!is.na(annot[,2]),]
-  result<-enrich(x = x,annot = annot,pvalue=pvalue,padj=padj,organism=organism,minSize=minSize,
+  result<-enrich(x = x,object = annot,pvalue=pvalue,padj=padj,organism=organism,minSize=minSize,
               maxSize=maxSize,keepRich=keepRich,keytype=keytype,ontology=ontology,filename=filename,
               padj.method=padj.method,sep = sep)
   return(result)
