@@ -46,6 +46,8 @@ richKEGG_internal<-function(x,kodata,pvalue=0.05,padj=NULL,ontology="KEGG",
     resultFis<-data.frame("Annot"=names(rhs),"Term"=rhs_an,"Annotated"=M[names(rhs)],
                           "Significant"=k[names(rhs)],"Pvalue"=as.vector(rhs),"Padj"=lhs,
                           "GeneID"=rhs_gene[names(rhs)])
+    data("path")
+    resultFis<-cbind(resultFis,path[resultFis$Annot,])
     resultFis<-resultFis[order(resultFis$Pvalue),]
     if(is.null(padj)){
       resultFis<-resultFis[resultFis$Pvalue<pvalue,]
