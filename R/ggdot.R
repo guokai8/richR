@@ -55,7 +55,7 @@ ggdot_internal<-function(object,top=50,pvalue=0.05,order=FALSE,
     }
     if(isTRUE(order)){
       if(isTRUE(orderp)){
-        dd$Term<-factor(dd$Term,levels=dd$Term[order(dd$Pvalue)])
+        dd$Term<-factor(dd$Term,levels=dd$Term[order(dd$Pvalue,decreasing=FALSE)])
       }else{
         dd$Term<-factor(dd$Term,levels=dd$Term[order(dd$rich)])
       }
