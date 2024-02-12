@@ -199,7 +199,7 @@ detail.GSEAResult<-function(x){
 #'   res<-richKEGG(gene,kodata = hsako)
 #'   gened<-data.frame(lfc=rnorm(length(gene)))
 #'   rownames(gened)<-gene
-#'   head(getdetail(res,gened))
+#'   head(getdetail(res,gened,sep=","))
 #' }
 #' @export
 #' @author Kai Guo
