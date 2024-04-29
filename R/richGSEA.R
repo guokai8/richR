@@ -3,6 +3,7 @@
 #' @param object annotation file for all genes
 #' @param pvalue pvalue cutoff value
 #' @param padj adjust p value cut off method
+#' @param KEGG a logical evaluating to TRUE or FALSE indicating whether KEGG GSEA were peformed or not.
 #' @param padj.method p value adjust method
 #' @param minSize Minimal size of a gene set to test. All pathways below the threshold are excluded.
 #' @param maxSize Maximal size of a gene set to test. All pathways above the threshold are excluded.
@@ -11,7 +12,7 @@
 #' @importFrom fgsea fgseaMultilevel
 #' @export
 #' @author Kai Guo
-richGSEA_internal<-function(x,object,keytype="",pvalue=0.05,padj=NULL,minSize=15,maxSize=500,
+richGSEA_internal<-function(x,object,keytype="",pvalue=0.05,padj=NULL,KEGG=FALSE,minSize=15,maxSize=500,
                             padj.method="BH",organism=NULL,ontology=NULL,table=TRUE,sep=","){
   x<-sort(x)
   if("Annot"%in%colnames(object)){
@@ -30,6 +31,11 @@ richGSEA_internal<-function(x,object,keytype="",pvalue=0.05,padj=NULL,minSize=15
   }
   res<-res[order(res$pval),]
   res <- res[!is.na(res$pathway),]
+  if(isTRUE(KEGG)){
+    data("path")
+    rownames(path)<-path$Level3
+    res<-cbind(res,path[res$pathway,])
+  }
   if(is.null(organism)){
     organism=character()
   }
@@ -57,7 +63,10 @@ richGSEA_internal<-function(x,object,keytype="",pvalue=0.05,padj=NULL,minSize=15
 #' @param object annotation file for all genes
 #' @param pvalue pvalue cutoff value
 #' @param padj adjust p value cut off method
-#' @param padj.method p value adjust method
+#' @param KEGG a logical evaluating to TRUE or FALSE indicating whether KEGG GSEA were peformed or not.
+#' @param organism organism name
+#' @param keytype keytype for input genes
+#' @param padj.method pvalue adjust method(default:"BH")
 #' @param minSize Minimal size of a gene set to test. All pathways below the threshold are excluded.
 #' @param maxSize Maximal size of a gene set to test. All pathways above the threshold are excluded.
 #' @param table leadingEdge as vector
@@ -73,9 +82,9 @@ richGSEA_internal<-function(x,object,keytype="",pvalue=0.05,padj=NULL,minSize=15
 #' res<-richGSEA(gene,object = hsako)
 #' }
 #' @author Kai Guo
-setMethod("richGSEA", signature(object = "data.frame"),definition = function(x,object,keytype="",pvalue=0.05,padj=NULL,minSize=15,ontology=ontology,
+setMethod("richGSEA", signature(object = "data.frame"),definition = function(x,object,keytype="",pvalue=0.05,padj=NULL,KEGG=FALSE,minSize=15,ontology=ontology,
                                                                              maxSize=500,padj.method="BH",organism=NULL,table=TRUE,sep=",") {
-  richGSEA_internal(x,object,keytype=keytype,pvalue=pvalue,padj=padj,minSize=minSize,ontology=ontology,
+  richGSEA_internal(x,object,keytype=keytype,pvalue=pvalue,padj=padj,KEGG=KEGG,minSize=minSize,ontology=ontology,
                     maxSize=maxSize,padj.method=padj.method,organism=organism,table=table,sep=sep)
 })
 #' GSEA Enrichment analysis function
@@ -83,6 +92,7 @@ setMethod("richGSEA", signature(object = "data.frame"),definition = function(x,o
 #' @param object annotation file for all genes
 #' @param pvalue pvalue cutoff value
 #' @param padj adjust p value cut off method
+#' @param KEGG a logical evaluating to TRUE or FALSE indicating whether KEGG GSEA were peformed or not.
 #' @param padj.method p value adjust method
 #' @param minSize Minimal size of a gene set to test. All pathways below the threshold are excluded.
 #' @param maxSize Maximal size of a gene set to test. All pathways above the threshold are excluded.
@@ -98,9 +108,9 @@ setMethod("richGSEA", signature(object = "data.frame"),definition = function(x,o
 #' }
 #' @export
 #' @author Kai Guo
-setMethod("richGSEA", signature(object = "Annot"),definition = function(x,object,keytype="",pvalue=0.05,padj=NULL,minSize=15,ontology=ontology,
+setMethod("richGSEA", signature(object = "Annot"),definition = function(x,object,keytype="",pvalue=0.05,padj=NULL,KEGG=FALSE,minSize=15,ontology=ontology,
                                                                             maxSize=500,padj.method="BH",organism=NULL,table=TRUE,sep=",") {
-  richGSEA_internal(x,object@annot,keytype=object@keytype,pvalue=pvalue,padj=padj,minSize=minSize,ontology=object@anntype,
+  richGSEA_internal(x,object@annot,keytype=object@keytype,pvalue=pvalue,padj=padj,KEGG=KEGG,minSize=minSize,ontology=object@anntype,
                     maxSize=maxSize,padj.method=padj.method,organism=object@species,table=table,sep=sep)
 })
 
@@ -211,4 +221,46 @@ plotGSEA<-function(x, object,gseaRes,mycol=NULL,top=10,pvalue=0.05,padj=NULL,
   return(p)
 }
 
-
+#' GSEA Enrichment analysis function for data frame with log2FC and name specifc
+#' @param x data.frame include the gene name and log2FC
+#' @param log2FC the column name for log2FoldChange
+#' @param gene.col the gene name column if rownames won't be used as gene name
+#' @param object annotation file for all genes
+#' @param simplify boolean value to indicate if the simple table shoule be returned
+#' @param pvalue pvalue cutoff value
+#' @param padj adjust p value cut off method
+#' @param padj.method p value adjust method
+#' @param minSize Minimal size of a gene set to test. All pathways below the threshold are excluded.
+#' @param maxSize Maximal size of a gene set to test. All pathways above the threshold are excluded.
+#' @param table leadingEdge as vector
+#' @param sep character string used to separate the genes when concatenating
+#' @export
+#' @examples
+#' \dontrun{
+#' hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
+#' hsako<-as.data.frame(hsako)
+#' name=sample(unique(hsako$GeneID),1000)
+#' gene<-rnorm(1000)
+#' names(gene)<-name
+#' d<-data.frame(Gene=name,log2FoldChange=gene)
+#' rownames(d)<-d$Gene
+#' res<-parGSEA(d,object = hsako)
+#' }
+#' @author Kai Guo
+parGSEA<-function(x,object,log2FC="log2FoldChange",gene.col=NULL,
+                  simplify=FALSE,keytype="",
+                  pvalue=0.05,padj=NULL,KEGG=FALSE,minSize=15,ontology="",
+                  maxSize=500,padj.method="BH",organism=NULL,table=TRUE,sep=","){
+  fc<-x[,log2FC]
+  if(is.null(gene.col)){
+    names(fc)<-rownames(x)
+  }else{
+    names(fc)<-x[,gene.col]
+  }
+  tmp<-richGSEA(fc,object,keytype=keytype,pvalue=pvalue,padj=padj,KEGG=KEGG,minSize=minSize,ontology=ontology,
+                maxSize=maxSize,padj.method=padj.method,organism=organism,table=table,sep=sep)
+  if(isTRUE(simplify)){
+    tmp<-result(tmp)
+  }
+  return(tmp)
+}

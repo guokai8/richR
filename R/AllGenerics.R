@@ -72,6 +72,7 @@ setGeneric("richKEGG", function(x,kodata,pvalue=0.05,padj=NULL,organism=NULL,ont
 #' @param object annotation file for all genes
 #' @param pvalue pvalue cutoff value
 #' @param padj adjust p value cut off method
+#' @param KEGG a logical evaluating to TRUE or FALSE indicating whether KEGG GSEA were peformed or not.
 #' @param padj.method p value adjust method
 #' @param minSize Minimal size of a gene set to test. All pathways below the threshold are excluded.
 #' @param maxSize Maximal size of a gene set to test. All pathways above the threshold are excluded.
@@ -89,7 +90,7 @@ setGeneric("richKEGG", function(x,kodata,pvalue=0.05,padj=NULL,organism=NULL,ont
 #' }
 ##' @export
 ##' @author Kai Guo
-setGeneric("richGSEA", function(x,object,keytype="",pvalue=0.05,padj=NULL,minSize=15,ontology="",
+setGeneric("richGSEA", function(x,object,keytype="",pvalue=0.05,padj=NULL,KEGG=FALSE,minSize=15,ontology="",
                                 maxSize=500,padj.method="BH",organism=NULL,table=TRUE,sep=",",...)
   standardGeneric("richGSEA"))
 ##' enrich
