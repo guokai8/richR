@@ -9,6 +9,8 @@ comparedot(
   pvalue = 0.05,
   low = "lightpink",
   high = "red",
+  level = "Level3",
+  pathway = NULL,
   alpha = 0.7,
   font.x = "bold",
   font.y = "bold",
@@ -31,6 +33,10 @@ comparedot(
 \item{low}{low color}
 
 \item{high}{high color}
+
+\item{level}{the level for KEGG pathway}
+
+\item{pathway}{the KEGG pathway name for the level}
 
 \item{alpha}{transparency alpha}
 
