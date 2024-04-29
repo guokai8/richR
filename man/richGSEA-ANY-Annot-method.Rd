@@ -10,6 +10,7 @@
   keytype = "",
   pvalue = 0.05,
   padj = NULL,
+  KEGG = FALSE,
   minSize = 15,
   ontology = ontology,
   maxSize = 500,
@@ -27,6 +28,8 @@
 \item{pvalue}{pvalue cutoff value}
 
 \item{padj}{adjust p value cut off method}
+
+\item{KEGG}{a logical evaluating to TRUE or FALSE indicating whether KEGG GSEA were peformed or not.}
 
 \item{minSize}{Minimal size of a gene set to test. All pathways below the threshold are excluded.}
 
