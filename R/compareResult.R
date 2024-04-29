@@ -59,6 +59,8 @@ compareResult<-function (x, pvalue = 0.05, padj = NULL,include.all=FALSE)
 ##' @param pvalue cutoff value of pvalue (if padj set as NULL)
 ##' @param low low color
 ##' @param high high color
+##' @param level the level for KEGG pathway
+##' @param pathway the KEGG pathway name for the level
 ##' @param alpha transparency alpha
 ##' @param font.x font of x axis
 ##' @param font.y font of y axis
@@ -84,7 +86,8 @@ compareResult<-function (x, pvalue = 0.05, padj = NULL,include.all=FALSE)
 #' }
 #' @author Kai Guo
 #' @export
-comparedot<-function (x, pvalue = 0.05, low = "lightpink", high = "red",
+comparedot<-function (x, pvalue = 0.05, low = "lightpink", high = "red",level="Level3",
+                      pathway=NULL,
                       alpha = 0.7, font.x = "bold", font.y = "bold", fontsize.x = 10,
                       fontsize.y = 10, short = FALSE, padj = NULL, usePadj = TRUE,
                       filename = NULL, width = 10, height = 8,include.all=FALSE)
@@ -102,11 +105,14 @@ comparedot<-function (x, pvalue = 0.05, low = "lightpink", high = "red",
   if (isTRUE(short)) {
     x$Term <- unlist(lapply(x$Term, function(x) .paste.char(x)))
   }
+  if(!is.null(pathway)){
+    x<-x[x[,level]%in%pathway,]
+  }
   if (isTRUE(usePadj)) {
     p <- ggplot(x, aes(x = group, y = Term)) + geom_point(aes(size = Significant,
                                                               color = -log10(Padj)), alpha = alpha) + theme_minimal() +
       theme(axis.text.y = element_text(face = font.y, size = fontsize.y),
-            axis.text.x = element_text(face = font.x, color = "black",
+            axis.text.x = element_text(face = font.x, color = "black",angle =90, vjust=0.5,hjust=1,
                                        size = fontsize.x)) + scale_color_gradient(low = low,
                                                                                   high = high) + ylab("Pathway name") + xlab("") +
       labs(size = "Gene number") + guides(color = guide_colourbar(order = 1),
@@ -116,14 +122,14 @@ comparedot<-function (x, pvalue = 0.05, low = "lightpink", high = "red",
     p <- ggplot(x, aes(x = group, y = Term)) + geom_point(aes(size = Significant,
                                                               color = -log10(Pvalue)), alpha = alpha) + theme_minimal() +
       theme(axis.text.y = element_text(face = font.y, size = fontsize.y),
-            axis.text.x = element_text(face = font.x, color = "black",
+            axis.text.x = element_text(face = font.x, color = "black",angle=90,vjust=0.5,hjust=1,
                                        size = fontsize.x)) + scale_color_gradient(low = low,
                                                                                   high = high) + ylab("Pathway name") + xlab("") +
       labs(size = "Gene number") + guides(color = guide_colourbar(order = 1),
                                           size = guide_legend(order = 2))
   }
   if (!is.null(filename)) {
-    ggsave(p, file = paste(filename, "KEGG.pdf", sep = "_"),
+    ggsave(p, file = paste(filename, "enrichment.pdf", sep = "_"),
            width = width, height = height)
   }
   p
