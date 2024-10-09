@@ -132,6 +132,10 @@ buildMSIGDB<-function(species="human",keytype="SYMBOL",anntype="GO"){
         category <- "H"
         anntype <- ""
     }
+    if(anntype=="IMMUNESIGDB"){
+        category <- "C7"
+        anntype <- "IMMUNESIGDB"
+    }
     if(anntype=="WIKIPATHWAYS"){
         category <- "C2"
         anntype <- "CP:WIKIPATHWAYS"
