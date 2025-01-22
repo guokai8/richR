@@ -1,7 +1,7 @@
 Package: richR
 Type: Package
 Title: Function Enrichment analysis and Network construction
-Version: 0.0.36
+Version: 0.0.37
 Author: Kai Guo
 Maintainer: Kai Guo <guokai8@gmail.com>
 Description: This package is used for for enrichment analysis and network construction.
@@ -34,6 +34,6 @@ Suggests:
     testthat,
     rmarkdown
 VignetteBuilder: knitr
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 biocViews:
 Encoding: UTF-8
