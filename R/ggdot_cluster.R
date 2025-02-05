@@ -35,7 +35,26 @@
 #' @return A ggplot2 object (or a \code{cowplot} combined object).
 #'
 #' @export
-ggcluster <- function(data, method = c("auto", "enrich", "gsea"), ...) {
+ggcluster <- function(data, method = c("auto", "enrich", "gsea"),color_low = "pink",
+    color_high = "red",
+    size_range = c(0.8, 4),
+    curve_color = "grey70",
+    curve_size = 0.5,
+    vertical_line_color = "darkcyan",
+    vertical_line_size = 1.5,
+    dot_line_color = "grey70",
+    dot_line_size = 0.3,
+    dot_line_type = "dotted",
+    vline_color = "grey80",
+    vline_type = "dashed",
+    label_font_size = 3,
+    label_font_face = "bold",
+    pathway_font_size = 2.5,
+    pathway_font_face = "italic",
+    legend_position = "right",
+    x_pathway_offset = 0.3,
+    label_x_size = 6,
+    plot_margins = c(5, 200, 10, 250),...) {
   method <- match.arg(method)
   if (method == "auto") {
     if ("Term" %in% colnames(data)) {
