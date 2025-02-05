@@ -67,9 +67,47 @@ ggcluster <- function(data, method = c("auto", "enrich", "gsea"),color_low = "pi
   }
 
   if (method == "enrich") {
-    .ggcluster_enrich(data, ...)
+    .ggcluster_enrich(data, color_low = color_low,
+    color_high = color_high,
+    size_range = size_range,
+    curve_color = curve_color,
+    curve_size = curve_size,
+    vertical_line_color = vertical_line_color,
+    vertical_line_size = vertical_line_size,
+    dot_line_color = dot_line_color,
+    dot_line_size = dot_line_size,
+    dot_line_type = dot_line_type,
+    vline_color =vline_color,
+    vline_type = vline_type,
+    label_font_size = label_font_size,
+    label_font_face = label_font_face,
+    pathway_font_size = pathway_font_size,
+    pathway_font_face = pathway_font_face,
+    legend_position = legend_position,
+    x_pathway_offset = x_pathway_offset,
+    label_x_size = label_x_size,
+    plot_margins = plot_margins, ...)
   } else {
-    .ggcluster_gsea(data, ...)
+    .ggcluster_gsea(data,color_low = color_low,
+    color_high = color_high,
+    size_range = size_range,
+    curve_color = curve_color,
+    curve_size = curve_size,
+    vertical_line_color = vertical_line_color,
+    vertical_line_size = vertical_line_size,
+    dot_line_color = dot_line_color,
+    dot_line_size = dot_line_size,
+    dot_line_type = dot_line_type,
+    vline_color =vline_color,
+    vline_type = vline_type,
+    label_font_size = label_font_size,
+    label_font_face = label_font_face,
+    pathway_font_size = pathway_font_size,
+    pathway_font_face = pathway_font_face,
+    legend_position = legend_position,
+    x_pathway_offset = x_pathway_offset,
+    label_x_size = label_x_size,
+    plot_margins = plot_margins, ...)
   }
 }
 
