@@ -106,7 +106,7 @@ ggcluster <- function(data, method = c("auto", "enrich", "gsea"),color_low = "pi
     pathway_font_face = pathway_font_face,
     legend_position = legend_position,
     x_pathway_offset = x_pathway_offset,
-    label_x_size = label_x_size,
+    #label_x_size = label_x_size,
     plot_margins = plot_margins, ...)
   }
 }
