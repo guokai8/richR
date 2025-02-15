@@ -13,6 +13,7 @@
 #' @param data A data frame containing KEGG cluster data. Must include columns: `Term`, `Level2`, `group`, `Padj`, `Significant`, and `Annotated`.
 #' @param color_low Color for the lowest value in the gradient (default: "pink").
 #' @param color_high Color for the highest value in the gradient (default: "red").
+#' @param color_mid Color for the middle value in the gradient (default: "white").
 #' @param size_range A numeric vector of length 2 to control the size range of points (default: c(0.8, 4)).
 #' @param curve_color Color for the connecting curves between Level2 and Terms (default: "grey70").
 #' @param curve_size Line width for the connecting curves (default: 0.5).
@@ -37,6 +38,7 @@
 #' @export
 ggcluster <- function(data, method = c("auto", "enrich", "gsea"),color_low = "pink",
     color_high = "red",
+    color_mid = "white",
     size_range = c(0.8, 4),
     curve_color = "grey70",
     curve_size = 0.5,
@@ -90,6 +92,7 @@ ggcluster <- function(data, method = c("auto", "enrich", "gsea"),color_low = "pi
   } else {
     .ggcluster_gsea(data,color_low = color_low,
     color_high = color_high,
+    color_mid = color_mid,
     size_range = size_range,
     curve_color = curve_color,
     curve_size = curve_size,
