@@ -216,7 +216,7 @@
 
     p_legend <- ggplot(data, aes(x = x_group, y = y, color = NES, size = neg_log10_Padj)) +
     geom_point() +
-    scale_color_gradient(low = color_low, high = color_high, name = "NES") +
+    scale_color_gradient2(low = color_low, high = color_high, mid=color_mid,midpoint = 0,name = "NES") +
     scale_size_continuous(name = "-log10(Padj)", range = size_range) +
     theme_minimal() +
     theme(
