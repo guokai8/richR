@@ -181,7 +181,7 @@ ggGSEA<-function(x,term,object,gseaRes=gseaRes,top=10, default = TRUE){
 #' gene<-rnorm(1000)
 #' names(gene)<-name
 #' res<-richGSEA(gene,object = hsako)
-#' plotGSEA(hsako,res,object = hsako)
+#' plotGSEA(gene,hsako,res,object = hsako)
 #' }
 #' @export
 #' @author Kai Guo
