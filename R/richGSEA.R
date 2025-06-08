@@ -120,11 +120,11 @@ setMethod("richGSEA", signature(object = "Annot"),definition = function(x,object
 
 #' @name ggGSEA
 #' @title plot the gsea result
-#' @param x a vector include all log2FC with gene name
 #' @param object Annot object
 #' @param term the significant term
-#' @param info Term with annotation details
 #' @param gseaRes GSEAResult object
+#' @param top number of top pathways to display
+#' @param default whether to use default table plot or individual enrichment plots
 #' @importFrom fgsea plotEnrichment plotGseaTable
 #' @importFrom ggplot2 ggtitle
 #' @importFrom cowplot plot_grid
@@ -136,43 +136,73 @@ setMethod("richGSEA", signature(object = "Annot"),definition = function(x,object
 #' gene<-rnorm(1000)
 #' names(gene)<-name
 #' res<-richGSEA(gene,object = hsako)
-#' ggGSEA(gene,term = res$pathway,object = hsako,gseaRes = res,default = F)
+#' ggGSEA(term = res$pathway, object = hsako, gseaRes = res, default = FALSE)
 #' }
 #' @export
 #' @author Kai Guo
-ggGSEA<-function(x,term,object,gseaRes=gseaRes,top=10, default = TRUE){
-  x<-sort(x)
-  annot<-object@annot
-  gseaRes<-gseaRes@result
-  if(nrow(gseaRes)<top){
-    top <- nrow(gseaRes)
+ggGSEA <- function(term, object, gseaRes, top = 10, default = TRUE) {
+  # Input validation
+  if(!inherits(gseaRes, "GSEAResult")) {
+    stop("gseaRes must be a GSEAResult object")
   }
-  if(!is.null(annot$Annot)){
+
+  # Extract fold change vector from GSEAResult object
+  x <- gseaRes@input
+  x <- sort(x)
+
+  annot <- object@annot
+  gseaRes_result <- gseaRes@result
+
+  if(nrow(gseaRes_result) == 0) {
+    stop("No pathways found in GSEA results")
+  }
+
+  if(nrow(gseaRes_result) < top) {
+    top <- nrow(gseaRes_result)
+  }
+
+  if(!is.null(annot$Annot)) {
     annot[,2] <- annot$Annot
   }
+
   annod <- sf(annot)
-  if(length(term)>1&!is.null(gseaRes)){
-    if(isTRUE(default)){
-       plotGseaTable(annod[term],stats=x,gseaRes,gseaParam=0.5)
-    }else{
-      res<-lapply(gseaRes$pathway, function(y)plotEnrichment(annod[[y]],stats=x)+ggtitle(y))
-      plot_grid(plotlist = res[1:top],ncol=5)
+
+  if(length(term) > 1 & !is.null(gseaRes_result)) {
+    if(isTRUE(default)) {
+      plotGseaTable(annod[term], stats = x, gseaRes_result, gseaParam = 0.5)
+    } else {
+      res <- lapply(gseaRes_result$pathway[1:top], function(y) {
+        plotEnrichment(annod[[y]], stats = x) + ggtitle(y)
+      })
+      plot_grid(plotlist = res, ncol = 5)
     }
-  }else{
-    plotEnrichment(annod[[term]],stats=x)
+  } else {
+    plotEnrichment(annod[[term]], stats = x)
   }
 }
 
-#' plot multiple significant pathways
-#' @importFrom ggplot2 ggplot geom_hline aes geom_point geom_segment
-#' @importFrom ggplot2 geom_line theme_bw element_blank theme scale_color_manual
-#' @param x a vector include all log2FC with gene name
+#' plot multiple significant pathways with enhanced customization
+#' @importFrom ggplot2 ggplot geom_hline aes geom_point geom_segment geom_line theme_bw element_blank theme scale_color_manual ggtitle element_text annotate ggsave
 #' @param object Annot object
 #' @param gseaRes GSEAResult object
 #' @param mycol a vector indicate the colors used for the figure
-#' @param top number of terms you want to display,
-#' @param pvalue cutoff value of pvalue (if padj set as NULL)
-#' @param padj cutoff value of p adjust value
+#' @param pathways specific pathway names to display (if NULL, use top/pvalue/padj filtering)
+#' @param pathway_pattern regex pattern for pathway matching
+#' @param category pathway category filter
+#' @param min_genes minimum gene set size filter
+#' @param max_genes maximum gene set size filter
+#' @param top number of terms you want to display (used when pathways is NULL)
+#' @param pvalue cutoff value of pvalue (if padj set as NULL, used when pathways is NULL)
+#' @param padj cutoff value of p adjust value (used when pathways is NULL)
+#' @param gseaParam GSEA parameter for enrichment score calculation
+#' @param ticksSize size of the tick marks
+#' @param plot_title title for the plot
+#' @param show_pathway_names whether to show pathway names on plot
+#' @param pathway_name_size size of pathway name text
+#' @param line_alpha transparency of lines
+#' @param point_alpha transparency of points
+#' @param return_data whether to return plot data along with plot
+#' @param interactive whether to create interactive plot using plotly
 #' @examples
 #' \dontrun{
 #' set.seed(123)
@@ -181,47 +211,378 @@ ggGSEA<-function(x,term,object,gseaRes=gseaRes,top=10, default = TRUE){
 #' gene<-rnorm(1000)
 #' names(gene)<-name
 #' res<-richGSEA(gene,object = hsako)
-#' plotGSEA(gene,hsako,res,object = hsako)
+#' # Plot top 10 significant pathways
+#' plotGSEA(object = hsako, gseaRes = res)
+#' # Plot specific pathways
+#' plotGSEA(object = hsako, gseaRes = res,
+#'          pathways = c("MAPK signaling pathway", "PI3K-Akt signaling pathway"))
+#' # Plot pathways matching pattern
+#' plotGSEA(object = hsako, gseaRes = res, pathway_pattern = "signaling")
+#' # Interactive plot
+#' plotGSEA(object = hsako, gseaRes = res, interactive = TRUE)
 #' }
 #' @export
 #' @author Kai Guo
-plotGSEA<-function(x, object,gseaRes,mycol=NULL,top=10,pvalue=0.05,padj=NULL,
-                   gseaParam = 1, ticksSize = 0.2){
-  if(!is.null(padj)){
-    cutoff <- padj
-    sigpathway<-gseaRes$pathway[gseaRes$padj<cutoff]
-  }else{
-    cutoff<-pvalue
-    sigpathway<-gseaRes$pathway[gseaRes$pval<cutoff]
+plotGSEA <- function(object, gseaRes, mycol = NULL, pathways = NULL, pathway_pattern = NULL,
+                     category = NULL, min_genes = NULL, max_genes = NULL, top = 10,
+                     pvalue = 0.05, padj = NULL, gseaParam = 1, ticksSize = 0.2,
+                     plot_title = "GSEA Enrichment Plot", show_pathway_names = FALSE,
+                     pathway_name_size = 10, line_alpha = 0.8, point_alpha = 0.6,
+                     return_data = FALSE, interactive = FALSE) {
+
+  # Input validation
+  if(!inherits(gseaRes, "GSEAResult")) {
+    stop("gseaRes must be a GSEAResult object")
   }
-  if(top>length(sigpathway)){
-    top<-length(sigpathway)
+
+  # Extract fold change vector from GSEAResult object
+  x <- gseaRes@input
+
+  # Extract results from GSEAResult object
+  gseaRes_result <- gseaRes@result
+
+  if(nrow(gseaRes_result) == 0) {
+    stop("No pathways found in GSEA results")
   }
-  if(is.null(mycol)){
-    mycol <- c("darkgreen","chocolate4","blueviolet","#223D6C","#D20A13","#088247","#58CDD9",
-                          "#7A142C","#5D90BA","#431A3D","#91612D","#6E568C","#E0367A","#D8D155","#64495D",
-                          "#7CC767")
+
+  if(!is.null(pathways) && !is.character(pathways)) {
+    stop("pathways must be a character vector")
   }
-  sigpathway<-sigpathway[1:top]
+
+  # Select pathways to display
+  if(!is.null(pathways)) {
+    # Use user-specified pathways
+    sigpathway <- pathways[pathways %in% gseaRes_result$pathway]
+    if(length(sigpathway) == 0) {
+      stop("None of the specified pathways found in GSEA results")
+    }
+  } else if(!is.null(pathway_pattern)) {
+    # Use pattern-based selection
+    sigpathway <- gseaRes_result$pathway[grepl(pathway_pattern, gseaRes_result$pathway, ignore.case = TRUE)]
+    if(length(sigpathway) == 0) {
+      stop("No pathways match the specified pattern")
+    }
+  } else {
+    # Use filtering criteria
+    if(!is.null(padj)) {
+      cutoff <- padj
+      sigpathway <- gseaRes_result$pathway[gseaRes_result$padj < cutoff]
+    } else {
+      cutoff <- pvalue
+      sigpathway <- gseaRes_result$pathway[gseaRes_result$pval < cutoff]
+    }
+
+    if(top > length(sigpathway)) {
+      top <- length(sigpathway)
+    }
+    sigpathway <- sigpathway[1:top]
+  }
+
+  # Apply gene set size filtering
+  if(!is.null(min_genes) || !is.null(max_genes)) {
+    pathway_indices <- match(sigpathway, gseaRes_result$pathway)
+    if(!is.null(min_genes)) {
+      valid_indices <- pathway_indices[gseaRes_result$size[pathway_indices] >= min_genes]
+      sigpathway <- sigpathway[pathway_indices %in% valid_indices]
+    }
+    if(!is.null(max_genes)) {
+      valid_indices <- pathway_indices[gseaRes_result$size[pathway_indices] <= max_genes]
+      sigpathway <- sigpathway[pathway_indices %in% valid_indices]
+    }
+  }
+
+  if(length(sigpathway) == 0) {
+    stop("No pathways remaining after filtering")
+  }
+
+  if(is.null(mycol)) {
+    mycol <- c("darkgreen", "chocolate4", "blueviolet", "#223D6C", "#D20A13", "#088247", "#58CDD9",
+               "#7A142C", "#5D90BA", "#431A3D", "#91612D", "#6E568C", "#E0367A", "#D8D155", "#64495D",
+               "#7CC767")
+  }
+
   fc <- x
-  res<-lapply(sigpathway,function(x).calGSEA(object,x,fc,gseaParam=gseaParam,ticksSize=ticksSize))
-  toPlot<-do.call(rbind,lapply(res,'[[','toPlot'))
-  pathway<-do.call(rbind,lapply(res,'[[','pathway'))
-  tops<-unlist(lapply(res,'[[','tops'))
-  bottoms<-unlist(lapply(res,'[[','bottoms'))
+  res <- lapply(sigpathway, function(x) .calGSEA(object, x, fc, gseaParam = gseaParam, ticksSize = ticksSize))
+  toPlot <- do.call(rbind, lapply(res, '[[', 'toPlot'))
+  pathway <- do.call(rbind, lapply(res, '[[', 'pathway'))
+  tops <- unlist(lapply(res, '[[', 'tops'))
+  bottoms <- unlist(lapply(res, '[[', 'bottoms'))
   diff <- (max(tops) - min(bottoms))/8
-  p<-ggplot(toPlot, aes(x = x, y = y,color=Group)) + geom_point(size = 0.1) +
-    geom_hline(yintercept = max(tops), colour = "red",
-               linetype = "dashed") + geom_hline(yintercept = min(bottoms),
-                                                 colour = "red", linetype = "dashed") +
-    geom_hline(yintercept = 0, colour = "black") + geom_line() + theme_bw()
-  p <- p+geom_segment(data =pathway, mapping = aes(x = x,
-                                              y = -diff/4, xend = x,
-                                              yend = diff/4,color=Group),
-                 size = ticksSize) +
+
+  p <- ggplot(toPlot, aes(x = x, y = y, color = Group)) +
+    geom_point(size = 0.1, alpha = point_alpha) +
+    geom_hline(yintercept = max(tops), colour = "red", linetype = "dashed") +
+    geom_hline(yintercept = min(bottoms), colour = "red", linetype = "dashed") +
+    geom_hline(yintercept = 0, colour = "black") +
+    geom_line(alpha = line_alpha) +
+    theme_bw()
+
+  p <- p + geom_segment(data = pathway, mapping = aes(x = x, y = -diff/4, xend = x, yend = diff/4, color = Group),
+                        size = ticksSize) +
     theme(panel.border = element_blank(), panel.grid.minor = element_blank()) +
-    scale_color_manual(values=mycol)+labs(x = "rank", y = "Enrichment score")
-  return(p)
+    scale_color_manual(values = mycol) +
+    labs(x = "rank", y = "Enrichment score") +
+    ggtitle(plot_title) +
+    theme(plot.title = element_text(hjust = 0.5, size = 14))
+
+  # Add pathway names as annotations
+  if(show_pathway_names && length(sigpathway) <= 10) {
+    p <- p + annotate("text", x = max(toPlot$x) * 0.7,
+                      y = seq(max(tops), min(bottoms), length.out = length(sigpathway)),
+                      label = sigpathway, size = pathway_name_size/3, hjust = 0)
+  }
+
+  # Create interactive plot if requested
+  if(interactive) {
+    if(!requireNamespace("plotly", quietly = TRUE)) {
+      warning("plotly package not available, returning static plot")
+    } else {
+      p <- plotly::ggplotly(p)
+    }
+  }
+
+  # Return data if requested
+  if(return_data) {
+    return(list(
+      plot = p,
+      data = toPlot,
+      pathways = sigpathway,
+      stats = list(tops = tops, bottoms = bottoms),
+      pathway_data = pathway
+    ))
+  } else {
+    return(p)
+  }
+}
+
+#' Get available pathways from GSEA results
+#' @param gseaRes GSEAResult object
+#' @param padj_cutoff padj cutoff for filtering (if NULL, no filtering applied)
+#' @param pval_cutoff pvalue cutoff for filtering (used if padj_cutoff is NULL)
+#' @param min_size minimum pathway size
+#' @param max_size maximum pathway size
+#' @export
+#' @examples
+#' \dontrun{
+#' pathways <- getPathways(gseaRes, padj_cutoff = 0.05)
+#' }
+#' @author Kai Guo
+getPathways <- function(gseaRes, padj_cutoff = 0.05, pval_cutoff = 0.05, min_size = NULL, max_size = NULL) {
+  if(!inherits(gseaRes, "GSEAResult")) {
+    stop("gseaRes must be a GSEAResult object")
+  }
+
+  result <- gseaRes@result
+
+  # Apply significance filtering
+  if(!is.null(padj_cutoff)) {
+    result <- result[result$padj < padj_cutoff, ]
+  } else if(!is.null(pval_cutoff)) {
+    result <- result[result$pval < pval_cutoff, ]
+  }
+
+  # Apply size filtering
+  if(!is.null(min_size)) {
+    result <- result[result$size >= min_size, ]
+  }
+  if(!is.null(max_size)) {
+    result <- result[result$size <= max_size, ]
+  }
+
+  return(result$pathway)
+}
+
+#' Search pathways by keyword
+#' @param gseaRes GSEAResult object
+#' @param keyword search term (can be regex pattern)
+#' @param ignore_case whether to ignore case when searching
+#' @export
+#' @examples
+#' \dontrun{
+#' signaling_pathways <- searchPathways(gseaRes, "signaling")
+#' mapk_pathways <- searchPathways(gseaRes, "MAPK")
+#' }
+#' @author Kai Guo
+searchPathways <- function(gseaRes, keyword, ignore_case = TRUE) {
+  if(!inherits(gseaRes, "GSEAResult")) {
+    stop("gseaRes must be a GSEAResult object")
+  }
+
+  pathways <- gseaRes@result$pathway
+  matched <- pathways[grepl(keyword, pathways, ignore.case = ignore_case)]
+
+  if(length(matched) == 0) {
+    message("No pathways found matching the keyword: ", keyword)
+  }
+
+  return(matched)
+}
+
+#' Save GSEA plot with optimal dimensions
+#' @param plot_obj ggplot object from plotGSEA
+#' @param filename output filename
+#' @param width plot width in inches
+#' @param height plot height in inches
+#' @param dpi resolution in dots per inch
+#' @param device output device (auto-detected from filename if NULL)
+#' @importFrom ggplot2 ggsave
+#' @export
+#' @examples
+#' \dontrun{
+#' p <- plotGSEA(object = hsako, gseaRes = res)
+#' saveGSEAplot(p, "gsea_plot.pdf")
+#' saveGSEAplot(p, "gsea_plot.png", dpi = 600)
+#' }
+#' @author Kai Guo
+saveGSEAplot <- function(plot_obj, filename, width = 12, height = 8, dpi = 300, device = NULL) {
+  if(!inherits(plot_obj, c("gg", "ggplot"))) {
+    stop("plot_obj must be a ggplot object")
+  }
+
+  ggsave(filename, plot_obj, width = width, height = height, dpi = dpi, device = device)
+  message("Plot saved to: ", filename)
+}
+
+#' Create multiple GSEA plots for different comparisons
+#' @param gsea_list named list of GSEAResult objects
+#' @param object Annot object
+#' @param output_dir directory to save plots
+#' @param width plot width
+#' @param height plot height
+#' @param dpi resolution
+#' @param format output format (pdf, png, etc.)
+#' @param ... additional arguments passed to plotGSEA
+#' @export
+#' @examples
+#' \dontrun{
+#' gsea_results <- list(
+#'   "D7_WT_vs_TFAM" = res1,
+#'   "D14_WT_vs_D7_WT" = res2
+#' )
+#' plots <- batchGSEAplot(gsea_results, object = hsako)
+#' }
+#' @author Kai Guo
+batchGSEAplot <- function(gsea_list, object, output_dir = "gsea_plots",
+                          width = 12, height = 8, dpi = 300, format = "pdf", ...) {
+  if(!is.list(gsea_list) || is.null(names(gsea_list))) {
+    stop("gsea_list must be a named list")
+  }
+
+  if(!dir.exists(output_dir)) {
+    dir.create(output_dir, recursive = TRUE)
+    message("Created output directory: ", output_dir)
+  }
+
+  plots <- lapply(names(gsea_list), function(name) {
+    message("Processing: ", name)
+
+    tryCatch({
+      p <- plotGSEA(object = object, gseaRes = gsea_list[[name]],
+                    plot_title = paste("GSEA:", name), ...)
+      filename <- file.path(output_dir, paste0(name, "_gsea.", format))
+      ggsave(filename, p, width = width, height = height, dpi = dpi)
+      return(p)
+    }, error = function(e) {
+      warning("Failed to create plot for ", name, ": ", e$message)
+      return(NULL)
+    })
+  })
+
+  names(plots) <- names(gsea_list)
+  plots <- plots[!sapply(plots, is.null)]  # Remove failed plots
+
+  message("Successfully created ", length(plots), " plots in ", output_dir)
+  return(plots)
+}
+
+#' Get pathway statistics summary
+#' @param gseaRes GSEAResult object
+#' @param top number of top pathways to summarize
+#' @export
+#' @examples
+#' \dontrun{
+#' summary <- getPathwayStats(gseaRes, top = 20)
+#' print(summary)
+#' }
+#' @author Kai Guo
+getPathwayStats <- function(gseaRes, top = 10) {
+  if(!inherits(gseaRes, "GSEAResult")) {
+    stop("gseaRes must be a GSEAResult object")
+  }
+
+  result <- gseaRes@result
+
+  if(nrow(result) == 0) {
+    return(data.frame())
+  }
+
+  # Get top pathways
+  top_pathways <- head(result, top)
+
+  # Create summary
+  summary_stats <- data.frame(
+    pathway = top_pathways$pathway,
+    NES = round(top_pathways$NES, 3),
+    pvalue = formatC(top_pathways$pval, format = "e", digits = 2),
+    padj = formatC(top_pathways$padj, format = "e", digits = 2),
+    size = top_pathways$size,
+    direction = ifelse(top_pathways$NES > 0, "Up", "Down"),
+    stringsAsFactors = FALSE
+  )
+
+  return(summary_stats)
+}
+
+#' Filter pathways by multiple criteria
+#' @param gseaRes GSEAResult object
+#' @param nes_cutoff absolute NES cutoff
+#' @param padj_cutoff padj cutoff
+#' @param pval_cutoff pval cutoff (used if padj_cutoff is NULL)
+#' @param min_size minimum pathway size
+#' @param max_size maximum pathway size
+#' @param direction filter by direction ("up", "down", or "both")
+#' @export
+#' @examples
+#' \dontrun{
+#' filtered <- filterPathways(gseaRes, nes_cutoff = 1.5, padj_cutoff = 0.01, direction = "up")
+#' }
+#' @author Kai Guo
+filterPathways <- function(gseaRes, nes_cutoff = NULL, padj_cutoff = 0.05, pval_cutoff = 0.05,
+                           min_size = NULL, max_size = NULL, direction = "both") {
+  if(!inherits(gseaRes, "GSEAResult")) {
+    stop("gseaRes must be a GSEAResult object")
+  }
+
+  result <- gseaRes@result
+
+  # Apply NES filtering
+  if(!is.null(nes_cutoff)) {
+    result <- result[abs(result$NES) >= nes_cutoff, ]
+  }
+
+  # Apply significance filtering
+  if(!is.null(padj_cutoff)) {
+    result <- result[result$padj < padj_cutoff, ]
+  } else if(!is.null(pval_cutoff)) {
+    result <- result[result$pval < pval_cutoff, ]
+  }
+
+  # Apply size filtering
+  if(!is.null(min_size)) {
+    result <- result[result$size >= min_size, ]
+  }
+  if(!is.null(max_size)) {
+    result <- result[result$size <= max_size, ]
+  }
+
+  # Apply direction filtering
+  if(direction == "up") {
+    result <- result[result$NES > 0, ]
+  } else if(direction == "down") {
+    result <- result[result$NES < 0, ]
+  }
+
+  return(result)
 }
 
 #' GSEA Enrichment analysis function for data frame with log2FC and name specifc
