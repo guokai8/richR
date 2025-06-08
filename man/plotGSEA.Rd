@@ -2,37 +2,74 @@
 % Please edit documentation in R/richGSEA.R
 \name{plotGSEA}
 \alias{plotGSEA}
-\title{plot multiple significant pathways}
+\title{plot multiple significant pathways with enhanced customization}
 \usage{
 plotGSEA(
-  x,
   object,
   gseaRes,
   mycol = NULL,
+  pathways = NULL,
+  pathway_pattern = NULL,
+  category = NULL,
+  min_genes = NULL,
+  max_genes = NULL,
   top = 10,
   pvalue = 0.05,
   padj = NULL,
   gseaParam = 1,
-  ticksSize = 0.2
+  ticksSize = 0.2,
+  plot_title = "GSEA Enrichment Plot",
+  show_pathway_names = FALSE,
+  pathway_name_size = 10,
+  line_alpha = 0.8,
+  point_alpha = 0.6,
+  return_data = FALSE,
+  interactive = FALSE
 )
 }
 \arguments{
-\item{x}{a vector include all log2FC with gene name}
-
 \item{object}{Annot object}
 
 \item{gseaRes}{GSEAResult object}
 
 \item{mycol}{a vector indicate the colors used for the figure}
 
-\item{top}{number of terms you want to display,}
+\item{pathways}{specific pathway names to display (if NULL, use top/pvalue/padj filtering)}
 
-\item{pvalue}{cutoff value of pvalue (if padj set as NULL)}
+\item{pathway_pattern}{regex pattern for pathway matching}
 
-\item{padj}{cutoff value of p adjust value}
+\item{category}{pathway category filter}
+
+\item{min_genes}{minimum gene set size filter}
+
+\item{max_genes}{maximum gene set size filter}
+
+\item{top}{number of terms you want to display (used when pathways is NULL)}
+
+\item{pvalue}{cutoff value of pvalue (if padj set as NULL, used when pathways is NULL)}
+
+\item{padj}{cutoff value of p adjust value (used when pathways is NULL)}
+
+\item{gseaParam}{GSEA parameter for enrichment score calculation}
+
+\item{ticksSize}{size of the tick marks}
+
+\item{plot_title}{title for the plot}
+
+\item{show_pathway_names}{whether to show pathway names on plot}
+
+\item{pathway_name_size}{size of pathway name text}
+
+\item{line_alpha}{transparency of lines}
+
+\item{point_alpha}{transparency of points}
+
+\item{return_data}{whether to return plot data along with plot}
+
+\item{interactive}{whether to create interactive plot using plotly}
 }
 \description{
-plot multiple significant pathways
+plot multiple significant pathways with enhanced customization
 }
 \examples{
 \dontrun{
@@ -42,7 +79,15 @@ name=sample(unique(hsako$GeneID),1000)
 gene<-rnorm(1000)
 names(gene)<-name
 res<-richGSEA(gene,object = hsako)
-plotGSEA(gene,hsako,res,object = hsako)
+# Plot top 10 significant pathways
+plotGSEA(object = hsako, gseaRes = res)
+# Plot specific pathways
+plotGSEA(object = hsako, gseaRes = res,
+         pathways = c("MAPK signaling pathway", "PI3K-Akt signaling pathway"))
+# Plot pathways matching pattern
+plotGSEA(object = hsako, gseaRes = res, pathway_pattern = "signaling")
+# Interactive plot
+plotGSEA(object = hsako, gseaRes = res, interactive = TRUE)
 }
 }
 \author{

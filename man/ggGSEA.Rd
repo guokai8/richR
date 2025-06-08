@@ -4,18 +4,18 @@
 \alias{ggGSEA}
 \title{plot the gsea result}
 \usage{
-ggGSEA(x, term, object, gseaRes = gseaRes, top = 10, default = TRUE)
+ggGSEA(term, object, gseaRes, top = 10, default = TRUE)
 }
 \arguments{
-\item{x}{a vector include all log2FC with gene name}
-
 \item{term}{the significant term}
 
 \item{object}{Annot object}
 
 \item{gseaRes}{GSEAResult object}
 
-\item{info}{Term with annotation details}
+\item{top}{number of top pathways to display}
+
+\item{default}{whether to use default table plot or individual enrichment plots}
 }
 \description{
 plot the gsea result
@@ -28,7 +28,7 @@ name=sample(unique(hsako$GeneID),1000)
 gene<-rnorm(1000)
 names(gene)<-name
 res<-richGSEA(gene,object = hsako)
-ggGSEA(gene,term = res$pathway,object = hsako,gseaRes = res,default = F)
+ggGSEA(term = res$pathway, object = hsako, gseaRes = res, default = FALSE)
 }
 }
 \author{

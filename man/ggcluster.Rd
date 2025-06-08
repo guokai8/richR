@@ -4,7 +4,32 @@
 \alias{ggcluster}
 \title{Plot KEGG Cluster Visualization}
 \usage{
-ggcluster(data, method = c("auto", "enrich", "gsea"), ...)
+ggcluster(
+  data,
+  method = c("auto", "enrich", "gsea"),
+  color_low = "pink",
+  color_high = "red",
+  color_mid = "white",
+  size_range = c(0.8, 4),
+  curve_color = "grey70",
+  curve_size = 0.5,
+  vertical_line_color = "darkcyan",
+  vertical_line_size = 1.5,
+  dot_line_color = "grey70",
+  dot_line_size = 0.3,
+  dot_line_type = "dotted",
+  vline_color = "grey80",
+  vline_type = "dashed",
+  label_font_size = 3,
+  label_font_face = "bold",
+  pathway_font_size = 2.5,
+  pathway_font_face = "italic",
+  legend_position = "right",
+  x_pathway_offset = 0.3,
+  label_x_size = 6,
+  plot_margins = c(5, 200, 10, 250),
+  ...
+)
 }
 \arguments{
 \item{data}{A data frame containing KEGG cluster data. Must include columns: `Term`, `Level2`, `group`, `Padj`, `Significant`, and `Annotated`.}
@@ -14,6 +39,8 @@ ggcluster(data, method = c("auto", "enrich", "gsea"), ...)
 \item{color_low}{Color for the lowest value in the gradient (default: "pink").}
 
 \item{color_high}{Color for the highest value in the gradient (default: "red").}
+
+\item{color_mid}{Color for the middle value in the gradient (default: "white").}
 
 \item{size_range}{A numeric vector of length 2 to control the size range of points (default: c(0.8, 4)).}
 
