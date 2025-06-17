@@ -112,7 +112,7 @@ setMethod("richGSEA", signature(object = "data.frame"),definition = function(x,o
 #' @export
 #' @author Kai Guo
 setMethod("richGSEA", signature(object = "Annot"),definition = function(x,object,keytype="",pvalue=0.05,padj=NULL,KEGG=FALSE,minSize=15,ontology=ontology,
-                                                                            maxSize=500,padj.method="BH",organism=NULL,table=TRUE,sep=",") {
+                                                                        maxSize=500,padj.method="BH",organism=NULL,table=TRUE,sep=",") {
   richGSEA_internal(x,object@annot,keytype=object@keytype,pvalue=pvalue,padj=padj,KEGG=KEGG,minSize=minSize,ontology=object@anntype,
                     maxSize=maxSize,padj.method=padj.method,organism=object@species,table=table,sep=sep)
 })
@@ -228,9 +228,9 @@ ggGSEA <- function(term, object, gseaRes, top = 10, default = TRUE) {
 #' }
 #' @export
 #' @author Kai Guo
-plotGSEA <- function(object, gseaRes, mycol = NULL, 
+plotGSEA <- function(object, gseaRes, mycol = NULL,
                      up_color = "#E31A1C", down_color = "#1F78B4", show_direction = TRUE,
-                     pathways = NULL, pathway_pattern = NULL, category = NULL, 
+                     pathways = NULL, pathway_pattern = NULL, category = NULL,
                      min_genes = NULL, max_genes = NULL, top = 10,
                      pvalue = 0.05, padj = NULL, gseaParam = 1, ticksSize = 0.2,
                      plot_title = "GSEA Enrichment Plot", show_pathway_names = FALSE,
@@ -284,10 +284,10 @@ plotGSEA <- function(object, gseaRes, mycol = NULL,
       cutoff <- pvalue
       sig_indices <- gseaRes_result$pval < cutoff
     }
-    
+
     sigpathway <- gseaRes_result$pathway[sig_indices]
     sig_nes <- gseaRes_result$NES[sig_indices]
-    
+
     if(top > length(sigpathway)) {
       top <- length(sigpathway)
     }
@@ -299,14 +299,14 @@ plotGSEA <- function(object, gseaRes, mycol = NULL,
   if(!is.null(min_genes) || !is.null(max_genes)) {
     pathway_indices <- match(sigpathway, gseaRes_result$pathway)
     valid_mask <- rep(TRUE, length(pathway_indices))
-    
+
     if(!is.null(min_genes)) {
       valid_mask <- valid_mask & (gseaRes_result$size[pathway_indices] >= min_genes)
     }
     if(!is.null(max_genes)) {
       valid_mask <- valid_mask & (gseaRes_result$size[pathway_indices] <= max_genes)
     }
-    
+
     sigpathway <- sigpathway[valid_mask]
     sig_nes <- sig_nes[valid_mask]
   }
@@ -319,35 +319,35 @@ plotGSEA <- function(object, gseaRes, mycol = NULL,
   if(show_direction) {
     # Create direction-based colors for individual pathways
     pathway_direction <- ifelse(sig_nes > 0, "Up-regulated", "Down-regulated")
-    
+
     # Generate different shades/variants for each pathway within direction
     up_indices <- which(sig_nes > 0)
     down_indices <- which(sig_nes < 0)
-    
+
     # Create color variations for up-regulated pathways
     if(length(up_indices) > 0) {
-      up_colors <- colorRampPalette(c(up_color, 
-                                     adjustcolor(up_color, alpha.f = 0.7)))(length(up_indices))
+      up_colors <- colorRampPalette(c(up_color,
+                                      adjustcolor(up_color, alpha.f = 0.7)))(length(up_indices))
     } else {
       up_colors <- character(0)
     }
-    
-    # Create color variations for down-regulated pathways  
+
+    # Create color variations for down-regulated pathways
     if(length(down_indices) > 0) {
-      down_colors <- colorRampPalette(c(down_color, 
-                                       adjustcolor(down_color, alpha.f = 0.7)))(length(down_indices))
+      down_colors <- colorRampPalette(c(down_color,
+                                        adjustcolor(down_color, alpha.f = 0.7)))(length(down_indices))
     } else {
       down_colors <- character(0)
     }
-    
+
     # Assign colors to pathways
     pathway_colors <- character(length(sigpathway))
     pathway_colors[up_indices] <- up_colors
     pathway_colors[down_indices] <- down_colors
     names(pathway_colors) <- sigpathway
-    
+
     legend_title <- "Pathways (by Direction)"
-    
+
   } else {
     # Use traditional multi-color approach
     if(is.null(mycol)) {
@@ -366,12 +366,12 @@ plotGSEA <- function(object, gseaRes, mycol = NULL,
   res <- lapply(sigpathway, function(pathway) {
     .calGSEA(object, pathway, fc, gseaParam = gseaParam, ticksSize = ticksSize)
   })
-  
+
   toPlot <- do.call(rbind, lapply(res, '[[', 'toPlot'))
   pathway_segments <- do.call(rbind, lapply(res, '[[', 'pathway'))
   tops <- unlist(lapply(res, '[[', 'tops'))
   bottoms <- unlist(lapply(res, '[[', 'bottoms'))
-  
+
   # Keep pathways separate - each pathway keeps its individual identity
   # Add direction information for potential grouping in legend
   if(show_direction) {
@@ -383,7 +383,7 @@ plotGSEA <- function(object, gseaRes, mycol = NULL,
     toPlot <- merge(toPlot, direction_mapping, by = "Group", all.x = TRUE)
     pathway_segments <- merge(pathway_segments, direction_mapping, by = "Group", all.x = TRUE)
   }
-  
+
   diff <- (max(tops) - min(bottoms))/8
 
   # Create the plot - each pathway maintains its individual line
@@ -394,10 +394,10 @@ plotGSEA <- function(object, gseaRes, mycol = NULL,
     geom_hline(yintercept = 0, colour = "black") +
     geom_line(alpha = line_alpha) +
     theme_bw() +
-    geom_segment(data = pathway_segments, 
+    geom_segment(data = pathway_segments,
                  mapping = aes(x = x, y = -diff/4, xend = x, yend = diff/4, color = Group),
                  size = ticksSize) +
-    theme(panel.border = element_blank(), 
+    theme(panel.border = element_blank(),
           panel.grid.minor = element_blank(),
           legend.position = legend_position,
           plot.title = element_text(hjust = 0.5, size = 14)) +
@@ -410,26 +410,26 @@ plotGSEA <- function(object, gseaRes, mycol = NULL,
       # Create pathway labels with NES values and group by direction
       pathway_indices <- match(sigpathway, gseaRes_result$pathway)
       nes_values <- round(gseaRes_result$NES[pathway_indices], 2)
-      
+
       # Create labels with pathway names and NES values
       pathway_labels_with_nes <- paste0(sigpathway, " (", nes_values, ")")
-      
+
       # Truncate long pathway names but keep NES values
       max_pathway_length <- 40  # Adjust as needed
       truncated_pathways <- ifelse(nchar(sigpathway) > max_pathway_length,
-                                  paste0(substr(sigpathway, 1, max_pathway_length-3), "..."),
-                                  sigpathway)
+                                   paste0(substr(sigpathway, 1, max_pathway_length-3), "..."),
+                                   sigpathway)
       pathway_labels_with_nes <- paste0(truncated_pathways, " (", nes_values, ")")
-      
+
       # Group pathways by direction
       up_indices <- which(sig_nes > 0)
       down_indices <- which(sig_nes < 0)
-      
+
       # Create ordered labels (up-regulated first, then down-regulated)
       ordered_pathways <- character(0)
       ordered_colors <- character(0)
       ordered_labels <- character(0)
-      
+
       if(length(up_indices) > 0) {
         # Sort up-regulated by NES (highest first)
         up_order <- up_indices[order(sig_nes[up_indices], decreasing = TRUE)]
@@ -437,7 +437,7 @@ plotGSEA <- function(object, gseaRes, mycol = NULL,
         ordered_colors <- c(ordered_colors, pathway_colors[sigpathway[up_order]])
         ordered_labels <- c(ordered_labels, pathway_labels_with_nes[up_order])
       }
-      
+
       if(length(down_indices) > 0) {
         # Sort down-regulated by NES (least negative first, i.e., highest to lowest)
         down_order <- down_indices[order(sig_nes[down_indices], decreasing = TRUE)]
@@ -445,46 +445,46 @@ plotGSEA <- function(object, gseaRes, mycol = NULL,
         ordered_colors <- c(ordered_colors, pathway_colors[sigpathway[down_order]])
         ordered_labels <- c(ordered_labels, pathway_labels_with_nes[down_order])
       }
-      
+
       # Add group separators in legend
       if(length(up_indices) > 0 && length(down_indices) > 0) {
-        legend_title_with_groups <- paste0(legend_title, "\n", 
-                                          "↑ Up-regulated (", length(up_indices), ") | ",
-                                          "↓ Down-regulated (", length(down_indices), ")")
+        legend_title_with_groups <- paste0(legend_title, "\n",
+                                           "↑ Up-regulated (", length(up_indices), ") | ",
+                                           "↓ Down-regulated (", length(down_indices), ")")
       } else if(length(up_indices) > 0) {
         legend_title_with_groups <- paste0(legend_title, "\n↑ Up-regulated (", length(up_indices), ")")
       } else {
         legend_title_with_groups <- paste0(legend_title, "\n↓ Down-regulated (", length(down_indices), ")")
       }
-      
+
       # Apply the colors and labels - single scale_color_manual call
-      p <- p + scale_color_manual(values = setNames(ordered_colors, ordered_pathways), 
-                                 breaks = ordered_pathways,
-                                 labels = ordered_labels,
-                                 name = legend_title_with_groups) +
-               guides(color = guide_legend(
-                 override.aes = list(size = 2, alpha = 1, linewidth = 1),
-                 ncol = legend_ncol,
-                 title.theme = element_text(size = 10, hjust = 0),
-                 label.theme = element_text(size = 8),
-                 keywidth = unit(1, "cm"),
-                 keyheight = unit(0.5, "cm")
-               ))
-      
+      p <- p + scale_color_manual(values = setNames(ordered_colors, ordered_pathways),
+                                  breaks = ordered_pathways,
+                                  labels = ordered_labels,
+                                  name = legend_title_with_groups) +
+        guides(color = guide_legend(
+          override.aes = list(size = 2, alpha = 1, linewidth = 1),
+          ncol = legend_ncol,
+          title.theme = element_text(size = 10, hjust = 0),
+          label.theme = element_text(size = 8),
+          keywidth = unit(1, "cm"),
+          keyheight = unit(0.5, "cm")
+        ))
+
     } else {
       # Traditional approach - single scale_color_manual call
       legend_labels <- names(pathway_colors)
       if(max(nchar(legend_labels)) > 50) {
         legend_labels <- ifelse(nchar(legend_labels) > 50,
-                               paste0(substr(legend_labels, 1, 47), "..."),
-                               legend_labels)
+                                paste0(substr(legend_labels, 1, 47), "..."),
+                                legend_labels)
         names(pathway_colors) <- legend_labels
       }
-      
+
       p <- p + scale_color_manual(values = pathway_colors, name = legend_title) +
-               guides(color = guide_legend(override.aes = list(size = 2, alpha = 1),
-                                          ncol = legend_ncol,
-                                          title = legend_title))
+        guides(color = guide_legend(override.aes = list(size = 2, alpha = 1),
+                                    ncol = legend_ncol,
+                                    title = legend_title))
     }
   } else {
     # No legend case - still need to set colors
