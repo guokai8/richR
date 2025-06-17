@@ -1018,7 +1018,7 @@ setAs(from = "Annot", to = "data.frame", def = function(from){
 
 ###
 .calGSEA<-function (obj,sigpathway, fc, gseaParam = 1, ticksSize = 0.2){
-  obj<-split(obj[,1],obj[,3])
+  obj<-split(obj[,1],obj[,ncol(obj)])
   pathway <- obj[[sigpathway]]
   stats <- fc
   rnk <- rank(-stats)
