@@ -2,12 +2,15 @@
 % Please edit documentation in R/richGSEA.R
 \name{plotGSEA}
 \alias{plotGSEA}
-\title{plot multiple significant pathways with enhanced customization}
+\title{plot multiple significant pathways with enhanced customization and directional coloring}
 \usage{
 plotGSEA(
   object,
   gseaRes,
   mycol = NULL,
+  up_color = "#E31A1C",
+  down_color = "#1F78B4",
+  show_direction = TRUE,
   pathways = NULL,
   pathway_pattern = NULL,
   category = NULL,
@@ -23,6 +26,8 @@ plotGSEA(
   pathway_name_size = 10,
   line_alpha = 0.8,
   point_alpha = 0.6,
+  legend_position = "bottom",
+  legend_ncol = 2,
   return_data = FALSE,
   interactive = FALSE
 )
@@ -32,7 +37,13 @@ plotGSEA(
 
 \item{gseaRes}{GSEAResult object}
 
-\item{mycol}{a vector indicate the colors used for the figure}
+\item{mycol}{a vector indicate the colors used for the figure (used when show_direction = FALSE)}
+
+\item{up_color}{color for up-regulated pathways (positive NES)}
+
+\item{down_color}{color for down-regulated pathways (negative NES)}
+
+\item{show_direction}{logical, whether to use directional coloring based on NES}
 
 \item{pathways}{specific pathway names to display (if NULL, use top/pvalue/padj filtering)}
 
@@ -64,12 +75,16 @@ plotGSEA(
 
 \item{point_alpha}{transparency of points}
 
+\item{legend_position}{position of legend ("top", "bottom", "left", "right", "none")}
+
+\item{legend_ncol}{number of columns in legend}
+
 \item{return_data}{whether to return plot data along with plot}
 
 \item{interactive}{whether to create interactive plot using plotly}
 }
 \description{
-plot multiple significant pathways with enhanced customization
+plot multiple significant pathways with enhanced customization and directional coloring
 }
 \examples{
 \dontrun{
@@ -79,15 +94,15 @@ name=sample(unique(hsako$GeneID),1000)
 gene<-rnorm(1000)
 names(gene)<-name
 res<-richGSEA(gene,object = hsako)
-# Plot top 10 significant pathways
-plotGSEA(object = hsako, gseaRes = res)
+# Plot with directional coloring (default)
+plotGSEA(object = hsako, gseaRes = res, show_direction = TRUE)
 # Plot specific pathways
 plotGSEA(object = hsako, gseaRes = res,
          pathways = c("MAPK signaling pathway", "PI3K-Akt signaling pathway"))
 # Plot pathways matching pattern
 plotGSEA(object = hsako, gseaRes = res, pathway_pattern = "signaling")
-# Interactive plot
-plotGSEA(object = hsako, gseaRes = res, interactive = TRUE)
+# Traditional multi-color approach
+plotGSEA(object = hsako, gseaRes = res, show_direction = FALSE)
 }
 }
 \author{
