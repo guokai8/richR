@@ -1,5 +1,27 @@
 # richR Updates
 
+## Version 0.1.1 (2026-03-28)
+
+### New Features
+
+- **`ggupset()`**: Color-enhanced UpSet plot for visualizing set intersections
+  across multiple gene lists. Built entirely with ggplot2 (no dependency on the
+  UpSetR package). Inspired by the colored UpSet implementation from the
+  katelynhur/covid19VAE project.
+  - Per-set coloring of bars, matrix dots, and set labels via `mycol` parameter
+  - Customizable intersection line color via `line.color`
+  - Toggle per-set vs. uniform dot coloring via `color.by.set`
+  - Order intersections by frequency or degree
+  - Accepts named lists of genes, richResult objects, or GSEAResult objects
+  - Bar labels colored to match their respective bars
+
+### Documentation
+
+- Added UpSet plot section to README.md with examples and visualization image
+- Version bump: 0.1.0 -> 0.1.1
+
+---
+
 ## Version 0.1.0 (2026-03-28)
 
 This release includes a comprehensive codebase review, bug fixes, documentation

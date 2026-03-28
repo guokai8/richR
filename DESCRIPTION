@@ -1,7 +1,7 @@
 Package: richR
 Type: Package
 Title: Functional Enrichment Analysis and Visualization
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: c(
     person("Kai", "Guo", email = "guokai8@gmail.com", role = c("aut")),
     person("Junguk", "Hur", email = "junguk.hur@med.und.edu",
@@ -12,7 +12,8 @@ Description: Performs functional enrichment analysis for Gene Ontology (GO),
     analysis (ORA) via hypergeometric testing, Gene Set Enrichment Analysis (GSEA),
     and kappa-score-based term clustering. Provides publication-ready
     visualizations including bar plots, dot plots, network graphs, heatmaps,
-    and cluster plots.
+    and cluster plots. Includes a color-enhanced UpSet plot for set intersection
+    visualization.
 License: GPL-3
 LazyData: TRUE
 Depends: R (>= 3.5.0)

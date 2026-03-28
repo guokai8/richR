@@ -41,7 +41,7 @@ S4 generics are in `R/AllGenerics.R`. S4 methods for accessors (head, tail, dim,
 2. **ORA** (`R/enrich.R`, `R/richGO.R`, `R/richKEGG.R`): hypergeometric test via C++ (`src/hyper.cpp`). Each has `*_internal()` function + S4 method dispatchers for data.frame and Annot signatures.
 3. **GSEA** (`R/richGSEA.R`): wraps `fgsea::fgseaMultilevel()`. Includes `plotGSEA()`, `getPathways()`, `searchPathways()`, `filterPathways()`, `batchGSEAplot()`, `parGSEA()`.
 4. **Clustering** (`R/kappa.R`): kappa-score similarity → `.merge_term()` → enrichment scoring.
-5. **Visualization**: `R/ggbar.R`, `R/ggdot.R`, `R/ggrich.R` (network), `R/ggnetwork.R`, `R/ggnetmap.R`, `R/ggdot_cluster.R` + `R/ggdot_cluster_gsea.R`, `R/compareResult.R`, `R/ggheatmap.R`.
+5. **Visualization**: `R/ggbar.R`, `R/ggdot.R`, `R/ggrich.R` (network), `R/ggnetwork.R`, `R/ggnetmap.R`, `R/ggdot_cluster.R` + `R/ggdot_cluster_gsea.R`, `R/compareResult.R`, `R/ggheatmap.R`, `R/ggupset.R` (color-enhanced UpSet plot, pure ggplot2).
 
 ### C++ (Rcpp) Components (`src/`)
 

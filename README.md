@@ -1,7 +1,7 @@
 # richR
 
 [![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
-[![](https://img.shields.io/badge/version-0.1.0-green.svg)](https://github.com/hurlab/richR)
+[![](https://img.shields.io/badge/version-0.1.1-green.svg)](https://github.com/hurlab/richR)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![DOI](https://zenodo.org/badge/243827597.svg)](https://zenodo.org/badge/latestdoi/243827597)
 
@@ -256,6 +256,46 @@ ggnetwork(resgo, top = 20, weightcut = 0.01)
 # Enrichment heatmap (from ggnetmap)
 ggnetmap(list(resgo, resko), top = 50, visNet = TRUE, smooth = FALSE)
 ```
+
+## UpSet Plot (Set Intersection Visualization)
+
+The `ggupset()` function creates color-enhanced UpSet plots for visualizing set
+intersections across multiple gene lists. Built entirely with ggplot2, it does
+not require the UpSetR package.
+
+```r
+# From gene lists
+gene_lists <- list(
+  "Treatment A" = sample(unique(hsako$GeneID), 500),
+  "Treatment B" = sample(unique(hsako$GeneID), 400),
+  "Control"     = sample(unique(hsako$GeneID), 600),
+  "Reference"   = sample(unique(hsako$GeneID), 450)
+)
+ggupset(gene_lists)
+
+# Custom colors
+ggupset(gene_lists, mycol = c("dodgerblue", "goldenrod1", "darkorange1", "seagreen3"))
+
+# From enrichment results
+res1 <- richKEGG(gene1, kodata = hsako)
+res2 <- richKEGG(gene2, kodata = hsako)
+ggupset(list("Sample1" = res1, "Sample2" = res2))
+
+# Ordering and filtering
+ggupset(gene_lists, order.by = "degree", nintersects = 20)
+
+# Save to file
+ggupset(gene_lists, filename = "upset_plot.pdf", width = 10, height = 6)
+```
+
+<img src="man/figures/example_upset.png" width="600">
+
+**Key features:**
+- Per-set colors for bars, matrix dots, and set labels
+- Customizable intersection line colors
+- Order by frequency or degree (number of sets in intersection)
+- Accepts gene lists, richResult objects, or GSEAResult objects
+- No dependency on the UpSetR package
 
 ## Comparing Multiple Groups
 
