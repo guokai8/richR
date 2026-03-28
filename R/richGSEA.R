@@ -17,6 +17,13 @@
 richGSEA_internal<-function(x,object,keytype="",pvalue=0.05,padj=NULL,KEGG=FALSE,minSize=15,maxSize=500,
                             minGSSize = 10, maxGSSize = 500,
                             padj.method="BH",organism=NULL,ontology=NULL,table=TRUE,sep=","){
+  if (!is.numeric(x) || is.null(names(x))) {
+    stop("richGSEA: input must be a named numeric vector of fold changes.", call. = FALSE)
+  }
+  x <- x[!is.na(x) & !is.infinite(x)]
+  if (length(x) == 0) {
+    stop("richGSEA: no valid (non-NA, non-Inf) values in input.", call. = FALSE)
+  }
   x<-sort(x)
   if("Annot"%in%colnames(object)){
     object[,2]<-object$Annot
@@ -35,9 +42,11 @@ richGSEA_internal<-function(x,object,keytype="",pvalue=0.05,padj=NULL,KEGG=FALSE
   res<-res[order(res$pval),]
   res <- res[!is.na(res$pathway),]
   if(isTRUE(KEGG)){
-    data("path")
-    rownames(path)<-path$Level3
-    res<-cbind(res,path[res$pathway,])
+    path_env <- new.env(parent = emptyenv())
+    data("path", envir = path_env)
+    path_data <- path_env$path
+    rownames(path_data)<-path_data$Level3
+    res<-cbind(res,path_data[res$pathway,])
   }
   if(is.null(organism)){
     organism=character()

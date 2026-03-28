@@ -22,7 +22,9 @@ richKEGG_internal<-function(x,kodata,pvalue=0.05,padj=NULL,ontology="KEGG",
                             organism=NULL,keytype="SYMBOL",minSize=2,maxSize=500,
                             minGSSize = 10, maxGSSize = 500,
                             keepRich=TRUE, filename=NULL,padj.method="BH",builtin=TRUE,sep=","){
-
+    .validateParams(pvalue=pvalue, padj=padj, minSize=minSize, maxSize=maxSize,
+                    minGSSize=minGSSize, maxGSSize=maxGSSize, func_name="richKEGG")
+    .validateGeneInput(x, annotation=kodata, func_name="richKEGG")
     ko2gene<-sf(kodata)
     ko2gene_num<-name_table(ko2gene)
     gene2ko<-sf(kodata[,c(2,1)])
@@ -63,8 +65,9 @@ richKEGG_internal<-function(x,kodata,pvalue=0.05,padj=NULL,ontology="KEGG",
                           "Significant"=Significant,"RichFactor" = RichFactor,"FoldEnrichment"= FoldEnrichment,
                           "zscore"=zscore,"Pvalue"=Pvalue,"Padj"=lhs,
                           "GeneID"=GeneID)
-    data("path")
-    resultFis<-cbind(resultFis,path[resultFis$Annot,])
+    path_env <- new.env(parent = emptyenv())
+    data("path", envir = path_env)
+    resultFis<-cbind(resultFis,path_env$path[resultFis$Annot,])
     resultFis<-resultFis[order(resultFis$Pvalue),]
     resultFis<-subset(resultFis, Significant<=maxSize)
     resultFis<-subset(resultFis, Annotated<=maxGSSize)

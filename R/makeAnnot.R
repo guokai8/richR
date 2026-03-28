@@ -14,6 +14,7 @@
 ##' @export
 ##' @author Kai Guo
 buildAnnot<-function(species="human",keytype="SYMBOL",anntype="GO",builtin=TRUE,OP=NULL){
+  message("buildAnnot: building ", anntype, " annotation for ", species, " (keytype: ", keytype, ")...")
   if(anntype=="GO"){
      annot <- .makeGOdata(species=species,keytype=keytype,OP=OP)
   }
@@ -31,8 +32,11 @@ buildAnnot<-function(species="human",keytype="SYMBOL",anntype="GO",builtin=TRUE,
               anntype = anntype,
               keytype = keytype,
               annot = annot
-
   )
+  n_genes <- length(unique(annot[, 1]))
+  n_terms <- length(unique(annot[, 2]))
+  message("buildAnnot: done. ", n_genes, " genes, ", n_terms, " terms.")
+  return(result)
 }
 #' make GO annotation data function
 #' @importFrom AnnotationDbi keys

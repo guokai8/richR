@@ -19,6 +19,9 @@ richGO_internal<-function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,
                  organism=NULL,keytype="SYMBOL",minSize=2,maxSize=500,
                  minGSSize = 10, maxGSSize = 500,
                  keepRich=FALSE, filename=NULL,padj.method="BH",sep=","){
+  .validateParams(pvalue=pvalue, padj=padj, minSize=minSize, maxSize=maxSize,
+                  minGSSize=minGSSize, maxGSSize=maxGSSize, func_name="richGO")
+  .validateGeneInput(x, annotation=godata, func_name="richGO")
   go2gene<-sf(godata)
   all_go<-.get_go_dat(ont=ontology)
   go2gene<-go2gene[names(go2gene)%in%rownames(all_go)];

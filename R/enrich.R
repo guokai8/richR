@@ -19,15 +19,13 @@
 enrich_internal<-function(x,object,ontology= "",pvalue=0.05,padj=NULL,organism=NULL,minSize=1,maxSize=500,
                           minGSSize = 10, maxGSSize = 500,
                           keepRich=TRUE,keytype="",filename=NULL,padj.method="BH",sep = ","){
+  .validateParams(pvalue=pvalue, padj=padj, minSize=minSize, maxSize=maxSize,
+                  minGSSize=minGSSize, maxGSSize=maxGSSize, func_name="enrich")
+  input <- .validateGeneInput(x, annotation=object, func_name="enrich")
   ontology=""
   ao2gene<-sf(object)
   ao2gene_num<-name_table(ao2gene)
   gene2ao<-sf(object[,c(2,1)])
-  if(is.data.frame(x)){
-    input<-rownames(x)
-  }else{
-    input=as.vector(x)
-  }
   fgene2ao=gene2ao[input]
   fao2gene=reverseList(fgene2ao)
   k=name_table(fao2gene)

@@ -1,3 +1,69 @@
+# ---------------------------
+#  SHOW METHODS
+# ---------------------------
+
+#' @rdname show-methods
+#' @aliases show,richResult-method
+setMethod("show", signature(object = "richResult"), function(object) {
+  n_sig <- nrow(object@result)
+  cat("richResult object\n")
+  cat("  Organism:    ", if (length(object@organism) && nchar(object@organism)) object@organism else "(not set)", "\n")
+  cat("  Ontology:    ", if (length(object@ontology) && nchar(object@ontology)) object@ontology else "(not set)", "\n")
+  cat("  Gene count:  ", object@genenumber, "input genes\n")
+  cat("  Significant: ", n_sig, "terms")
+  if (length(object@pvalueCutoff) && object@pvalueCutoff > 0) {
+    cat(" (pvalue <", object@pvalueCutoff, ")")
+  }
+  cat("\n")
+  if (n_sig > 0) {
+    top_n <- min(5, n_sig)
+    top <- object@result[1:top_n, c("Term", "Pvalue", "Padj", "Significant", "Annotated"), drop = FALSE]
+    top$Pvalue <- formatC(top$Pvalue, format = "e", digits = 2)
+    top$Padj <- formatC(as.numeric(top$Padj), format = "e", digits = 2)
+    cat("\n  Top", top_n, "terms:\n")
+    print(top, row.names = FALSE, right = FALSE)
+    if (n_sig > top_n) cat("  ... with", n_sig - top_n, "more terms\n")
+  }
+  invisible(object)
+})
+
+#' @rdname show-methods
+#' @aliases show,GSEAResult-method
+setMethod("show", signature(object = "GSEAResult"), function(object) {
+  n_sig <- nrow(object@result)
+  cat("GSEAResult object\n")
+  cat("  Organism:    ", if (length(object@organism) && nchar(object@organism)) object@organism else "(not set)", "\n")
+  cat("  Ontology:    ", if (length(object@ontology) && nchar(object@ontology)) object@ontology else "(not set)", "\n")
+  cat("  Gene count:  ", object@genenumber, "ranked genes\n")
+  cat("  Significant: ", n_sig, "pathways\n")
+  if (n_sig > 0) {
+    top_n <- min(5, n_sig)
+    cols <- intersect(c("pathway", "pval", "padj", "NES", "size"), colnames(object@result))
+    top <- object@result[1:top_n, cols, drop = FALSE]
+    if ("pval" %in% cols) top$pval <- formatC(top$pval, format = "e", digits = 2)
+    if ("padj" %in% cols) top$padj <- formatC(top$padj, format = "e", digits = 2)
+    if ("NES" %in% cols) top$NES <- round(top$NES, 3)
+    cat("\n  Top", top_n, "pathways:\n")
+    print(top, row.names = FALSE, right = FALSE)
+    if (n_sig > top_n) cat("  ... with", n_sig - top_n, "more pathways\n")
+  }
+  invisible(object)
+})
+
+#' @rdname show-methods
+#' @aliases show,Annot-method
+setMethod("show", signature(object = "Annot"), function(object) {
+  n_genes <- length(unique(object@annot[, 1]))
+  n_terms <- length(unique(object@annot[, 2]))
+  cat("Annot object\n")
+  cat("  Species: ", if (nchar(object@species)) object@species else "(not set)", "\n")
+  cat("  Type:    ", if (nchar(object@anntype)) object@anntype else "(not set)", "\n")
+  cat("  Keytype: ", if (nchar(object@keytype)) object@keytype else "(not set)", "\n")
+  cat("  Genes:   ", n_genes, "\n")
+  cat("  Terms:   ", n_terms, "\n")
+  invisible(object)
+})
+
 ##' @method as.data.frame Annot
 ##' @export
 as.data.frame.Annot<-function(x,...){
@@ -465,6 +531,55 @@ setMethod(
   }
 )
 
+#' Extract genes from enrichment results
+#'
+#' Returns genes associated with a specific term, or all input genes if no term
+#' is specified.
+#'
+#' @param x A richResult or GSEAResult object
+#' @param term Optional term ID (Annot column) or term name to extract genes for.
+#'   If NULL, returns all input genes from the analysis.
+#' @param sep Separator used in GeneID column (default: ",")
+#' @return Character vector of gene IDs
+#'
+#' @examples
+#' \dontrun{
+#' res <- richGO(genes, godata = hsago, ontology = "BP")
+#' # All input genes
+#' getGenes(res)
+#' # Genes in a specific term
+#' getGenes(res, "GO:0006915")
+#' }
+#' @export
+#' @author Junguk Hur
+getGenes <- function(x, term = NULL, sep = ",") {
+  if (inherits(x, "richResult") || inherits(x, "GSEAResult")) {
+    if (is.null(term)) {
+      return(x@gene)
+    }
+    res_df <- x@result
+    if (inherits(x, "richResult")) {
+      # Match by Annot ID or Term name
+      idx <- which(res_df$Annot == term | res_df$Term == term)
+      if (length(idx) == 0) {
+        stop("Term '", term, "' not found in results.", call. = FALSE)
+      }
+      gene_str <- as.character(res_df$GeneID[idx[1]])
+      return(unique(strsplit(gene_str, sep)[[1]]))
+    }
+    if (inherits(x, "GSEAResult")) {
+      idx <- which(res_df$pathway == term)
+      if (length(idx) == 0) {
+        stop("Pathway '", term, "' not found in GSEA results.", call. = FALSE)
+      }
+      le <- res_df$leadingEdge[idx[1]]
+      if (is.list(le)) return(unique(le[[1]]))
+      return(unique(strsplit(as.character(le), sep)[[1]]))
+    }
+  }
+  stop("x must be a richResult or GSEAResult object.", call. = FALSE)
+}
+
 ##' get detail and integrate with the input gene information
 ##' @importFrom dplyr left_join
 #' @param rese richResult or GSEAResult
@@ -528,18 +643,19 @@ getdetail<-function(rese,resd,sep){
 ##' @importFrom KEGGREST keggList
 .get_kg_dat<-function(builtin=TRUE){
   if(isTRUE(builtin)){
-    data(kegg)
-    return(kegg.db)
+    kegg_env <- new.env(parent = emptyenv())
+    data("kegg", envir = kegg_env)
+    return(kegg_env$kegg.db)
   }else{
     pathway<-cbind(keggList('pathway'))
     rownames(pathway)<-sub('.*map','',rownames(pathway))
     colnames(pathway)<-"annotation"
     pathway<-as.data.frame(pathway)
     pathway$annotation<-as.vector(pathway$annotation)
-    #data(pathway)
     if(is.na(pathway['04148',])){
-      data(kegg)
-      pathway<-kegg.db
+      kegg_env <- new.env(parent = emptyenv())
+      data("kegg", envir = kegg_env)
+      pathway<-kegg_env$kegg.db
     }
     return(pathway)
   }
@@ -547,13 +663,9 @@ getdetail<-function(rese,resd,sep){
 ##' @importFrom KEGGREST keggList
 ##'
 .get_kgm.data <- function(){
-  #module <-  cbind(keggList('module'))
-  #rownames(module)<-sub('md:','',rownames(module))
-  #colnames(module)<-"annotation"
-  #module<-as.data.frame(module)
-  #module$annotation<-as.vector(module$annotation)
-  data(module)
-  return(module)
+  mod_env <- new.env(parent = emptyenv())
+  data("module", envir = mod_env)
+  return(mod_env$module)
 }
 
 ##' Build annotation for GO or KEGG

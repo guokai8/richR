@@ -1,7 +1,7 @@
 # richR
 
 [![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
-[![](https://img.shields.io/badge/version-0.1.1-green.svg)](https://github.com/hurlab/richR)
+[![](https://img.shields.io/badge/version-0.1.2-green.svg)](https://github.com/hurlab/richR)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![DOI](https://zenodo.org/badge/243827597.svg)](https://zenodo.org/badge/latestdoi/243827597)
 
@@ -82,7 +82,23 @@ hsamsi <- buildMSIGDB(species = "human", keytype = "SYMBOL", anntype = "HALLMARK
 msigdbinfo()
 ```
 
-### 3. Custom annotation with bioAnno
+### 3. Custom gene sets (GMT files or named lists)
+
+```r
+# Import from GMT file (MSigDB, Enrichr, etc.)
+annot <- readGMT("h.all.v2023.2.Hs.symbols.gmt", species = "human")
+res <- enrich(my_genes, annot)
+
+# From a named list of gene vectors
+my_sets <- list(
+  "Apoptosis" = c("TP53", "BAX", "BCL2", "CASP3"),
+  "Cell Cycle" = c("CDK1", "CDK2", "CCND1", "RB1")
+)
+annot <- buildAnnotFromList(my_sets)
+res <- enrich(my_genes, annot)
+```
+
+### 4. Custom annotation with bioAnno
 
 ```r
 # If you have bioAnno installed (https://github.com/guokai8/bioAnno):

@@ -1,7 +1,7 @@
 Package: richR
 Type: Package
 Title: Functional Enrichment Analysis and Visualization
-Version: 0.1.1
+Version: 0.1.2
 Authors@R: c(
     person("Kai", "Guo", email = "guokai8@gmail.com", role = c("aut")),
     person("Junguk", "Hur", email = "junguk.hur@med.und.edu",
