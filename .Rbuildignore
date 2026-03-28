@@ -1,0 +1,8 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^CLAUDE\.md$
+^UPDATES\.md$
+^\.travis\.yml$
+^_config\.yml$
+^Rplots\.pdf$
+^\.github$
