@@ -264,16 +264,15 @@ intersections across multiple gene lists. Built entirely with ggplot2, it does
 not require the UpSetR package.
 
 ```r
-# From gene lists
+# From gene lists (reproduces the figure below)
+set.seed(123)
+genes <- paste0("Gene", 1:250)
 gene_lists <- list(
-  "Treatment A" = sample(unique(hsako$GeneID), 500),
-  "Treatment B" = sample(unique(hsako$GeneID), 400),
-  "Control"     = sample(unique(hsako$GeneID), 600),
-  "Reference"   = sample(unique(hsako$GeneID), 450)
+  "Treatment A" = sample(genes, 150),
+  "Treatment B" = sample(genes, 130),
+  "Control"     = sample(genes, 110),
+  "Reference"   = sample(genes, 100)
 )
-ggupset(gene_lists)
-
-# Custom colors
 ggupset(gene_lists, mycol = c("dodgerblue", "goldenrod1", "darkorange1", "seagreen3"))
 
 # From enrichment results
@@ -292,7 +291,7 @@ ggupset(gene_lists, filename = "upset_plot.pdf", width = 10, height = 6)
 
 **Key features:**
 - Per-set colors for bars, matrix dots, and set labels
-- Customizable intersection line colors
+- Single-set bars use the set color; multi-set intersection bars use a blend of the participating set colors
 - Order by frequency or degree (number of sets in intersection)
 - Accepts gene lists, richResult objects, or GSEAResult objects
 - No dependency on the UpSetR package
