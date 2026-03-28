@@ -292,12 +292,15 @@ gene_lists <- list(
 ggupset(gene_lists, mycol = c("dodgerblue", "goldenrod1", "darkorange1", "seagreen3"))
 
 # From enrichment results
-res1 <- richKEGG(gene1, kodata = hsako)
-res2 <- richKEGG(gene2, kodata = hsako)
-ggupset(list("Sample1" = res1, "Sample2" = res2))
+resko1 <- richKEGG(gene1, kodata = hsako)
+resko2 <- richKEGG(gene2, kodata = hsako)
+ggupset(list("Sample1" = resko1, "Sample2" = resko2))
 
 # Ordering and filtering
 ggupset(gene_lists, order.by = "degree", nintersects = 20)
+
+# Uniform bar color (override blending)
+ggupset(gene_lists, main.bar.color = "gray50")
 
 # Save to file
 ggupset(gene_lists, filename = "upset_plot.pdf", width = 10, height = 6)
@@ -426,7 +429,7 @@ Run `showData()` for the full list of 21 supported species.
 
 If you use richR in your research, please cite:
 
-> Guo K, Hur J (2025). richR: Functional Enrichment Analysis and Visualization. R package version 0.1.0. https://github.com/hurlab/richR
+> Guo K, Hur J (2026). richR: Functional Enrichment Analysis and Visualization. R package version 0.1.2. https://github.com/hurlab/richR
 
 ## Contact
 

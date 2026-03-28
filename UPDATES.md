@@ -1,5 +1,26 @@
 # richR Updates
 
+## Version 0.1.2.1 (2026-03-28)
+
+### Bug Fixes
+
+- **UpSet plot bar-to-dot alignment**: Bars and dots were progressively
+  misaligned because the bar chart and dot matrix panels had different left
+  margins. Fixed by using `align_plots()` + `ggdraw()`/`draw_plot()` for
+  pixel-accurate panel alignment, replacing the nested `plot_grid()` layout.
+- **UpSet multi-set intersection bar colors**: Bars representing multi-set
+  intersections now use a blended color (RGB average of participating sets)
+  instead of arbitrarily picking the largest set's color. Single-set bars
+  still use the set color. Override all bars with `main.bar.color`.
+
+### Documentation
+
+- README UpSet example now uses a self-contained reproducible dataset
+  (`set.seed(123)`, 250-gene universe) matching the example figure.
+- Fixed citation year (2025 → 2026) and version (0.1.0 → 0.1.2).
+
+---
+
 ## Version 0.1.2 (2026-03-28)
 
 ### New Features
