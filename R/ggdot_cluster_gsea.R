@@ -1,6 +1,6 @@
 #' Plot KEGG Cluster Visualization
 #'
-#' This function generates a KEGG GESA cluster plot, showing pathways and their relationships
+#' This function generates a KEGG GSEA cluster plot, showing pathways and their relationships
 #' across different clusters with customizable aesthetics.
 #'
 #' @param data A data frame containing KEGG cluster data. Must include columns: `pathway`, `Level2`, `group`, `Padj`, `Significant`, and `Annotated`.
@@ -164,18 +164,18 @@
         aes(x = x_start, y = y_start, xend = x_end, yend = y_end),
         curvature = curve_lines_data$curvature[i],
         color = curve_color,
-        size = curve_size
+        linewidth = curve_size
       )
     }) +
     geom_segment(data = segment_lines_data,
                  aes(x = x_start, y = y_start, xend = x_end, yend = y_end),
-                 color = curve_color, size = curve_size) +
+                 color = curve_color, linewidth = curve_size) +
     geom_segment(data = pathways_lines,
                  aes(x = x, y = y_start, xend = x, yend = y_end),
-                 color = vertical_line_color, size = vertical_line_size) +
+                 color = vertical_line_color, linewidth = vertical_line_size) +
     geom_segment(data = lines_horizontal,
                  aes(x = x_start, y = y, xend = x_end, yend = y_end),
-                 color = dot_line_color, size = dot_line_size, linetype = dot_line_type) +
+                 color = dot_line_color, linewidth = dot_line_size, linetype = dot_line_type) +
     geom_segment(data = vlines_data,
                  aes(x = x, y = y_start, xend = x, yend = y_end),
                  color = vline_color, linetype = vline_type) +

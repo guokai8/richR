@@ -55,7 +55,7 @@ richLevel(
 
 \item{sep}{character string used to separate the genes when concatenating}
 
-\item{bulitin}{use KEGG bulit in KEGG annotation or not(set FALSE if you want use newest KEGG data)}
+\item{builtin}{use KEGG built-in KEGG annotation or not(set FALSE if you want use newest KEGG data)}
 }
 \description{
 richLevel

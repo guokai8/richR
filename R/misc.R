@@ -315,9 +315,8 @@ setMethod(
   f = "summary",
   signature = "GSEAResult",
   definition = function(object, ...) {
-    # If GSEAResult extends richResult, you could also callNextMethod().
-    cat("Total significant biological term is:",
-        table(object@result$padj < 0.05)[[2]], "\n")
+    sig_count <- sum(object@result$padj < 0.05, na.rm = TRUE)
+    cat("Total significant biological terms (padj < 0.05):", sig_count, "\n")
   }
 )
 
@@ -557,7 +556,7 @@ getdetail<-function(rese,resd,sep){
   return(module)
 }
 
-##' build annotaion for kegg
+##' Build annotation for GO or KEGG
 ##' @param ontype GO or KEGG
 ##' @examples
 ##' annot = getann("GO")
@@ -570,22 +569,25 @@ getann<-function(ontype="GO"){
     res<-.get_kg_dat(builtin=F)
   }
   if(ontype=="Module"){
-    res <-.get_kgm_dat()
+    res <-.get_kgm.data()
   }
   return(res)
 }
 
-#' reverse List
-#' @param lhs: list with names
+#' Reverse a named list (pure R backup implementation)
+#' @param lhs list with names
+#' @return A named list with keys and values swapped
 #' @export
 #' @author Kai Guo
-# replace this with c++
 reverseList_bk<-function(lhs){
   lhs_n<-rep(names(lhs),times=lapply(lhs,function(x)length(x)))
   res<-sf(as.data.frame(cbind(lhs_n,unlist(lhs))))
   return(res)
 }
-#' ovelap
+#' Calculate overlap (Jaccard index) between two sets
+#' @param x first set
+#' @param y second set
+#' @return Numeric Jaccard similarity coefficient
 overlap <- function(x, y) {
   x <- unlist(x)
   y <- unlist(y)
@@ -606,10 +608,11 @@ GO_child <- function(node = "GO:0008150", ontology = "BP") {
   return(res[!is.na(res)])
 }
 
-#' Convert ID between ENTREZID to SYMBOL or other type ID based on bioconductor annotation package
-#' @param species: you can check the support species by using showData()
-#' @param fkeytype: the gene type you want to convert
-#' @param tkeytype: the gene type you want to get
+#' Convert gene IDs between types using Bioconductor annotation packages
+#' @param species species name (check available species with showData())
+#' @param keys character vector of gene IDs to convert
+#' @param fkeytype source key type (e.g., "SYMBOL", "ENTREZID")
+#' @param tkeytype target key type (e.g., "ENTREZID", "SYMBOL")
 #' @examples
 #' \dontrun{
 #'   hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
@@ -617,8 +620,7 @@ GO_child <- function(node = "GO:0008150", ontology = "BP") {
 #'   gene=sample(unique(hsako$GeneID),1000)
 #'   id<-idconvert(species="human",fkeytype="SYMBOL",tkeytype="ENTREZID")
 #' }
-#' @export
-#' @author Kai Guo
+#' @return Character vector of converted gene IDs
 #' @export
 #' @author Kai Guo
 idconvert<-function(species,keys,fkeytype,tkeytype){
@@ -633,10 +635,10 @@ idconvert<-function(species,keys,fkeytype,tkeytype){
 .getdbname<-function(species="human"){
   dbname=.getdb(species=species);
   if(is.null(dbname)){
-    cat("You must check if your request database is avaliable by using showData,
-        If not you could make your database by using makeOwnGO and makeOwnKO
-        and give a user defined database\n")
-    stop("databse error!")
+    cat("You must check if your requested database is available by using showData.\n",
+        "If not, you could make your database by using makeOwnGO and makeOwnKO\n",
+        "and provide a user-defined database.\n")
+    stop("database error!")
   }
   return(dbname)
 }
@@ -742,18 +744,20 @@ idconvert<-function(species,keys,fkeytype,tkeytype){
   }
   return(species)
 }
-#' show avaliable data based on bioconductor annotation package
+#' Show available species and their annotation packages
+#' @return A data.frame with species names and corresponding Bioconductor annotation packages
 #' @export
 #' @author Kai Guo
 showData<-function(){
-  species=c("anopheles","arabidopsis","bovine","celegans","canine","fly","zebrafish",
-            "ecoli","ecsakai","chicken","human","mouse","rhesus","malaria","chipm","rat",
-            "toxoplasma","sco","pig","yeast","xenopus")
-  dbname=c("org.Ag.eg.db","org.At.tair.db","org.Bt.eg.db","org.Ce.eg.db","org.Cf.eg.db","org.Dm.eg.db",
-           "org.Dr.eg.db","org.EcK12.eg.db","org.EcSakai.eg.db","org.Gg.eg.db","org.Hs.eg.db","org.Mm.eg.db",
-           "org.Mmu.eg.db","org.Pf.plasmo.db","org.Pt.eg.db","org.Rn.eg.db","org.Sc.sgd.db","org.Sco.eg.db",
-           "org.Ss.eg.db","org.Tgondii.eg.db","org.Xl.eg.db")
-  dbdata<-data.frame(dbname=dbname,species=species)
+  species=c("anopheles","arabidopsis","bovine","celegans","canine","chicken",
+            "ecoli","ecsakai","fly","human","malaria","chipm","mouse",
+            "pig","rat","rhesus","streptomyces","toxoplasma","xenopus",
+            "yeast","zebrafish")
+  dbname=c("org.Ag.eg.db","org.At.tair.db","org.Bt.eg.db","org.Ce.eg.db","org.Cf.eg.db","org.Gg.eg.db",
+           "org.EcK12.eg.db","org.EcSakai.eg.db","org.Dm.eg.db","org.Hs.eg.db","org.Pf.plasmo.db","org.Pt.eg.db",
+           "org.Mm.eg.db","org.Ss.eg.db","org.Rn.eg.db","org.Mmu.eg.db","org.Sco.eg.db","org.Tgondii.eg.db",
+           "org.Xl.eg.db","org.Sc.sgd.db","org.Dr.eg.db")
+  dbdata<-data.frame(species=species,dbname=dbname)
   dbdata
 }
 ##' vector to data.frame
@@ -776,7 +780,7 @@ vec_to_df<-function(x,name){
   }else if(species=="celegans"){
     out<-"Caenorhabditis elegans"
   }else if(species=="fly"){
-    out<-"rosophila melanogaster"
+    out<-"Drosophila melanogaster"
   }else if(species=="yeast"){
     out<-"Saccharomyces cerevisiae"
   }else if(species=="bovine"){
@@ -793,7 +797,8 @@ vec_to_df<-function(x,name){
     out<-NULL
   }
 }
-##' Print MSIGDB infomation
+##' Print MSigDB information
+##' @return Prints MSigDB category information to the console (invisible NULL)
 ##' @export
 msigdbinfo <- function() {
   cat("#--------------------------------------------------------------#\n")
@@ -858,31 +863,31 @@ setAs(from = "data.frame", to = "richResult", def = function(from){
   keytype <- character()
   organism <- character()
   ontology <- character()
-  pvalueCutoff <- numeric()
-  pAdjustMethod <-character()
-  padjCutoff <- numeric()
-  Annot <- from$Annot
-  Term <- from$Term
-  Annotated <- from$Annotated
-  Significant <- from$Significant
-  Pvalue <- from$Pvalue
-  Padj <- from$Padj
   GeneID <- as.vector(from$GeneID)
-  gene<-unique(unlist(strsplit(GeneID,",")))
-  genenumber <- length(gene)
-  resultFis <- data.frame(Annot, Term, Annotated, Significant, Pvalue, Padj, GeneID)
-  rownames(resultFis) <- Annotated
+  gene <- unique(unlist(strsplit(GeneID, ",")))
+  resultFis <- from
+  rownames(resultFis) <- from$Annot
+  gened <- data.frame(
+    TERM = rep(from$Annot, times = lengths(strsplit(GeneID, ","))),
+    Annot = rep(from$Term, times = lengths(strsplit(GeneID, ","))),
+    GeneID = unlist(strsplit(GeneID, ",")),
+    Pvalue = rep(from$Pvalue, times = lengths(strsplit(GeneID, ","))),
+    Padj = rep(from$Padj, times = lengths(strsplit(GeneID, ","))),
+    row.names = NULL,
+    stringsAsFactors = FALSE
+  )
   new("richResult",
-      result=resultFis,
-      detail=detail,
-      pvalueCutoff   = pvalue,
-      pAdjustMethod  = padj.method,
-      padjCutoff   = padj,
-      genenumber    = length(input),
-      organism       = organism,
-      ontology       = ontology,
-      gene           = input,
-      keytype        = keytype
+      result = resultFis,
+      detail = gened,
+      pvalueCutoff = numeric(),
+      pAdjustMethod = "BH",
+      padjCutoff = numeric(),
+      genenumber = length(gene),
+      organism = organism,
+      ontology = ontology,
+      gene = gene,
+      keytype = keytype,
+      sep = ","
   )
 })
 
@@ -944,10 +949,6 @@ rbind.GSEAResult<-function(...){
   gsub("\\n", " ", x)
 }
 
-#' remove the newlines
-.clean.char<-function(x){
-  return(gsub('\\\n',' ',x))
-}
 
 ##'
 setAs(from = "richResult", to = "data.frame", def = function(from){

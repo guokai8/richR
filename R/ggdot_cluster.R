@@ -293,18 +293,18 @@ ggcluster <- function(data, method = c("auto", "enrich", "gsea"),color_low = "pi
         aes(x = x_start, y = y_start, xend = x_end, yend = y_end),
         curvature = curve_lines_data$curvature[i],
         color = curve_color,
-        size = curve_size
+        linewidth = curve_size
       )
     }) +
     geom_segment(data = segment_lines_data,
                  aes(x = x_start, y = y_start, xend = x_end, yend = y_end),
-                 color = curve_color, size = curve_size) +
+                 color = curve_color, linewidth = curve_size) +
     geom_segment(data = terms_lines,
                  aes(x = x, y = y_start, xend = x, yend = y_end),
-                 color = vertical_line_color, size = vertical_line_size) +
+                 color = vertical_line_color, linewidth = vertical_line_size) +
     geom_segment(data = lines_horizontal,
                  aes(x = x_start, y = y, xend = x_end, yend = y_end),
-                 color = dot_line_color, size = dot_line_size, linetype = dot_line_type) +
+                 color = dot_line_color, linewidth = dot_line_size, linetype = dot_line_type) +
     geom_segment(data = vlines_data,
                  aes(x = x, y = y_start, xend = x, yend = y_end),
                  color = vline_color, linetype = vline_type) +

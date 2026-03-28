@@ -78,7 +78,7 @@ richGO_internal<-function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,
   if(is.data.frame(x)){
     detail<-getdetail(resultFis,x,sep=sep)
   }else{
-    if(length(as.vector(resultFis$GeneID)>=1)){
+    if(length(as.vector(resultFis$GeneID)) >= 1){
       gene<-strsplit(as.vector(resultFis$GeneID),split=sep)
       names(gene)<-resultFis$Annot
       gened<-data.frame("TERM"=rep(names(gene),times=unlist(lapply(gene,length))),

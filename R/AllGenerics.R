@@ -46,7 +46,7 @@ setGeneric("richGO", function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,organ
 #' @param minGSSize minimal size of genes annotated by ontology term for testing.
 #' @param maxGSSize maximal size of each geneset for analyzing
 #' @param keepRich keep terms with rich factor value equal 1 or not (default: TRUE)
-#' @param bulitin use KEGG bulit in KEGG annotation or not(set FALSE if you want use newest KEGG data)
+#' @param builtin use KEGG built-in annotation or not (set FALSE to use newest KEGG data)
 #' @param filename output filename
 #' @param padj.method pvalue adjust method(default:"BH")
 #' @param sep character string used to separate the genes when concatenating
@@ -151,7 +151,7 @@ setGeneric("enrich", function(x,object,ontology="",pvalue=0.05,padj=NULL,organis
 #' @param minGSSize minimal size of genes annotated by ontology term for testing.
 #' @param maxGSSize maximal size of each geneset for analyzing
 #' @param keepRich keep terms with rich factor value equal 1 or not (default: TRUE)
-#' @param bulitin use KEGG bulit in KEGG annotation or not(set FALSE if you want use newest KEGG data)
+#' @param builtin use KEGG built-in annotation or not (set FALSE to use newest KEGG data)
 #' @param filename output filename
 #' @param padj.method pvalue adjust method(default:"BH")
 #' @param sep character string used to separate the genes when concatenating
@@ -345,7 +345,7 @@ result<-function(x){
 }
 ##' detail generic
 ##' @param x richResult object
-##' @return detail return detial for these significant genes
+##' @return detail data.frame for the significant genes
 ##' @export
 detail<-function(x){
   UseMethod("detail",x)
@@ -361,7 +361,7 @@ detail<-function(x){
 #' @examples
 #' \dontrun{
 #'   hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "GO")
-#'   gene<-ample(unique(hsago$GeneID),1000)
+#'   gene<-sample(unique(hsago$GeneID),1000)
 #'   res<-richGO(gene,godata = hsago,ontology ="BP")
 #'   resc<-richCluster(res)
 #' }

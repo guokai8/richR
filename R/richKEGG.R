@@ -13,7 +13,7 @@
 #' @param minGSSize minimal size of genes annotated by ontology term for testing.
 #' @param maxGSSize maximal size of each geneSet for analyzing
 #' @param keepRich keep terms with rich factor value equal 1 or not (default: TRUE)
-#' @param bulitin use KEGG bulit in KEGG annotation or not(set FALSE if you want use newest KEGG data)
+#' @param builtin use KEGG built-in annotation or not (set FALSE to use newest KEGG data)
 #' @param filename output filename
 #' @param padj.method pvalue adjust method(default:"BH")
 #' @param sep character string used to separate the genes when concatenating
@@ -87,7 +87,7 @@ richKEGG_internal<-function(x,kodata,pvalue=0.05,padj=NULL,ontology="KEGG",
   if(is.data.frame(x)){
     detail<-getdetail(resultFis,x)
   }else{
-    if(length(as.vector(resultFis$GeneID)>=1)){
+    if(length(as.vector(resultFis$GeneID)) >= 1){
       gene<-strsplit(as.vector(resultFis$GeneID),split=sep)
       names(gene)<-resultFis$Annot
       gened<-data.frame("TERM"=rep(names(gene),times=unlist(lapply(gene,length))),
@@ -141,7 +141,7 @@ richKEGG_internal<-function(x,kodata,pvalue=0.05,padj=NULL,ontology="KEGG",
 #' @param minGSSize minimal size of genes annotated by ontology term for testing.
 #' @param maxGSSize maximal size of each geneset for analyzing
 #' @param keepRich keep terms with rich factor value equal 1 or not (default: TRUE)
-#' @param bulitin use KEGG bulit in KEGG annotation or not(set FALSE if you want use newest KEGG data)
+#' @param builtin use KEGG built-in annotation or not (set FALSE to use newest KEGG data)
 #' @param filename output filename
 #' @param padj.method pvalue adjust method(default:"BH")
 #' @param sep character string used to separate the genes when concatenating
@@ -175,7 +175,7 @@ setMethod("richKEGG", signature(kodata = "data.frame"),definition = function(x,k
 #' @param minGSSize minimal size of genes annotated by ontology term for testing.
 #' @param maxGSSize maximal size of each geneset for analyzing
 #' @param keepRich keep terms with rich factor value equal 1 or not (default: TRUE)
-#' @param bulitin use KEGG bulit in KEGG annotation or not(set FALSE if you want use newest KEGG data)
+#' @param builtin use KEGG built-in annotation or not (set FALSE to use newest KEGG data)
 #' @param filename output filename
 #' @param padj.method pvalue adjust method(default:"BH")
 #' @param sep character string used to separate the genes when concatenating

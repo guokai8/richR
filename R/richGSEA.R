@@ -85,7 +85,7 @@ richGSEA_internal<-function(x,object,keytype="",pvalue=0.05,padj=NULL,KEGG=FALSE
 #' res<-richGSEA(gene,object = hsako)
 #' }
 #' @author Kai Guo
-setMethod("richGSEA", signature(object = "data.frame"),definition = function(x,object,keytype="",pvalue=0.05,padj=NULL,KEGG=FALSE,minSize=15,ontology=ontology,
+setMethod("richGSEA", signature(object = "data.frame"),definition = function(x,object,keytype="",pvalue=0.05,padj=NULL,KEGG=FALSE,minSize=15,ontology="",
                                                                              maxSize=500,padj.method="BH",organism=NULL,table=TRUE,sep=",") {
   richGSEA_internal(x,object,keytype=keytype,pvalue=pvalue,padj=padj,KEGG=KEGG,minSize=minSize,ontology=ontology,
                     maxSize=maxSize,padj.method=padj.method,organism=organism,table=table,sep=sep)
@@ -111,7 +111,7 @@ setMethod("richGSEA", signature(object = "data.frame"),definition = function(x,o
 #' }
 #' @export
 #' @author Kai Guo
-setMethod("richGSEA", signature(object = "Annot"),definition = function(x,object,keytype="",pvalue=0.05,padj=NULL,KEGG=FALSE,minSize=15,ontology=ontology,
+setMethod("richGSEA", signature(object = "Annot"),definition = function(x,object,keytype="",pvalue=0.05,padj=NULL,KEGG=FALSE,minSize=15,ontology="",
                                                                         maxSize=500,padj.method="BH",organism=NULL,table=TRUE,sep=",") {
   richGSEA_internal(x,object@annot,keytype=object@keytype,pvalue=pvalue,padj=padj,KEGG=KEGG,minSize=minSize,ontology=object@anntype,
                     maxSize=maxSize,padj.method=padj.method,organism=object@species,table=table,sep=sep)
@@ -396,7 +396,7 @@ plotGSEA <- function(object, gseaRes, mycol = NULL,
     theme_bw() +
     geom_segment(data = pathway_segments,
                  mapping = aes(x = x, y = -diff/4, xend = x, yend = diff/4, color = Group),
-                 size = ticksSize) +
+                 linewidth = ticksSize) +
     theme(panel.border = element_blank(),
           panel.grid.minor = element_blank(),
           legend.position = legend_position,

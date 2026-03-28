@@ -267,7 +267,7 @@ compareGSEA<-function(x,object,gene=NULL,pathway=NULL,
   p <- p+geom_segment(data =path, mapping = aes(x = x,
                                                    y = -diff/4, xend = x,
                                                    yend = diff/4,color=group),
-                      size = ticksSize) +
+                      linewidth = ticksSize) +
     theme(panel.border = element_blank(), panel.grid.minor = element_blank()) +
     scale_color_manual(values=mycol)+labs(x = "rank", y = "Enrichment score")
   if(isTRUE(label)){

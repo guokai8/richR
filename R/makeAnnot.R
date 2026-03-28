@@ -5,7 +5,7 @@
 ##' @param species species for the annotation
 ##' @param keytype key type export
 ##' @param anntype annotation type
-##' @param bulitin use default database(TRUE or FALSE)
+##' @param builtin use default database (TRUE or FALSE)
 ##' @param OP BP,CC,MF default use all
 ##' @examples
 ##' \dontrun{

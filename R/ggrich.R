@@ -231,8 +231,8 @@ setMethod("ggnetplot", signature(object = "GSEAResult"),definition = function(ob
                                                                               label.color = "black", label.size = 2, node.shape=NULL,
                                                                               layout = "fruchtermanreingold",savefig=FALSE,filename="network",
                                                                               width=7,height=7,node.alpha=0.7,repel=TRUE,segment.size=0.2,sep=",") {
-  object<-object@result
   sep <- object@sep
+  object<-object@result
   if(is.list(object$leadingEdge)){
     object$leadingEdge<-unlist(lapply(object$leadingEdge, function(x)paste(x,collapse = sep,sep="")))
   }

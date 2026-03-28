@@ -1,10 +1,18 @@
 Package: richR
 Type: Package
-Title: Function Enrichment analysis and Network construction
-Version: 0.0.40
-Author: Kai Guo
-Maintainer: Kai Guo <guokai8@gmail.com>
-Description: This package is used for for enrichment analysis and network construction.
+Title: Functional Enrichment Analysis and Visualization
+Version: 0.1.0
+Authors@R: c(
+    person("Kai", "Guo", email = "guokai8@gmail.com", role = c("aut")),
+    person("Junguk", "Hur", email = "junguk.hur@med.und.edu",
+           role = c("aut", "cre"), comment = c(ORCID = "0000-0002-0736-2149"))
+  )
+Description: Performs functional enrichment analysis for Gene Ontology (GO),
+    KEGG pathways, Reactome, and MSigDB gene sets. Supports over-representation
+    analysis (ORA) via hypergeometric testing, Gene Set Enrichment Analysis (GSEA),
+    and kappa-score-based term clustering. Provides publication-ready
+    visualizations including bar plots, dot plots, network graphs, heatmaps,
+    and cluster plots.
 License: GPL-3
 LazyData: TRUE
 Depends: R (>= 3.5.0)
@@ -35,5 +43,7 @@ Suggests:
     rmarkdown
 VignetteBuilder: knitr
 RoxygenNote: 7.3.2
+URL: https://github.com/hurlab/richR
+BugReports: https://github.com/hurlab/richR/issues
 biocViews:
 Encoding: UTF-8
