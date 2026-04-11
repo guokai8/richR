@@ -31,9 +31,10 @@
 richHeatmap<-function(richRes, top = 50, colnames = NULL, xsize = 6, ysize = 6,usePadj=FALSE,
                      horizontal=FALSE,returnData=FALSE,...)
 {
-  object<-Reduce(function(x, y) rbind(x, y), lapply(richRes, function(x)x@result[1:top,]))
-  object<-as.data.frame(na.omit(object))
-  sel<-as.vector(unique(object$Term))
+  sel <- unique(unlist(lapply(richRes, function(x) {
+    r <- x@result
+    head(r$Term, min(top, nrow(r)))
+  })))
   if(isTRUE(usePadj)){
     res <- Reduce(function(x, y) full_join(x, y, by = "Term"),lapply(richRes,function(x)x@result[,c("Term","Padj")]))
   }else{
