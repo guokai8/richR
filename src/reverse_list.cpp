@@ -1,55 +1,54 @@
 #include <Rcpp.h>
+#include <unordered_map>
+#include <vector>
 using namespace Rcpp;
 
-// Forward declaration of sf() defined in sf.cpp
-List sf(DataFrame &x);
-
+// Reverse a named list: input {A: [x,y], B: [y,z]} -> {x: [A], y: [A,B], z: [B]}
+// Uses CHARSXP pointers as hash keys (R interns strings, so pointer == identity).
 // [[Rcpp::export]]
 List reverseList(const List& lhs) {
-  
-  // 1) 拿到 lhs 的名字向量
-  CharacterVector nm = lhs.names();
-  int n = lhs.size(); // 列表的长度
-  
-  // 2) 统计所有子向量元素总数，为后面预分配做准备
-  R_xlen_t total_length = 0;
-  std::vector<R_xlen_t> lens(n);
-  for(int i = 0; i < n; i++){
+
+  SEXP names_sexp = Rf_getAttrib(lhs, R_NamesSymbol);
+  int n = lhs.size();
+
+  // Pass 1: build reversed mapping  value -> vector of source names.
+  std::unordered_map<SEXP, std::vector<SEXP>> rev;
+  std::vector<SEXP> order;  // insertion order of unique values
+
+  for (int i = 0; i < n; i++) {
+    SEXP nm_i = STRING_ELT(names_sexp, i);
     SEXP elem = lhs[i];
-    R_xlen_t len = Rf_xlength(elem); 
-    lens[i] = len;
-    total_length += len;
-  }
-  
-  CharacterVector lhs_n(total_length);
-  CharacterVector unl(total_length);
-  
-  // 4) 逐个子向量收集数据
-  R_xlen_t idx = 0;
-  for(int i = 0; i < n; i++){
-    R_xlen_t len = lens[i];
-    if(len == 0) continue;
-    
-    // 取出第 i 个子向量 (假设是字符串向量，可按需改成别的类型)
-    CharacterVector sub = lhs[i];
-    
-    for(R_xlen_t j = 0; j < len; j++){
-      lhs_n[idx] = nm[i];  // 重复 names(lhs)[i]
-      unl[idx]   = sub[j]; // 拿到子向量中的元素
-      idx++;
+    if (TYPEOF(elem) != STRSXP) continue;
+    R_xlen_t len = Rf_xlength(elem);
+    for (R_xlen_t j = 0; j < len; j++) {
+      SEXP val = STRING_ELT(elem, j);
+      auto it = rev.find(val);
+      if (it == rev.end()) {
+        order.push_back(val);
+        rev[val].push_back(nm_i);
+      } else {
+        it->second.push_back(nm_i);
+      }
     }
   }
-  
-  DataFrame df = DataFrame::create(
-    _["V1"] = lhs_n,
-    _["V2"] = unl,
-    _["stringsAsFactors"] = false
-  );
-  
-  // 6) 调用您现有的 sf() 函数
-  //    如果 sf() 是 C++ 导出的函数，也可以直接调用；若它在 R 里，可用 Function("sf")
-  List res = sf(df);
-  
-  // 返回结果
+
+  // Pass 2: build output List.
+  int ngroups = order.size();
+  List res(ngroups);
+  CharacterVector res_names(ngroups);
+
+  for (int g = 0; g < ngroups; g++) {
+    SEXP key = order[g];
+    const std::vector<SEXP>& src = rev[key];
+    int m = src.size();
+    CharacterVector vals(m);
+    for (int j = 0; j < m; j++) {
+      SET_STRING_ELT(vals, j, src[j]);
+    }
+    res[g] = vals;
+    SET_STRING_ELT(res_names, g, key);
+  }
+
+  res.attr("names") = res_names;
   return res;
 }

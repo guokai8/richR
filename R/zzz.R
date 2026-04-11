@@ -40,7 +40,7 @@ utils::globalVariables(c(
 #' @name richR-internal
 #' @useDynLib richR, .registration = TRUE
 #' @importFrom Rcpp evalCpp
-#' @aliases fast_factor hyper_bench_vector name_table reverseList sf uniq
+#' @aliases fast_factor hyper_bench_vector name_table reverseList sf
 #'   arrange.Annot arrange.GSEAResult arrange.richResult
 #'   as.data.frame.Annot as.data.frame.GSEAResult as.data.frame.richResult
 #'   filter.Annot filter.GSEAResult filter.richResult

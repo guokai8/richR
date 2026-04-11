@@ -68,17 +68,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// uniq
-StringVector uniq(StringVector& xa);
-RcppExport SEXP _richR_uniq(SEXP xaSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< StringVector& >::type xa(xaSEXP);
-    rcpp_result_gen = Rcpp::wrap(uniq(xa));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_richR_hyper_bench_vector", (DL_FUNC) &_richR_hyper_bench_vector, 4},
@@ -86,7 +75,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_richR_reverseList", (DL_FUNC) &_richR_reverseList, 1},
     {"_richR_fast_factor", (DL_FUNC) &_richR_fast_factor, 1},
     {"_richR_sf", (DL_FUNC) &_richR_sf, 1},
-    {"_richR_uniq", (DL_FUNC) &_richR_uniq, 1},
     {NULL, NULL, 0}
 };
 

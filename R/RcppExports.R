@@ -21,7 +21,3 @@ sf <- function(x) {
     .Call(`_richR_sf`, x)
 }
 
-uniq <- function(xa) {
-    .Call(`_richR_uniq`, xa)
-}
-

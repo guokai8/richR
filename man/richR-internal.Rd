@@ -7,7 +7,6 @@
 \alias{name_table}
 \alias{reverseList}
 \alias{sf}
-\alias{uniq}
 \alias{arrange.Annot}
 \alias{arrange.GSEAResult}
 \alias{arrange.richResult}
