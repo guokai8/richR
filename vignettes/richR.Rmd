@@ -150,8 +150,8 @@ richVolcano(res_gsea)
 ### Kappa-based clustering
 
 ```{r cluster, eval=has_orgdb}
-resc <- richCluster(resgo)
-richClusterDot(resc)
+resc <- tryCatch(richCluster(resgo), error = function(e) NULL)
+if (!is.null(resc)) richClusterDot(resc) else message("No significant clusters found")
 ```
 
 ### Multi-group comparison
