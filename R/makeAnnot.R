@@ -144,19 +144,25 @@ buildMSIGDB<-function(species="human",keytype="SYMBOL",anntype="GO"){
   if(is.null(mspe)){
     stop(cat("can't find support species!\n"))
   }
+  cat("Downloading msigdb datasets ...\n")
+  res <- msigdbr(species = mspe)
+  ## Handle column name changes in msigdbr >= 10.0
+  ## Old: gs_cat, gs_subcat, gene_symbol, entrez_gene
+  ## New: gs_collection, gs_subcollection, gene_symbol, ncbi_gene
+  col_cat    <- if ("gs_cat"    %in% colnames(res)) "gs_cat"    else "gs_collection"
+  col_subcat <- if ("gs_subcat" %in% colnames(res)) "gs_subcat" else "gs_subcollection"
+  col_entrez <- if ("entrez_gene" %in% colnames(res)) "entrez_gene" else "ncbi_gene"
   if(keytype == "SYMBOL"){
     key = "gene_symbol"
   }else if(keytype == "ENTREZID"){
-    key = "entrez_gene"
+    key = col_entrez
   }else{
-    key = "entrez_gene"
+    key = col_entrez
     flag = 1
   }
-  cat("Downloading msigdb datasets ...\n")
-  res <- msigdbr(species = mspe)
-  res <- subset(res, gs_cat == category)
+  res <- res[res[[col_cat]] == category, ]
   if(!is.null(anntypes)){
-    res <- subset(res, gs_subcat == anntypes)
+    res <- res[res[[col_subcat]] == anntypes, ]
   }
   if(anntype%in%c("GO", "BP", "CC", "MF")){
     res <- res[, c(key, "gs_exact_source", "gs_name")]
