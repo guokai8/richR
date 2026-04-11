@@ -14,21 +14,21 @@
 ##' @importFrom ggplot2 guides
 ##' @importFrom ggplot2 guide_colourbar
 ##' @importFrom ggplot2 guide_legend
-##' @param object richResult object
-##' @param top number of terms you want to display,
+##' @param object data.frame with enrichment results
+##' @param top number of terms you want to display
 ##' @param pvalue cutoff value of pvalue (if padj set as NULL)
+##' @param order order by Term or richFactor
 ##' @param low low color
 ##' @param high high color
 ##' @param alpha transparency alpha
 ##' @param font.x font of x axis
-##' @param font y font of y axis
+##' @param font.y font of y axis
 ##' @param fontsize.x fontsize of x axis
 ##' @param fontsize.y fontsize of y axis
 ##' @param short automatic short name or not
-##' @param order order by Term or richFactor
+##' @param padj cutoff value of p adjust value
 ##' @param usePadj use p adjust value as color or not (should use with padj)
-##' @param font.size font size for xlim or ylim
-##' @param orderp order by p value(adjusted p value)
+##' @param orderp order by p value (adjusted p value)
 ##' @param filename figure output name
 ##' @param width figure width
 ##' @param height figure height
@@ -74,27 +74,27 @@ ggdot_internal<-function(object,top=50,pvalue=0.05,order=FALSE,
       cat("No Pathway enrichment results were found!\n")
     }
   if(!is.null(filename)){
-    ggsave(p,file=paste(filename,"dot.pdf",sep="_"),width=width,height=height)
+    ggsave(p,filename=paste(filename,"dot.pdf",sep="_"),width=width,height=height)
   }
   p
 }
 ##' dotplot for Enrichment results
-##' @rdname ggdot
+##' @rdname richDot-methods
 ##' @param object richResult object
-##' @param top number of terms you want to display,
+##' @param top number of terms you want to display
 ##' @param pvalue cutoff value of pvalue (if padj set as NULL)
+##' @param order order by Term or richFactor
 ##' @param low low color
 ##' @param high high color
 ##' @param alpha transparency alpha
 ##' @param font.x font of x axis
-##' @param font y font of y axis
+##' @param font.y font of y axis
 ##' @param fontsize.x fontsize of x axis
 ##' @param fontsize.y fontsize of y axis
 ##' @param short automatic short name or not
-##' @param order order by Term or richFactor
+##' @param padj cutoff value of p adjust value
 ##' @param usePadj use p adjust value as color or not (should use with padj)
-##' @param font.size font size for xlim or ylim
-##' @param orderp order by p value(adjusted p value)
+##' @param orderp order by p value (adjusted p value)
 ##' @param filename figure output name
 ##' @param width figure width
 ##' @param height figure height
@@ -103,11 +103,11 @@ ggdot_internal<-function(object,top=50,pvalue=0.05,order=FALSE,
 #'   hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
 #'   gene=sample(unique(hsako$GeneID),1000)
 #'   res<-richKEGG(gene,kodata = hsako)
-#'   ggdot(res)
+#'   richDot(res)
 #' }
-##' @exportMethod ggdot
+##' @exportMethod richDot
 ##' @author Kai Guo
-setMethod("ggdot", signature(object = "richResult"),definition = function(object,top=50,pvalue=0.05,order=FALSE,
+setMethod("richDot", signature(object = "richResult"),definition = function(object,top=50,pvalue=0.05,order=FALSE,
                                                                           low="lightpink",high="red",alpha=0.7,
                                                                           font.x="bold",font.y="bold",fontsize.x=10,fontsize.y=10,
                                                                           short=FALSE,
@@ -118,23 +118,22 @@ setMethod("ggdot", signature(object = "richResult"),definition = function(object
                            padj=padj,usePadj=usePadj,orderp=orderp,filename=filename,width=width,height=height)
           })
 ##' dotplot for Enrichment results
-##' @rdname ggdot
-##' @param object richResult object
-##' @param top number of terms you want to display,
+##' @rdname richDot-methods
+##' @param object data.frame of enrichment results
+##' @param top number of terms you want to display
 ##' @param pvalue cutoff value of pvalue (if padj set as NULL)
+##' @param order order by Term or richFactor
 ##' @param low low color
 ##' @param high high color
 ##' @param alpha transparency alpha
 ##' @param font.x font of x axis
-##' @param font y font of y axis
+##' @param font.y font of y axis
 ##' @param fontsize.x fontsize of x axis
 ##' @param fontsize.y fontsize of y axis
 ##' @param short automatic short name or not
 ##' @param padj cutoff value of p adjust value
-##' @param order order by Term or richFactor
 ##' @param usePadj use p adjust value as color or not (should use with padj)
-##' @param font.size font size for xlim or ylim
-##' @param orderp order by p value(adjusted p value)
+##' @param orderp order by p value (adjusted p value)
 ##' @param filename figure output name
 ##' @param width figure width
 ##' @param height figure height
@@ -143,11 +142,11 @@ setMethod("ggdot", signature(object = "richResult"),definition = function(object
 ##'   hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
 ##'   gene=sample(unique(hsago$GeneID),1000)
 ##'   res<-richKEGG(gene,kodata = hsako)
-##'   ggdot(result(res))
+##'   richDot(result(res))
 ##' }
-##' @exportMethod ggdot
+##' @exportMethod richDot
 ##' @author Kai Guo
-setMethod("ggdot", signature(object = "data.frame"),definition = function(object,top=50,pvalue=0.05,order=FALSE,
+setMethod("richDot", signature(object = "data.frame"),definition = function(object,top=50,pvalue=0.05,order=FALSE,
                                                                           low="lightpink",high="red",alpha=0.7,
                                                                           font.x="bold",font.y="bold",fontsize.x=10,fontsize.y=10,
                                                                           short=FALSE,

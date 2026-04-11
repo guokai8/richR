@@ -29,6 +29,8 @@ richLevel(
 
 \item{kodata}{KEGG annotation data}
 
+\item{level}{pathway level ("Level1", "Level2", or "Level3")}
+
 \item{pvalue}{cutoff pvalue}
 
 \item{padj}{cutoff p adjust value}
@@ -55,7 +57,7 @@ richLevel(
 
 \item{sep}{character string used to separate the genes when concatenating}
 
-\item{bulitin}{use KEGG bulit in KEGG annotation or not(set FALSE if you want use newest KEGG data)}
+\item{...}{additional arguments}
 }
 \description{
 richLevel

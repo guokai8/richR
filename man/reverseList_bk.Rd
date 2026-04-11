@@ -7,7 +7,7 @@
 reverseList_bk(lhs)
 }
 \arguments{
-\item{lhs:}{list with names}
+\item{lhs}{list with names}
 }
 \description{
 reverse List

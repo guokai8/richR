@@ -26,21 +26,29 @@ richGSEA(
 
 \item{object}{annotation file for all genes}
 
+\item{keytype}{gene ID type}
+
 \item{pvalue}{pvalue cutoff value}
 
-\item{padj}{adjust p value cut off method}
+\item{padj}{adjust p value cut off}
 
-\item{KEGG}{a logical evaluating to TRUE or FALSE indicating whether KEGG GSEA were peformed or not.}
+\item{KEGG}{logical, whether KEGG GSEA were performed}
 
-\item{minSize}{Minimal size of a gene set to test. All pathways below the threshold are excluded.}
+\item{minSize}{Minimal size of a gene set to test}
 
-\item{maxSize}{Maximal size of a gene set to test. All pathways above the threshold are excluded.}
+\item{ontology}{ontology type}
+
+\item{maxSize}{Maximal size of a gene set to test}
 
 \item{padj.method}{p value adjust method}
+
+\item{organism}{organism name}
 
 \item{table}{leadingEdge as vector}
 
 \item{sep}{character string used to separate the genes when concatenating}
+
+\item{...}{additional arguments}
 }
 \value{
 GSEAResult

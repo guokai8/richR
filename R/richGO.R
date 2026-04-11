@@ -19,106 +19,37 @@ richGO_internal<-function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,
                  organism=NULL,keytype="SYMBOL",minSize=2,maxSize=500,
                  minGSSize = 10, maxGSSize = 500,
                  keepRich=FALSE, filename=NULL,padj.method="BH",sep=","){
-  go2gene<-sf(godata)
-  all_go<-.get_go_dat(ont=ontology)
-  go2gene<-go2gene[names(go2gene)%in%rownames(all_go)];
-  gene2go<-reverseList(go2gene)
-  if(is.data.frame(x)){
-    input=rownames(x)
-  }else{
-    input=as.vector(x)
+  .validateParams(pvalue=pvalue, padj=padj, minSize=minSize, maxSize=maxSize,
+                  minGSSize=minGSSize, maxGSSize=maxGSSize, func_name="richGO")
+  .validateGeneInput(x, annotation=godata, func_name="richGO")
+  ## GO-specific: filter annotation to terms in this ontology
+  if ("ONTOLOGYALL" %in% colnames(godata)) {
+    godata_filt <- godata[which(godata$ONTOLOGYALL == ontology), ]
+  } else {
+    all_go <- .get_go_dat(ont = ontology)
+    godata_filt <- godata[godata[, 2] %in% rownames(all_go), ]
   }
-  fgene2go<-gene2go[input];
-  fgo2gene<-reverseList(fgene2go)
-  k=name_table(fgo2gene);
-  n=sum(!is.na(names(fgene2go)))
-  IGO<-names(fgo2gene);
-  N <- length(unique(unlist(go2gene)));
-  M <- name_table(go2gene[IGO])
-  rhs<-hyper_bench_vector(k,M,N,n)
-  lhs<-p.adjust(rhs,method=padj.method)
-  rhs_an<-all_go[names(rhs),]
-  rhs_gene<-unlist(lapply(fgo2gene, function(x)paste(unique(x),sep="",collapse = sep)))
-  Annotated=M[names(rhs)]
-  Significant=k[names(rhs)]
-  RichFactor <- Significant / Annotated
-  FoldEnrichment <- RichFactor * N / n
-  Pvalue=as.vector(rhs)
-  GeneID=rhs_gene[names(rhs)]
-  # mu and sigma are the mean and standard deviation of the hypergeometric distribution
-  ## https://en.wikipedia.org/wiki/Hypergeometric_distribution
-  mu <- M * n / N
-  sigma <- mu * (N - n) * (N - M) / N / (N-1)
-  zscore <- (k - mu)/sqrt(sigma)
-
-  resultFis<-data.frame("Annot"=names(rhs),"Term"=rhs_an,"Annotated"=Annotated,
-                        "Significant"=Significant,"RichFactor" = RichFactor,"FoldEnrichment"= FoldEnrichment,
-                        "zscore"=zscore,"Pvalue"=Pvalue,"Padj"=lhs,
-                        "GeneID"=GeneID)
-  resultFis<-resultFis[order(resultFis$Pvalue),]
-  resultFis<-subset(resultFis, Significant<=maxSize)
-  ## remove gene Set with too much gene annotated
-  resultFis<-subset(resultFis, Annotated<=maxGSSize)
-  if(keepRich==FALSE){
-    resultFis<-subset(resultFis, Significant>=minSize)
-    resultFis<-subset(resultFis, Annotated>=minGSSize)
-  }else{
-    resultFis<-subset(resultFis, Significant>=minSize|RichFactor==1|Annotated >=minGSSize)
+  if (nrow(godata_filt) == 0) {
+    stop("richGO: no GO terms found for ontology '", ontology,
+         "'. Check that your annotation contains this ontology.", call. = FALSE)
   }
-  if(is.null(padj)){
-    resultFis<-resultFis[resultFis$Pvalue<pvalue,]
-    padj=numeric()
-  }else{
-    resultFis<-resultFis[resultFis$Padj<padj,]
+  ## term_names: named vector  GO_ID -> readable term
+  if ("Annot" %in% colnames(godata_filt) && "GOALL" %in% colnames(godata_filt)) {
+    ## Build from existing annotation columns (avoids requiring GO.db)
+    tm <- unique(godata_filt[, c("GOALL", "Annot")])
+    term_names <- setNames(tm$Annot, tm$GOALL)
+    annot_2col <- godata_filt[, c("GeneID", "GOALL")]
+  } else {
+    all_go <- .get_go_dat(ont = ontology)
+    term_names <- setNames(all_go[, 1], rownames(all_go))
+    annot_2col <- godata_filt[, 1:2]
   }
-  rownames(resultFis)<-resultFis$Annot
-  if(!is.null(filename)){
-    write.table(resultFis,file=paste(filename,".txt",sep=""),sep="\t",quote=F,row.names=F)
-  }
-  if(is.data.frame(x)){
-    detail<-getdetail(resultFis,x,sep=sep)
-  }else{
-    if(length(as.vector(resultFis$GeneID)>=1)){
-      gene<-strsplit(as.vector(resultFis$GeneID),split=sep)
-      names(gene)<-resultFis$Annot
-      gened<-data.frame("TERM"=rep(names(gene),times=unlist(lapply(gene,length))),
-                        "Annot"=rep(resultFis$Term,times=unlist(lapply(gene,length))),
-                        "GeneID"=unlist(gene),row.names=NULL,
-                        "Pvalue"=rep(resultFis$Pvalue,times=unlist(lapply(gene,length))),
-                        "Padj"=rep(resultFis$Padj,times=unlist(lapply(gene,length)))
-      )
-    }else{
-      gene = x
-      names(gene)<-resultFis$Annot
-      gened<-data.frame("TERM"="",
-                        "Annot"="",
-                        "GeneID"=x,row.names=NULL,
-                        "Pvalue"=1,
-                        "Padj"=1)
-    }
-    gened$GeneID<-as.character(gened$GeneID)
-    detail<-gened
-  }
-  if(is.null(organism)){
-    organism=character()
-  }
-  if(is.null(keytype)){
-    keytype=character()
-  }
-  result<-new("richResult",
-              result=resultFis,
-              detail=detail,
-              pvalueCutoff   = pvalue,
-              pAdjustMethod  = padj.method,
-              padjCutoff   = padj,
-              genenumber    = length(input),
-              organism       = organism,
-              ontology       = ontology,
-              gene           = input,
-              keytype        = keytype,
-              sep=sep
-  )
-  return(result);
+  .run_ora(x, annot = annot_2col, term_names = term_names,
+           pvalue = pvalue, padj = padj, padj.method = padj.method,
+           minSize = minSize, maxSize = maxSize,
+           minGSSize = minGSSize, maxGSSize = maxGSSize,
+           keepRich = keepRich, organism = organism, ontology = ontology,
+           keytype = keytype, filename = filename, sep = sep)
 }
 #' GO Enrichment analysis function
 #' @param x vector contains gene names or dataframe with DEGs information
@@ -162,8 +93,6 @@ setMethod("richGO", signature(godata = "data.frame"),definition = function(x,god
 #' @param ontology BP,MF or CC
 #' @param pvalue cutoff pvalue
 #' @param padj cutoff p adjust value
-#' @param organism organism
-#' @param keytype keytype for input genes
 #' @param minSize minimal number of genes included in significant terms
 #' @param maxSize maximum number of genes included in significant terms
 #' @param minGSSize minimal size of genes annotated by ontology term for testing.

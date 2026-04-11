@@ -46,10 +46,6 @@
 \item{padj.method}{pvalue adjust method(default:"BH")}
 
 \item{sep}{character string used to separate the genes when concatenating}
-
-\item{organism}{organism}
-
-\item{keytype}{keytype for input genes}
 }
 \description{
 GO Enrichment analysis function

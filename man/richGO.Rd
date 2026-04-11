@@ -53,6 +53,8 @@ richGO(
 \item{padj.method}{pvalue adjust method(default:"BH")}
 
 \item{sep}{character string used to separate the genes when concatenating}
+
+\item{...}{additional arguments}
 }
 \value{
 richResult

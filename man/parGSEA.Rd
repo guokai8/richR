@@ -32,17 +32,25 @@ parGSEA(
 
 \item{gene.col}{the gene name column if rownames won't be used as gene name}
 
-\item{simplify}{boolean value to indicate if the simple table shoule be returned}
+\item{simplify}{boolean value to indicate if the simple table should be returned}
+
+\item{keytype}{gene ID type}
 
 \item{pvalue}{pvalue cutoff value}
 
-\item{padj}{adjust p value cut off method}
+\item{padj}{adjust p value cut off}
 
-\item{minSize}{Minimal size of a gene set to test. All pathways below the threshold are excluded.}
+\item{KEGG}{logical, whether KEGG GSEA were performed}
 
-\item{maxSize}{Maximal size of a gene set to test. All pathways above the threshold are excluded.}
+\item{minSize}{Minimal size of a gene set to test}
+
+\item{ontology}{ontology type}
+
+\item{maxSize}{Maximal size of a gene set to test}
 
 \item{padj.method}{p value adjust method}
+
+\item{organism}{organism name}
 
 \item{table}{leadingEdge as vector}
 

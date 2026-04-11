@@ -1,3 +1,76 @@
+## ----------------------------------------------------------------
+##  Kappa-related helper functions
+## ----------------------------------------------------------------
+
+#' Compute kappa statistic between two gene sets
+#' @param x comma-separated gene string
+#' @param y comma-separated gene string
+#' @param geneall vector of all genes (background)
+#' @return numeric kappa score
+#' @keywords internal
+.kappa <- function(x, y, geneall) {
+  x <- unlist(strsplit(x, ","))
+  y <- unlist(strsplit(y, ","))
+  if (length(intersect(x, y)) == 0) {
+    kab <- 0
+  } else {
+    tmp <- matrix(0, 2, 2)
+    tmp[1, 1] <- length(intersect(x, y))
+    tmp[2, 1] <- length(setdiff(x, y))
+    tmp[1, 2] <- length(setdiff(y, x))
+    tmp[2, 2] <- length(setdiff(geneall, union(x, y)))
+    oab <- (tmp[1, 1] + tmp[2, 2]) / sum(tmp)
+    aab <- ((tmp[1, 1] + tmp[2, 1]) * (tmp[1, 1] + tmp[1, 2]) +
+              (tmp[1, 2] + tmp[2, 2]) * (tmp[2, 1] + tmp[2, 2])) / (sum(tmp) * sum(tmp))
+    if (aab == 1) {
+      kab <- 0
+    } else {
+      kab <- (oab - aab) / (1 - aab)
+    }
+  }
+  return(kab)
+}
+
+#' Calculate enrichment score for a cluster
+#' @param x character vector of term names
+#' @param df data.frame with Pvalue column
+#' @return numeric enrichment score
+#' @keywords internal
+.calculate_Enrichment_Score <- function(x, df) {
+  pvalue <- df[x, "Pvalue"]
+  esp <- ifelse(pvalue == 0, 16, -log10(pvalue))
+  es <- sum(esp)
+}
+
+#' Merge overlapping term clusters
+#' @param x named list of term vectors
+#' @param overlap overlap threshold for merging
+#' @return list of merged term clusters
+#' @keywords internal
+.merge_term <- function(x, overlap) {
+  ml <- x
+  res <- list()
+  for (i in names(ml)) {
+    lhs <- setdiff(names(ml), i)
+    for (j in lhs) {
+      ov <- intersect(ml[[i]], ml[[j]])
+      un <- union(ml[[i]], ml[[j]])
+      ovl <- length(ov) / length(un)
+      if (ovl > overlap) {
+        res[[i]] <- c(i, un)
+        ml <- ml[setdiff(names(ml), j)]
+      } else {
+        res[[i]] <- c(i, ml[[i]])
+      }
+    }
+  }
+  return(res)
+}
+
+## ----------------------------------------------------------------
+##  Kappa cluster main functions
+## ----------------------------------------------------------------
+
 ##' calculate kappa cluster
 ##' @param x richResult object
 ##' @param gene (Optional).a vector of gene list

@@ -5,8 +5,6 @@
 \title{Remove newlines}
 \usage{
 .clean.char(x)
-
-.clean.char(x)
 }
 \arguments{
 \item{x}{Character vector.}
@@ -17,6 +15,4 @@ Character vector without newlines.
 \description{
 Replaces any newline characters with a space.
 }
-\examples{
-.clean.char("First line\nSecond line\nThird line")
-}
+\keyword{internal}

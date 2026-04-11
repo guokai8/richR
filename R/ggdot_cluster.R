@@ -10,7 +10,6 @@
 #'
 #' @param data A data frame with the appropriate columns for either mode.
 #' @param method One of \code{"enrich"} or \code{"gsea"}. If \code{"auto"}, guessed from columns.
-#' @param data A data frame containing KEGG cluster data. Must include columns: `Term`, `Level2`, `group`, `Padj`, `Significant`, and `Annotated`.
 #' @param color_low Color for the lowest value in the gradient (default: "pink").
 #' @param color_high Color for the highest value in the gradient (default: "red").
 #' @param color_mid Color for the middle value in the gradient (default: "white").
@@ -32,11 +31,20 @@
 #' @param x_pathway_offset Offset to control the x-axis positioning of pathways (default: 0.3).
 #' @param label_x_size Font size for the x labels (default: 6).
 #' @param plot_margins Numeric vector of length 4 to control plot margins (default: c(5, 200, 10, 250)).
+#' @param ... additional arguments
 #'
 #' @return A ggplot2 object (or a \code{cowplot} combined object).
 #'
+#' @examples
+#' \dontrun{
+#'   hsago <- buildAnnot(species="human", keytype="SYMBOL", anntype="GO")
+#'   gene <- sample(unique(hsago$GeneID), 1000)
+#'   resgo <- richGO(gene, godata = hsago, ontology = "BP")
+#'   resc  <- richCluster(resgo)
+#'   richClusterDot(resc)
+#' }
 #' @export
-ggcluster <- function(data, method = c("auto", "enrich", "gsea"),color_low = "pink",
+richClusterDot <- function(data, method = c("auto", "enrich", "gsea"),color_low = "pink",
     color_high = "red",
     color_mid = "white",
     size_range = c(0.8, 4),
@@ -57,6 +65,13 @@ ggcluster <- function(data, method = c("auto", "enrich", "gsea"),color_low = "pi
     x_pathway_offset = 0.3,
     label_x_size = 6,
     plot_margins = c(5, 200, 10, 250),...) {
+  # Accept richResult / GSEAResult objects directly
+  if (inherits(data, "richResult")) {
+    data <- data@result
+  } else if (inherits(data, "GSEAResult")) {
+    data <- data@result
+  }
+
   method <- match.arg(method)
   if (method == "auto") {
     if ("Term" %in% colnames(data)) {
@@ -65,6 +80,18 @@ ggcluster <- function(data, method = c("auto", "enrich", "gsea"),color_low = "pi
       method <- "gsea"
     } else {
       stop("Cannot autodetect method, please specify method='enrich' or 'gsea'.")
+    }
+  }
+
+  # Support single-result input: add default group / Level2 if missing
+  if (!"group" %in% colnames(data)) {
+    data$group <- "Result"
+  }
+  if (!"Level2" %in% colnames(data)) {
+    if ("Annot" %in% colnames(data)) {
+      data$Level2 <- data$Annot
+    } else {
+      data$Level2 <- "All"
     }
   }
 
@@ -145,20 +172,8 @@ ggcluster <- function(data, method = c("auto", "enrich", "gsea"),color_low = "pi
 #'
 #' @import ggplot2
 #' @import dplyr
-#' @import tidyr
-#' @import cowplot
 #'
-#' @examples
-#' data <- data.frame(
-#'     Term = c("Peroxisome", "PPAR signaling pathway", "Fatty acid elongation"),
-#'     Level2 = c("Transport and catabolism", "Endocrine system", "Lipid metabolism"),
-#'     group = c("Cluster1", "Cluster1", "Cluster1"),
-#'     Padj = c(0.015, 0.24, 0.23),
-#'     Significant = c(7, 5, 3),
-#'     Annotated = c(87, 89, 29)
-#' )
-#' .ggcluster_enrich(data)
-#'
+#' @keywords internal
 .ggcluster_enrich <- function(
     data,
     color_low = "pink",
@@ -287,24 +302,24 @@ ggcluster <- function(data, method = c("auto", "enrich", "gsea"),color_low = "pi
   )
 
   p_main <- ggplot() +
-    lapply(1:nrow(curve_lines_data), function(i) {
+    lapply(seq_len(nrow(curve_lines_data)), function(i) {
       geom_curve(
         data = curve_lines_data[i, ],
         aes(x = x_start, y = y_start, xend = x_end, yend = y_end),
         curvature = curve_lines_data$curvature[i],
         color = curve_color,
-        size = curve_size
+        linewidth = curve_size
       )
     }) +
     geom_segment(data = segment_lines_data,
                  aes(x = x_start, y = y_start, xend = x_end, yend = y_end),
-                 color = curve_color, size = curve_size) +
+                 color = curve_color, linewidth = curve_size) +
     geom_segment(data = terms_lines,
                  aes(x = x, y = y_start, xend = x, yend = y_end),
-                 color = vertical_line_color, size = vertical_line_size) +
+                 color = vertical_line_color, linewidth = vertical_line_size) +
     geom_segment(data = lines_horizontal,
                  aes(x = x_start, y = y, xend = x_end, yend = y_end),
-                 color = dot_line_color, size = dot_line_size, linetype = dot_line_type) +
+                 color = dot_line_color, linewidth = dot_line_size, linetype = dot_line_type) +
     geom_segment(data = vlines_data,
                  aes(x = x, y = y_start, xend = x, yend = y_end),
                  color = vline_color, linetype = vline_type) +
@@ -353,9 +368,11 @@ ggcluster <- function(data, method = c("auto", "enrich", "gsea"),color_low = "pi
       legend.box.margin = margin(0, 0, 0, 0)
     )
 
-  legend <- get_legend(p_legend)
+  if (!requireNamespace("cowplot", quietly = TRUE))
+    stop("Package 'cowplot' is required for cluster plots. Install it with install.packages('cowplot').")
+  legend <- cowplot::get_legend(p_legend)
 
-  final_plot <- plot_grid(
+  final_plot <- cowplot::plot_grid(
     p_main,
     legend,
     ncol = 2,

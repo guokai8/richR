@@ -1,0 +1,12 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+src/*.o
+src/*.so
+src/*.dll
+..Rcheck/
+*.tar.gz
+*.Rcheck
+gene.rdata
+hsago.rdata

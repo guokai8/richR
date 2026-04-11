@@ -10,6 +10,8 @@
 \item{species}{you can check the support species by using showData()}
 
 \item{keytype}{the gene ID type}
+
+\item{builtin}{use KEGG built-in annotation or not (default TRUE)}
 }
 \description{
 make KEGG annotation data function

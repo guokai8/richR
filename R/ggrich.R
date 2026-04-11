@@ -1,9 +1,7 @@
 ##' richplot
 ##' @description plot the sigificant terms and shared genes with network format
-##' @importFrom GGally ggnet2
 ##' @importFrom igraph graph_from_data_frame
 ##' @importFrom igraph simplify
-##' @importFrom ggrepel geom_text_repel
 ##' @importFrom igraph V
 ##' @importFrom igraph V<-
 ##' @importFrom igraph degree
@@ -84,17 +82,23 @@ ggrich_internal <- function(object,top=50, pvalue=0.05, padj=NULL,
     node.shape=rep(20,length(V(g)$name))
     names(node.shape)<-V(g)$name
   }
-  p <- ggnet2(g, node.size = degree(g), node.color = V(g)$color,
+  if (!requireNamespace("GGally", quietly = TRUE))
+    stop("Package 'GGally' is required for network plots. Install it with install.packages('GGally').")
+  if (!requireNamespace("intergraph", quietly = TRUE))
+    stop("Package 'intergraph' is required for network plots. Install it with install.packages('intergraph').")
+  p <- GGally::ggnet2(g, node.size = degree(g), node.color = V(g)$color,
               node.shape=node.shape,legend.position = "none",mode=layout,
               node.alpha=node.alpha,edge.size=0.05)
   if(isTRUE(repel)){
-    p <- p + geom_text_repel(label = V(g)$name,size=label.size, color=label.color,
+    if (!requireNamespace("ggrepel", quietly = TRUE))
+      stop("Package 'ggrepel' is required for repel labels. Install it with install.packages('ggrepel').")
+    p <- p + ggrepel::geom_text_repel(label = V(g)$name,size=label.size, color=label.color,
                              segment.size=segment.size)
   }else{
     p <- p +geom_text(label = V(g)$name,size=label.size, color=label.color)
   }
   if(savefig==TRUE){
-    ggsave(p,file=paste(filename,"pdf",sep="."),width=width,height = height)
+    ggsave(p,filename=paste(filename,"pdf",sep="."),width=width,height = height)
   }
   p
 }
@@ -127,11 +131,11 @@ ggrich_internal <- function(object,top=50, pvalue=0.05, padj=NULL,
 ##'   hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
 ##'   gene=sample(unique(hsago$GeneID),1000)
 ##'   res<-richKEGG(gene,kodata = hsako)
-##'   ggnetplot(res)
+##'   richNetplot(res)
 ##' }
 ##' @export
 ##' @author Kai Guo
-setMethod("ggnetplot", signature(object = "richResult"),definition = function(object,top=50, pvalue=0.05, padj=NULL,
+setMethod("richNetplot", signature(object = "richResult"),definition = function(object,top=50, pvalue=0.05, padj=NULL,
                                                                            usePadj =TRUE, useTerm=TRUE,low="orange",high="red",
                                                                            writeCyt=FALSE, cytoscapeFile="network-file-for-cytoscape.txt",
                                                                            label.color = "black", label.size = 2, node.shape=NULL,
@@ -145,7 +149,7 @@ setMethod("ggnetplot", signature(object = "richResult"),definition = function(ob
                  width=width,height=height,node.alpha=node.alpha,repel=repel,segment.size=segment.size,sep=object@sep)
 })
 ##' richplot for Enrichment result
-##' @rdname ggnetplot
+##' @rdname richNetplot
 ##' @param object richResult or dataframe
 ##' @param top number of terms to show (default: 50)
 ##' @param pvalue cutoff p value for enrichment result
@@ -174,11 +178,11 @@ setMethod("ggnetplot", signature(object = "richResult"),definition = function(ob
 ##'   hsago<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
 ##'   gene=sample(unique(hsago$GeneID),1000)
 ##'   res<-richKEGG(gene,kodata = hsako)
-##'   ggnetplot(result(res))
+##'   richNetplot(result(res))
 ##' }
 ##' @export
 ##' @author Kai Guo
-setMethod("ggnetplot", signature(object = "data.frame"),definition = function(object,top=50, pvalue=0.05, padj=NULL,
+setMethod("richNetplot", signature(object = "data.frame"),definition = function(object,top=50, pvalue=0.05, padj=NULL,
                                                                            usePadj =TRUE, useTerm=TRUE,low="orange",high="red",
                                                                            writeCyt=FALSE, cytoscapeFile="network-file-for-cytoscape.txt",
                                                                            label.color = "black", label.size = 2, node.shape=NULL,
@@ -193,7 +197,7 @@ setMethod("ggnetplot", signature(object = "data.frame"),definition = function(ob
 })
 
 ##' richplot for Enrichment result
-##' @rdname ggnetplot
+##' @rdname richNetplot
 ##' @param top number of terms to show (default: 50)
 ##' @param pvalue cutoff p value for enrichment result
 ##' @param padj cutoff p adjust value for enrichment result
@@ -223,16 +227,16 @@ setMethod("ggnetplot", signature(object = "data.frame"),definition = function(ob
 #' gene<-rnorm(1000)
 #' names(gene)<-name
 #' res<-richKEGG(gene,object = hsako)
-#' ggnetplot(res)
+#' richNetplot(res)
 ##' }
-setMethod("ggnetplot", signature(object = "GSEAResult"),definition = function(object,top=50, pvalue=0.05, padj=NULL,
+setMethod("richNetplot", signature(object = "GSEAResult"),definition = function(object,top=50, pvalue=0.05, padj=NULL,
                                                                               usePadj =TRUE, useTerm=TRUE,low="orange",high="red",
                                                                               writeCyt=FALSE, cytoscapeFile="network-file-for-cytoscape.txt",
                                                                               label.color = "black", label.size = 2, node.shape=NULL,
                                                                               layout = "fruchtermanreingold",savefig=FALSE,filename="network",
                                                                               width=7,height=7,node.alpha=0.7,repel=TRUE,segment.size=0.2,sep=",") {
-  object<-object@result
   sep <- object@sep
+  object<-object@result
   if(is.list(object$leadingEdge)){
     object$leadingEdge<-unlist(lapply(object$leadingEdge, function(x)paste(x,collapse = sep,sep="")))
   }

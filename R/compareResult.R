@@ -86,7 +86,7 @@ compareResult<-function (x, pvalue = 0.05, padj = NULL,include.all=FALSE)
 #' }
 #' @author Kai Guo
 #' @export
-comparedot<-function (x, pvalue = 0.05, low = "lightpink", high = "red",level="Level3",
+richCompareDot<-function (x, pvalue = 0.05, low = "lightpink", high = "red",level="Level3",
                       pathway=NULL,
                       alpha = 0.7, font.x = "bold", font.y = "bold", fontsize.x = 10,
                       fontsize.y = 10, short = FALSE, padj = NULL, usePadj = TRUE,
@@ -129,7 +129,7 @@ comparedot<-function (x, pvalue = 0.05, low = "lightpink", high = "red",level="L
                                           size = guide_legend(order = 2))
   }
   if (!is.null(filename)) {
-    ggsave(p, file = paste(filename, "enrichment.pdf", sep = "_"),
+    ggsave(p, filename = paste(filename, "enrichment.pdf", sep = "_"),
            width = width, height = height)
   }
   p
@@ -145,10 +145,12 @@ comparedot<-function (x, pvalue = 0.05, low = "lightpink", high = "red",level="L
 #' @param gene list of a vector include all log2FC with gene name (optional)
 #' @param pathway pathways you want to display (optional)
 #' @param mycol a vector indicate the colors used for the figure
-#' @param top number of terms you want to display,
 #' @param pvalue cutoff value of pvalue (if padj set as NULL)
 #' @param padj cutoff value of p adjust value
 #' @param label display the NES values or not
+#' @param gseaParam GSEA parameter for enrichment score calculation
+#' @param ticksSize size of the tick marks
+#' @param ncol number of columns for faceted plot layout
 #' @param scales Should scales be fixed ("fixed", the default), free ("free"), or free in one dimension ("free_x", "free_y")?
 #' @examples
 #' \dontrun{
@@ -193,7 +195,13 @@ compareGSEA<-function(x,object,gene=NULL,pathway=NULL,
     }))
   NES<-as.data.frame(NES)
   NES$group <- rownames(NES)
-  NES<-gather(NES,Group,NES,-group)
+  value_cols <- setdiff(colnames(NES), "group")
+  NES <- data.frame(
+    group = rep(NES$group, times = length(value_cols)),
+    Group = rep(value_cols, each = nrow(NES)),
+    NES = unlist(NES[, value_cols], use.names = FALSE),
+    stringsAsFactors = FALSE
+  )
   NES$hjustvar<-1.5
   NES$vjustvar<-2
   NES$annotateText <- paste0(NES$group,":(NES=",round(NES$NES,2),")\n")
@@ -204,7 +212,13 @@ compareGSEA<-function(x,object,gene=NULL,pathway=NULL,
     }))
   padjs<-as.data.frame(padjs)
   padjs$group <- rownames(padjs)
-  padjs<-gather(padjs,Group,Padj,-group)
+  value_cols2 <- setdiff(colnames(padjs), "group")
+  padjs <- data.frame(
+    group = rep(padjs$group, times = length(value_cols2)),
+    Group = rep(value_cols2, each = nrow(padjs)),
+    Padj = unlist(padjs[, value_cols2], use.names = FALSE),
+    stringsAsFactors = FALSE
+  )
   padjs$hjustvar<-1.5
   padjs$vjustvar<-2
   pvals <- do.call(rbind,lapply(tmp, function(x) {
@@ -214,7 +228,13 @@ compareGSEA<-function(x,object,gene=NULL,pathway=NULL,
     }))
   pvals <- as.data.frame(pvals)
   pvals$group <- rownames(pvals)
-  pvals<-gather(pvals,Group,Pvalue,-group)
+  value_cols3 <- setdiff(colnames(pvals), "group")
+  pvals <- data.frame(
+    group = rep(pvals$group, times = length(value_cols3)),
+    Group = rep(value_cols3, each = nrow(pvals)),
+    Pvalue = unlist(pvals[, value_cols3], use.names = FALSE),
+    stringsAsFactors = FALSE
+  )
   pvals$hjustvar<-1.5
   pvals$vjustvar<-2
   # names(tmp)<-names(x)
@@ -267,7 +287,7 @@ compareGSEA<-function(x,object,gene=NULL,pathway=NULL,
   p <- p+geom_segment(data =path, mapping = aes(x = x,
                                                    y = -diff/4, xend = x,
                                                    yend = diff/4,color=group),
-                      size = ticksSize) +
+                      linewidth = ticksSize) +
     theme(panel.border = element_blank(), panel.grid.minor = element_blank()) +
     scale_color_manual(values=mycol)+labs(x = "rank", y = "Enrichment score")
   if(isTRUE(label)){

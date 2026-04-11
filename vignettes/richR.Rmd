@@ -1,93 +1,204 @@
 ---
-title: "Enrichment analysis for GO and KEGG Pathway"
+title: "richR: Functional Enrichment Analysis and Visualization"
 author: "Kai Guo"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{richR: Functional Enrichment Analysis and Visualization}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-This document describes how to use the richR package.
-Below is a simple manual for using the package
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5,
+  fig.align = "center",
+  dpi = 100
+)
+```
 
 ## Introduction
-You can do enrichment analysis for different type of annotation data (GO,KEGG,Reactome(may need reactome.db if you work with Human). If you had bioAnno installed, you can do enrichment with all types of annotation data.             
 
-## Quick tour
-```{r}
-set.seed(123)   
-library(richR)   
-# To check if your the current species if supported !!!
-showData()   
-# Make the GO and KEGG Pathway data for your analysis
-# find suitable species name by using showensemble()    
-hsa_go<-buildAnnot(species="human",keytype="SYMBOL",anntype = "GO")
-hsa_ko<-buildAnnot(species = "human",keytype="SYMBOL", anntype = "KEGG")
-```   
-### Support KEGG Module and MSIGDB anntation
+**richR** supports Over-Representation Analysis (ORA) via hypergeometric
+testing, Gene Set Enrichment Analysis (GSEA), and kappa-score-based term
+clustering. Built-in annotation builders cover GO, KEGG, Reactome, KEGG
+Module, and MSigDB. You can also supply custom gene sets via GMT files or
+named lists.
+
+## Setup
+
+```{r load-library}
+set.seed(123)
+library(richR)
+has_orgdb <- requireNamespace("org.Hs.eg.db", quietly = TRUE)
+
+# Check supported species
+showData()
 ```
-hsamgi <- buildMSIGDB(species="human",keytype="SYMBOL",anntype="GO")
-hsakom <- buildAnnot(species = "human",keytype="SYMBOL", anntype = "KEGGM")
+
+## 1. Build annotation data
+
+```{r build-annot, eval=has_orgdb}
+# GO and KEGG annotations for human
+hsa_go <- buildAnnot(species = "human", keytype = "SYMBOL", anntype = "GO")
+hsa_ko <- buildAnnot(species = "human", keytype = "SYMBOL", anntype = "KEGG")
 ```
-____   
 
-### You can make annotation data from ensemble   
-* If had bioAnno installed, you can build annotation package with it  
-```{r}
-# library(bioAnno)
-# fromKEGG(species="ath")
-# athgo<-buildOwn(dbname="org.ath.eg.db",anntype="GO")  
-# athko<-buildOwn(dbname="org.ath.eg.db",anntype="KEGG") 
-# Please go over the bioAnno package webpage ("https://github.com/guokai8/bioAnno") to learn more
-```   
-----
+KEGG Module and MSigDB annotations are also supported:
 
-### Simple example for enrichment analysis
+```r
+hsakom <- buildAnnot(species = "human", keytype = "SYMBOL", anntype = "KEGGM")
+hsamgi <- buildMSIGDB(species = "human", keytype = "SYMBOL", anntype = "GO")
+```
 
-```{r,fig.height=6,fig.width=6,fig.align="center",dpi=100}
-gene <- sample(unique(hsa_go$GeneID),1000)
-res <- richGO(gene,godata = hsa_go,ontology ="BP")
-head(res)
-ggbar(res,top = 20,usePadj = F)
-```       
+### Custom gene sets
 
-```{r,fig.height=6,fig.width=6,fig.align="center"}
-resko<-richKEGG(gene,hsa_ko,pvalue=0.05)
+```r
+# From GMT file (MSigDB, Enrichr, etc.)
+annot <- readGMT("h.all.v2023.2.Hs.symbols.gmt", species = "human")
+res   <- enrich(my_genes, annot)
+
+# From a named list
+my_sets <- list(
+  "Apoptosis"  = c("TP53", "BAX", "BCL2", "CASP3"),
+  "Cell Cycle" = c("CDK1", "CDK2", "CCND1", "RB1")
+)
+annot <- buildAnnotFromList(my_sets)
+res   <- enrich(my_genes, annot)
+```
+
+## 2. Enrichment analysis
+
+### GO enrichment (ORA)
+
+```{r go-enrich, eval=has_orgdb}
+gene  <- sample(unique(hsa_go$GeneID), 1000)
+resgo <- richGO(gene, godata = hsa_go, ontology = "BP")
+head(resgo)
+```
+
+### KEGG enrichment
+
+```{r kegg-enrich, eval=has_orgdb}
+resko <- richKEGG(gene, kodata = hsa_ko, pvalue = 0.05)
 head(resko)
-ggdot(resko,top=10,usePadj = F)
-```   
-### Support DAVID analysis (Online)
 ```
-gene <- sample(unique(hsako$GeneID),1000)
-res <- richDAVID(gene,keytype="ENTREZID",species="human")
-```
-#### You can also get network graphic for any type of enrichment analysis result and also combine different enrichment result
-```{r,fig.height=6,fig.width=6,fig.align="center",dpi=100}
-ggnetplot(res,top=20)
-ggnetwork(res,top=20,weightcut = 0.01)
 
-```   
-### Directly support dplyr filter, select, mutate,group_by ... functions
-```
-filter(resko,Padj<0.05)%>%head()
-select(resko,Term)
-```
-### Generate figures with mutiple enrichment results for groups
-```
-gene1 <- sample(unique(hsako$GeneID),1000)
-gene2 <- sample(unique(hsako$GeneID),1000)
-resko1 <- richKEGG(gene1,kodata = hsako)
-resko2 <- richKEGG(gene2,kodata = hsako)
-res <- compareResult(list(S1=resko1,S2=resko2))
-comparedot(res)
-```
-### Generate figures with different enrichment results
-```
-ggnetmap(list(res,resko),top=50,visNet=TRUE,smooth=FALSE)
-```
-### Contact information
-For any questions please contact guokai8@gmail.com  
+### GSEA
 
-Congratulations ! You just done all Enrichment analysis 
+```{r gsea, eval=has_orgdb}
+name     <- sample(unique(hsa_ko$GeneID), 1000)
+genelist <- rnorm(1000)
+names(genelist) <- name
+res_gsea <- richGSEA(genelist, object = hsa_ko)
+```
+
+### DAVID (online)
+
+```r
+res_david <- richDAVID(gene, keytype = "ENTREZID", species = "human")
+```
+
+## 3. Visualization
+
+### Bar and dot plots
+
+```{r bar-dot, fig.height=6, eval=has_orgdb}
+richBar(resgo, top = 20, usePadj = FALSE)
+richDot(resko, top = 10, usePadj = FALSE)
+```
+
+### Lollipop plot
+
+```{r lollipop, eval=has_orgdb}
+richLollipop(resko, top = 20)
+```
+
+### Gene-level plots
+
+```{r gene-plots, fig.height=6, fig.width=9, eval=has_orgdb}
+# Gene-term dot plot (color by significance when no fold change provided)
+richGeneDot(resgo)
+
+# Gene-term heatmap with custom colors
+richGeneHeat(resgo, usePadj = FALSE,
+             low = "deepskyblue", high = "darkorange", mid = "white")
+
+# Gene bar plot (x-axis = RichFactor, gene labels aligned left)
+richGeneBar(resgo, top = 10)
+```
+
+### Network plots
+
+```{r network, fig.height=6, eval=has_orgdb}
+richNetplot(resko, top = 20)
+richNetwork(resko, top = 20, weightcut = 0.01)
+```
+
+### GSEA-specific plots
+
+```{r gsea-plots, eval=has_orgdb}
+richNES(res_gsea, top = 20)
+richVolcano(res_gsea)
+```
+
+## 4. Clustering and comparison
+
+### Kappa-based clustering
+
+```{r cluster, eval=has_orgdb}
+resc <- richCluster(resgo)
+richClusterDot(resc)
+```
+
+### Multi-group comparison
+
+```{r compare, eval=has_orgdb}
+gene1  <- sample(unique(hsa_ko$GeneID), 1000)
+gene2  <- sample(unique(hsa_ko$GeneID), 1000)
+resko1 <- richKEGG(gene1, kodata = hsa_ko)
+resko2 <- richKEGG(gene2, kodata = hsa_ko)
+res_cmp <- compareResult(list(S1 = resko1, S2 = resko2))
+richCompareDot(res_cmp)
+```
+
+### Comparison heatmap
+
+```{r heatmap, eval=has_orgdb}
+richHeatmap(list(GO = resgo, KEGG = resko), top = 50)
+```
+
+### UpSet plot
+
+```{r upset, fig.width=9, eval=has_orgdb}
+gene_lists <- list(
+  "Treatment A" = sample(unique(hsa_ko$GeneID), 500),
+  "Treatment B" = sample(unique(hsa_ko$GeneID), 400),
+  "Control"     = sample(unique(hsa_ko$GeneID), 600)
+)
+richUpset(gene_lists)
+```
+
+## 5. Working with results
+
+```{r results, eval=has_orgdb}
+# Extract result and detail tables
+head(result(resgo))
+head(detail(resgo))
+```
+
+### dplyr integration
+
+```{r dplyr, eval=has_orgdb}
+library(dplyr)
+resgo %>% filter(Padj < 0.05) %>% head()
+resko %>% select(Term, Pvalue, Padj) %>% head()
+```
+
+## Contact
+
+For questions or bug reports please contact guokai8@gmail.com or open an
+issue at <https://github.com/guokai8/richR/issues>.

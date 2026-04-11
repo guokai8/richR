@@ -14,107 +14,19 @@
 #' @param filename output filename
 #' @param padj.method pvalue adjust method(default:"BH")
 #' @param sep character string used to separate the genes when concatenating
-#' @export
 #' @author Kai Guo
 enrich_internal<-function(x,object,ontology= "",pvalue=0.05,padj=NULL,organism=NULL,minSize=1,maxSize=500,
                           minGSSize = 10, maxGSSize = 500,
                           keepRich=TRUE,keytype="",filename=NULL,padj.method="BH",sep = ","){
-  ontology=""
-  ao2gene<-sf(object)
-  ao2gene_num<-name_table(ao2gene)
-  gene2ao<-sf(object[,c(2,1)])
-  if(is.data.frame(x)){
-    input<-rownames(x)
-  }else{
-    input=as.vector(x)
-  }
-  fgene2ao=gene2ao[input]
-  fao2gene=reverseList(fgene2ao)
-  k=name_table(fao2gene)
-  n=length(unique(unlist(fao2gene)))
-  M=ao2gene_num[names(k)]
-  N=length(unique(object[,1]))
-  rhs<-hyper_bench_vector(k,M,N,n)
-  lhs<-p.adjust(rhs,method=padj.method)
-  rhs_gene<-unlist(lapply(fao2gene, function(x)paste(unique(x),sep="",collapse = sep)))
-  ####
-  Annotated=M[names(rhs)]
-  Significant=k[names(rhs)]
-  RichFactor <- Significant / Annotated
-  FoldEnrichment <- RichFactor * N / n
-  Pvalue=as.vector(rhs)
-  GeneID=rhs_gene[names(rhs)]
-  # mu and sigma are the mean and standard deviation of the hypergeometric distribution
-  ## https://en.wikipedia.org/wiki/Hypergeometric_distribution
-  mu <- M * n / N
-  sigma <- mu * (N - n) * (N - M) / N / (N-1)
-  zscore <- (k - mu)/sqrt(sigma)
-  GeneID=rhs_gene[names(rhs)]
-  resultFis<-data.frame("Annot"=names(rhs),"Term"=names(rhs),"Annotated"=Annotated,
-                        "Significant"=Significant,"RichFactor" = RichFactor,"FoldEnrichment"= FoldEnrichment,
-                        "zscore"=zscore, "Pvalue"=Pvalue,"Padj"=lhs,
-                        "GeneID"=GeneID)
-  colnames(resultFis)[2]="Term"
-  resultFis<-resultFis[order(resultFis$Pvalue),]
-  ## remove gene Set with too much gene annotated
-  resultFis<-subset(resultFis, Annotated<=maxGSSize)
-  if(keepRich==FALSE){
-    resultFis<-subset(resultFis, Significant>=minSize)
-    resultFis<-subset(resultFis, Annotated>=minGSSize)
-  }else{
-    resultFis<-subset(resultFis, Significant>=minSize|RichFactor==1|Annotated >=minGSSize)
-  }
-  if(is.null(padj)){
-    resultFis<-resultFis[resultFis$Pvalue<pvalue,]
-    padj=numeric()
-  }else{
-    resultFis<-resultFis[resultFis$Padj<padj,]
-  }
-  rownames(resultFis)<-resultFis$Annot
-  if(!is.null(filename)){
-    write.table(resultFis,file=paste(filename,".txt",sep=""),sep="\t",quote=F,row.names=F)
-  }
-  if(is.data.frame(x)){
-    detail<-getdetail(resultFis,x)
-  }else{
-    if(length(as.vector(resultFis$GeneID)>=1)){
-      gene<-strsplit(as.vector(resultFis$GeneID),split=sep)
-      names(gene)<-resultFis$Annot
-      gened<-data.frame("TERM"=rep(names(gene),times=unlist(lapply(gene,length))),
-                        "Annot"=rep(resultFis$Term,times=unlist(lapply(gene,length))),
-                        "GeneID"=unlist(gene),row.names=NULL,
-                        "Pvalue"=rep(resultFis$Pvalue,times=unlist(lapply(gene,length))),
-                        "Padj"=rep(resultFis$Padj,times=unlist(lapply(gene,length)))
-      )
-    }else{
-      gene <- x
-      names(gene)<-resultFis$Annot
-      gened<-data.frame("TERM"="",
-                        "Annot"="",
-                        "GeneID"=x,row.names=NULL,
-                        "Pvalue"=1,
-                        "Padj"=1)
-    }
-    gened$GeneID<-as.character(gened$GeneID)
-    detail<-gened
-  }
-  if(is.null(organism)){
-    organism=character()
-  }
-  result<-new("richResult",
-              result=resultFis,
-              detail=detail,
-              pvalueCutoff   = pvalue,
-              pAdjustMethod  = padj.method,
-              padjCutoff   = padj,
-              genenumber    = length(input),
-              organism       = organism,
-              ontology       = ontology,
-              gene           = input,
-              keytype        = keytype,
-              sep = sep
-  )
-  return(result)
+  .validateParams(pvalue=pvalue, padj=padj, minSize=minSize, maxSize=maxSize,
+                  minGSSize=minGSSize, maxGSSize=maxGSSize, func_name="enrich")
+  input <- .validateGeneInput(x, annotation=object, func_name="enrich")
+  .run_ora(x, annot = object, term_names = NULL, extra_cols = NULL,
+           pvalue = pvalue, padj = padj, padj.method = padj.method,
+           minSize = minSize, maxSize = maxSize,
+           minGSSize = minGSSize, maxGSSize = maxGSSize,
+           keepRich = keepRich, organism = organism, ontology = "",
+           keytype = keytype, filename = filename, sep = sep)
 }
 #' Enrichment analysis function
 #' @param x vector contains gene names or dataframe with DEGs information
@@ -153,7 +65,6 @@ setMethod("enrich", signature(object = "data.frame"),definition = function(x,obj
 #' Enrichment analysis function
 #' @param x vector contains gene names or dataframe with DEGs information
 #' @param object annotation data
-#' @param ontology ontology type
 #' @param pvalue cutoff pvalue
 #' @param padj cutoff p adjust value
 #' @param organism organism
@@ -163,7 +74,7 @@ setMethod("enrich", signature(object = "data.frame"),definition = function(x,obj
 #' @param minGSSize minimal size of genes annotated by ontology term for testing.
 #' @param maxGSSize maximal size of each geneset for analyzing
 #' @param keepRich keep terms with rich factor value equal 1 or not (default: TRUE)
-#' @param bulitin use KEGG bulit in KEGG annotation or not(set FALSE if you want use newest KEGG data)
+#' @param builtin use KEGG built-in annotation or not (set FALSE if you want to use newest KEGG data)
 #' @param filename output filename
 #' @param padj.method pvalue adjust method(default:"BH")
 #' @param sep character string used to separate the genes when concatenating
@@ -183,9 +94,17 @@ setMethod("enrich", signature(object = "Annot"),definition = function(x,object,p
 #'
 #' @param gene vector contains gene names
 #' @param keytype key type export
+#' @param species species name
 #' @param anntype GOTERM_BP_FAT, KEGG_PATHWAY,GOTERM_CC_FAT
+#' @param universe background gene universe
 #' @param pvalue cutoff pvalue
 #' @param padj cutoff p adjust value
+#' @param minSize minimal number of genes included in significant terms
+#' @param maxSize maximum number of genes included in significant terms
+#' @param keepRich keep terms with rich factor value equal 1 or not (default: TRUE)
+#' @param filename output filename
+#' @param padj.method pvalue adjust method (default: "BH")
+#' @param sep character string used to separate the genes when concatenating
 #' @param david.user richR@und.edu
 #' @return Annot object
 #' @examples
@@ -202,19 +121,14 @@ richDAVID <- function(gene,keytype="ENTREZ_GENE_ID",species="human",anntype="GOT
                       keepRich=TRUE, filename=NULL,padj.method="BH",sep=",",
                       david.user="richR@und.edu"){
   pkg <- "RDAVIDWebService"
-  if (!require(pkg,character.only=TRUE)){
-    if(!require("BiocManager",character.only=TRUE)){
-      install.packages("BiocManager")
-    }else{
-      BiocManager::install(pkg)
-    }
-  }else{
-    suppressMessages(requireNamespace(pkg))
+  if (!requireNamespace(pkg, quietly = TRUE)) {
+    stop("Package '", pkg, "' is required for DAVID analysis. Install it with:\n",
+         "  BiocManager::install('", pkg, "')", call. = FALSE)
   }
   #require(pkg, character.only=TRUE)
   idtype=keytype
   if(keytype=="SYMBOL"){
-    gene<-idconvert(gene,species=species,fkeytype = "SYMBOL",tkeytype = "ENTREZID")
+    gene<-idconvert(species=species,keys=gene,fkeytype = "SYMBOL",tkeytype = "ENTREZID")
     keytype="ENTREZ_GENE_ID"
   }else if(keytype=="ENTREZID"){
     keytype="ENTREZ_GENE_ID"
@@ -258,7 +172,7 @@ richDAVID <- function(gene,keytype="ENTREZ_GENE_ID",species="human",anntype="GOT
   Term <- term[,2]
   Annotated <- res$Pop.Hits
   Significant <- res$Count
-  RichFactor <- Annotated / Significant
+  RichFactor <- Significant / Annotated
   resultFis <- data.frame(Annot          = Annot,
                           Term = Term,
                           Annotated   = Annotated,
@@ -290,12 +204,12 @@ richDAVID <- function(gene,keytype="ENTREZ_GENE_ID",species="human",anntype="GOT
   }
   rownames(resultFis)<-resultFis$Annot
   if(idtype=="SYMBOL"){
-    xx<-suppressMessages(lapply(strsplit(resultFis$GeneID,","),function(x)idconvert(x,species=species,fkeytype = "ENTREZID",tkeytype = "SYMBOL")))
+    xx<-suppressMessages(lapply(strsplit(resultFis$GeneID,","),function(x)idconvert(species=species,keys=x,fkeytype = "ENTREZID",tkeytype = "SYMBOL")))
     xx<-unlist(lapply(xx,function(x)paste(x,sep="",collapse = ",")))
     resultFis$GeneID <- xx
   }
   if(!is.null(filename)){
-    write.table(resultFis,file=paste(filename,ontology,"res.txt",sep="_"),sep="\t",quote=F,row.names=F)
+    write.table(resultFis,file=paste(filename,anntype,"res.txt",sep="_"),sep="\t",quote=F,row.names=F)
   }
   genes<-strsplit(as.vector(resultFis$GeneID),split=sep)
   names(genes)<-resultFis$Annot

@@ -52,9 +52,9 @@ richKEGG_internal(
 
 \item{padj.method}{pvalue adjust method(default:"BH")}
 
-\item{sep}{character string used to separate the genes when concatenating}
+\item{builtin}{use KEGG built-in annotation or not (set FALSE if you want to use newest KEGG data)}
 
-\item{bulitin}{use KEGG bulit in KEGG annotation or not(set FALSE if you want use newest KEGG data)}
+\item{sep}{character string used to separate the genes when concatenating}
 }
 \description{
 KEGG Pathway Enrichment analysis function

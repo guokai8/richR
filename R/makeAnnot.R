@@ -5,34 +5,32 @@
 ##' @param species species for the annotation
 ##' @param keytype key type export
 ##' @param anntype annotation type
-##' @param bulitin use default database(TRUE or FALSE)
+##' @param builtin use default database (TRUE or FALSE)
 ##' @param OP BP,CC,MF default use all
 ##' @examples
 ##' \dontrun{
-##' annot<-buildAnnot(species="human",keytype="ENTREZID",anntype="GO",bulitin=TRUE)
+##' annot<-buildAnnot(species="human",keytype="ENTREZID",anntype="GO",builtin=TRUE)
 ##' }
 ##' @export
 ##' @author Kai Guo
 buildAnnot<-function(species="human",keytype="SYMBOL",anntype="GO",builtin=TRUE,OP=NULL){
-  if(anntype=="GO"){
-     annot <- .makeGOdata(species=species,keytype=keytype,OP=OP)
-  }
-  if(anntype=="KEGG"){
-    annot <- .makeKOdata(species=species,keytype=keytype,builtin=builtin)
-  }
-  if(anntype=="Reactome"){
-    annot <- .makeROdata(species=species,keytype=keytype)
-  }
-  if(anntype=="KEGGM"){
-    annot <- .makeKOMdata(species=species,keytype=keytype)
-  }
-  result<-new("Annot",
-              species = species,
-              anntype = anntype,
-              keytype = keytype,
-              annot = annot
-
+  message("buildAnnot: building ", anntype, " annotation for ", species, " (keytype: ", keytype, ")...")
+  annot <- switch(anntype,
+    GO       = .makeGOdata(species = species, keytype = keytype, OP = OP),
+    KEGG     = .makeKOdata(species = species, keytype = keytype, builtin = builtin),
+    Reactome = .makeROdata(species = species, keytype = keytype),
+    KEGGM    = .makeKOMdata(species = species, keytype = keytype),
+    stop("Unsupported anntype '", anntype,
+         "'. Use one of: GO, KEGG, Reactome, KEGGM")
   )
+  n_genes <- length(unique(annot[, 1]))
+  n_terms <- length(unique(annot[, 2]))
+  message("buildAnnot: done. ", n_genes, " genes, ", n_terms, " terms.")
+  new("Annot",
+      species = species,
+      anntype = anntype,
+      keytype = keytype,
+      annot = annot)
 }
 #' make GO annotation data function
 #' @importFrom AnnotationDbi keys
@@ -43,16 +41,11 @@ buildAnnot<-function(species="human",keytype="SYMBOL",anntype="GO",builtin=TRUE,
 #' @author Kai Guo
 .makeGOdata<-function(species="human",keytype="ENTREZID",OP=NULL){
   dbname<-.getdbname(species);
-  if (!require(dbname,character.only=TRUE)){
-    if(!require("BiocManager",character.only=TRUE)){
-      install.packages("BiocManager")
-    }else{
-      BiocManager::install(dbname)
-    }
-  }else{
-    suppressMessages(requireNamespace(dbname,character.only = T,quietly = T))
+  if (!requireNamespace(dbname, quietly = TRUE)) {
+    stop("Package '", dbname, "' is required. Install it with:\n",
+         "  BiocManager::install('", dbname, "')", call. = FALSE)
   }
-  dbname<-eval(parse(text=dbname))
+  dbname<-getExportedValue(dbname, dbname)
   GO_FILE<-AnnotationDbi::select(dbname,keys=keys(dbname,keytype=keytype),keytype=keytype,columns=c("GOALL","ONTOLOGYALL"))
   colnames(GO_FILE)[1]<-"GeneID"
   #GO_FILE<-distinct_(GO_FILE,~GeneID, ~GOALL, ~ONTOLOGYALL)
@@ -69,22 +62,16 @@ buildAnnot<-function(species="human",keytype="SYMBOL",anntype="GO",builtin=TRUE,
 #' @importFrom KEGGREST keggLink
 #' @param species you can check the support species by using showData()
 #' @param keytype the gene ID type
+#' @param builtin use KEGG built-in annotation or not (default TRUE)
 #' @author Kai Guo
 .makeKOdata<-function(species="human",keytype="ENTREZID",builtin=TRUE){
   dbname<-.getdbname(species=species);
   if(builtin==TRUE){
-    # suppressMessages(require(AnnotationDbi))
-    #  sel<-AnnotationDbi::select
-    if (!require(dbname,character.only=TRUE)){
-      if(!require("BiocManager",character.only=TRUE)){
-        install.packages("BiocManager")
-      }else{
-        BiocManager::install(dbname)
-      }
-    }else{
-      suppressMessages(requireNamespace(dbname))
+    if (!requireNamespace(dbname, quietly = TRUE)) {
+      stop("Package '", dbname, "' is required. Install it with:\n",
+           "  BiocManager::install('", dbname, "')", call. = FALSE)
     }
-    dbname<-eval(parse(text=dbname))
+    dbname<-getExportedValue(dbname, dbname)
     KO_FILE=AnnotationDbi::select(dbname,keys=keys(dbname,keytype=keytype),keytype=keytype,columns="PATH")
     KO_FILE<-na.omit(KO_FILE)
   }else{
@@ -99,7 +86,7 @@ buildAnnot<-function(species="human",keytype="SYMBOL",anntype="GO",builtin=TRUE,
     }
     KO_FILE=tmp
   }
-  annot<-getann("KEGG")
+  annot<-getann("KEGG", builtin = builtin)
   KO_FILE[,1]<-as.vector(KO_FILE[,1])
   KO_FILE[,2]<-as.vector(KO_FILE[,2])
   KO_FILE$Annot<-annot[KO_FILE[,2],"annotation"]
@@ -126,66 +113,33 @@ buildAnnot<-function(species="human",keytype="SYMBOL",anntype="GO",builtin=TRUE,
 ##' @author Kai Guo
 buildMSIGDB<-function(species="human",keytype="SYMBOL",anntype="GO"){
   flag <- 0
-  anntypes <- NULL
-  if(!is.null(anntype)){
-    if(anntype=="HALLMARK"){
-        category <- "H"
-        anntype <- ""
-    }
-    if(anntype=="IMMUNESIGDB"){
-        category <- "C7"
-        anntype <- "IMMUNESIGDB"
-    }
-    if(anntype=="WIKIPATHWAYS"){
-        category <- "C2"
-        anntype <- "CP:WIKIPATHWAYS"
-    }
-    if(anntype == "CGP"){
-      category <- "C2"
-    }
-    if(anntype == "CP"){
-      category <- "C2"
-    }
-    if(anntype == "KEGG"){
-      anntypes <- "CP:KEGG"
-      category <- "C2"
-    }
-    if(anntype == "REACTOME"){
-      anntypes <- "CP:REACTOME"
-      category <- "C2"
-    }
-    if(anntype == "BIOCARTA"){
-      anntypes <- "CP:BIOCARTA"
-      category <- "C2"
-    }
-    if(anntype == "MIR"){
-      category <- "C3"
-    }
-    if(anntype == "TFT"){
-      category <- "C3"
-    }
-    if(anntype == "CGN"){
-      category == "C4"
-    }
-    if(anntype == "CM"){
-      category <- "C4"
-    }
-    if(anntype == "GO"){
-      category <- "C5"
-    }
-    if(anntype == "BP"){
-      anntypes <- "GO:BP"
-      category <- "C5"
-    }
-    if(anntype == "CC"){
-      anntypes <- "GO:CC"
-      category <- "C5"
-    }
-    if(anntype == "MF"){
-      anntypes <- "GO:MF"
-      category <- "C5"
-    }
+  ## Lookup table: anntype -> (category, subcategory)
+  msig_map <- list(
+    HALLMARK     = list(cat = "H",  sub = NULL),
+    IMMUNESIGDB  = list(cat = "C7", sub = "IMMUNESIGDB"),
+    WIKIPATHWAYS = list(cat = "C2", sub = "CP:WIKIPATHWAYS"),
+    CGP          = list(cat = "C2", sub = NULL),
+    CP           = list(cat = "C2", sub = NULL),
+    KEGG         = list(cat = "C2", sub = "CP:KEGG"),
+    REACTOME     = list(cat = "C2", sub = "CP:REACTOME"),
+    BIOCARTA     = list(cat = "C2", sub = "CP:BIOCARTA"),
+    MIR          = list(cat = "C3", sub = NULL),
+    TFT          = list(cat = "C3", sub = NULL),
+    CGN          = list(cat = "C4", sub = NULL),
+    CM           = list(cat = "C4", sub = NULL),
+    GO           = list(cat = "C5", sub = NULL),
+    BP           = list(cat = "C5", sub = "GO:BP"),
+    CC           = list(cat = "C5", sub = "GO:CC"),
+    MF           = list(cat = "C5", sub = "GO:MF")
+  )
+  if (!anntype %in% names(msig_map)) {
+    stop("Unsupported anntype '", anntype,
+         "'. Use one of: ", paste(names(msig_map), collapse = ", "))
   }
+  info <- msig_map[[anntype]]
+  category <- info$cat
+  anntypes <- info$sub
+  if (anntype == "HALLMARK") anntype <- ""
   mspe<-.getmsig(species)
   if(is.null(mspe)){
     stop(cat("can't find support species!\n"))
@@ -242,14 +196,9 @@ buildMSIGDB<-function(species="human",keytype="SYMBOL",anntype="GO"){
 #' @author Kai Guo
 .makeROdata<-function(species="human",keytype="SYMBOL"){
   dbname<-.getrodbname(species=species);
-  if (!require("reactome.db",character.only=TRUE)){
-    if(!require("BiocManager",character.only=TRUE)){
-      install.packages("BiocManager")
-    }else{
-      BiocManager::install("reactome.db")
-    }
-  }else{
-    suppressMessages(require("reactome.db",character.only = T,quietly = T))
+  if (!requireNamespace("reactome.db", quietly = TRUE)) {
+    stop("Package 'reactome.db' is required. Install it with:\n",
+         "  BiocManager::install('reactome.db')", call. = FALSE)
   }
   dbname=sapply(strsplit(dbname,"_"),'[[',1)
   lhs<-as.list(reactomePATHNAME2ID)
@@ -275,6 +224,7 @@ buildMSIGDB<-function(species="human",keytype="SYMBOL",anntype="GO"){
 #' @importFrom KEGGREST keggLink
 #' @param species you can check the support species by using showData()
 #' @param keytype the gene ID type
+#' @param builtin use KEGG built-in annotation or not (default TRUE)
 #' @author Kai Guo
 .makeKOMdata<-function(species="human",keytype="ENTREZID",builtin=TRUE){
     spe=.getspeices(species)

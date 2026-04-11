@@ -4,6 +4,8 @@
 #' @param dbname database name from bioAnno
 #' @param anntype GO or KEGG
 #' @param OP BP,CC,MF default use all
+#' @param species species name
+#' @param keytype gene ID type (e.g. "ENTREZID", "SYMBOL")
 #' @examples
 #' \dontrun{
 #' fromKEGG(species="ath")
@@ -12,12 +14,10 @@
 #' @author Kai Guo
 #' @export
 buildOwn<-function(dbname,anntype="GO",OP=NULL,species="",keytype=""){
-  if (!require(dbname,character.only=TRUE)){
+  if (!requireNamespace(dbname,quietly=TRUE)){
     stop("Please give the package name")
-  }else{
-    suppressMessages(require(dbname,character.only = T,quietly = T))
   }
-  dbname<-eval(parse(text=dbname))
+  dbname<-getExportedValue(dbname, dbname)
   if(anntype=="GO"){
     annof<-AnnotationDbi::select(dbname,keys=keys(dbname,keytype=keytype),keytype=keytype,columns=c("GOALL","ONTOLOGYALL"))
     colnames(annof)[1]<-"GeneID"

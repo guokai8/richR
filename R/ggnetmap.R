@@ -1,28 +1,35 @@
 ##' generate network based on Enrichment results
-##' @rdname ggnetmap
+##' @rdname richNetmap
 ##' @param richRes list of enrichment object
 ##' @param gene vector contains gene names or dataframe with DEGs information
 ##' @param top number of terms to display
 ##' @param top.display top number to display
 ##' @param pvalue cutoff value of pvalue (if padj set as NULL)
 ##' @param padj cutoff value of p adjust value
-##' @param weightcut cutoff valule for edge
-##' @param usePadj use adjust p value as color or not (should use with padj)
-##' @param layout layout method ('fruchtermanreingold','kamadakawai','target','circle')
+##' @param usePadj use adjust p value as color or not
 ##' @param low color used for small value
 ##' @param high color used for large value
+##' @param weightcut cutoff value for edge weight
+##' @param useTerm use Term name instead of Annotation ID
 ##' @param writeCyt write out the cytoscape file
 ##' @param cytoscapeFile output cytoscape File
 ##' @param cytoscapeFormat Character string giving the output file format
-##' @param segment.size size for label segment
-##' @param node.alpha alpha-transparency scales
-##' @param label.font label font
 ##' @param label.color label color
 ##' @param label.size label size
-##' @param filename figure output name
+##' @param node.shape shape of the nodes
+##' @param layout layout method
 ##' @param savefig save the figure or not
+##' @param visNet use visNetwork for interactive plot
+##' @param smooth smooth edges in visNetwork
+##' @param nodeselect enable node selection in visNetwork
+##' @param edit enable editing in visNetwork
+##' @param savehtml save visNetwork as HTML file
+##' @param filename figure output name
 ##' @param width figure width
 ##' @param height figure height
+##' @param segment.size size for label segment
+##' @param node.alpha alpha-transparency scales
+##' @param ... additional arguments
 ##' @examples
 #' \dontrun{
 #' hsako <- buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
@@ -34,7 +41,7 @@
 #' }
 ##' @export
 ##' @author Kai Guo
-ggnetmap<-function(richRes,gene=NULL,top=50,top.display=NULL,pvalue = 0.05, padj = NULL,usePadj=TRUE,low = "orange",high = "red",
+richNetmap<-function(richRes,gene=NULL,top=50,top.display=NULL,pvalue = 0.05, padj = NULL,usePadj=TRUE,low = "orange",high = "red",
                    weightcut = 0.2, useTerm = TRUE, writeCyt = FALSE,cytoscapeFile = "cytoscape.txt",cytoscapeFormat="graphml",
                    label.color = "black", label.size = 2,node.shape=NULL, layout = "fruchtermanreingold",savefig=FALSE,
                    visNet=FALSE,smooth=TRUE,nodeselect=FALSE,edit=FALSE,savehtml=FALSE,filename="network",
@@ -53,7 +60,7 @@ ggnetmap<-function(richRes,gene=NULL,top=50,top.display=NULL,pvalue = 0.05, padj
   }
   ggnetwork(object,gene=gene,top=top,pvalue=pvalue,padj=padj,usePadj=usePadj,weightcut=weightcut,useTerm=useTerm,writeCyt=writeCyt,
             cytoscapeFile = cytoscapeFile,cytoscapeFormat=cytoscapeFormat,
-            label.font=label.font,label.color=label.color,label.size=label.size,node.shape=node.shape,
+            label.color=label.color,label.size=label.size,node.shape=node.shape,
             layout=layout,savefig=savefig,width=width,height=height,
             visNet=visNet,smooth=smooth,nodeselect=nodeselect,edit=edit,
             filename=filename,node.alpha=node.alpha,...)

@@ -3,8 +3,6 @@
 \docType{class}
 \name{GSEAResult-class}
 \alias{GSEAResult-class}
-\alias{show,GSEAResult-method}
-\alias{summary,GSEAResult-method}
 \alias{plot,GSEAResult-method}
 \title{Class "GSEAResult"
 This class represents the result from GSEA analysis}
@@ -16,6 +14,8 @@ This class represents the result from GSEA analysis
 
 \describe{
 \item{\code{result}}{enrichment analysis results}
+
+\item{\code{input}}{named numeric vector of input gene scores}
 
 \item{\code{pvalueCutoff}}{cutoff pvalue}
 

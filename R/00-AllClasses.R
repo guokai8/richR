@@ -3,9 +3,7 @@
 ##'
 ##'
 ##' @name richResult-class
-##' @aliases richResult-class
-##'   show,richResult-method plot,richResult-method
-##'   summary,richResult-method
+##' @aliases richResult-class plot,richResult-method
 ##'
 ##' @docType class
 ##' @slot result enrichment analysis results
@@ -40,12 +38,11 @@ setClass("richResult",
 ##' Class "GSEAResult"
 ##' This class represents the result from GSEA analysis
 ##' @name GSEAResult-class
-##' @aliases GSEAResult-class
-##'   show,GSEAResult-method summary,GSEAResult-method
-##'   plot,GSEAResult-method
+##' @aliases GSEAResult-class plot,GSEAResult-method
 ##'
 ##' @docType class
 ##' @slot result enrichment analysis results
+##' @slot input named numeric vector of input gene scores
 ##' @slot pvalueCutoff cutoff pvalue
 ##' @slot pAdjustMethod pvalue adjust method
 ##' @slot padjCutoff pvalue adjust cutoff value
@@ -77,7 +74,6 @@ setClass("GSEAResult",
 ##' This class represents the Annotation information
 ##' @name Annot-class
 ##' @aliases Annot-class
-##'   summary, Annot-method
 ##' @docType class
 ##' @slot species the species of the annotation file
 ##' @slot anntype the type of the annotation file

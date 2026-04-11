@@ -12,6 +12,10 @@ buildOwn(dbname, anntype = "GO", OP = NULL, species = "", keytype = "")
 \item{anntype}{GO or KEGG}
 
 \item{OP}{BP,CC,MF default use all}
+
+\item{species}{species name}
+
+\item{keytype}{gene ID type (e.g. "ENTREZID", "SYMBOL")}
 }
 \description{
 make annotation database using bioAnno results

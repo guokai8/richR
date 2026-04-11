@@ -17,6 +17,7 @@
 #' @param filename output filename
 #' @param padj.method pvalue adjust method(default:"BH")
 #' @param sep character string used to separate the genes when concatenating
+#' @param ... additional arguments
 #' @return richResult
 ##' @examples
 #' \dontrun{
@@ -36,8 +37,9 @@ setGeneric("richGO", function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,organ
 #' @title KEGG Enrichment analysis function
 #' @name richKEGG
 #' @param x vector contains gene names or dataframe with DEGs information
-#' @param ontology KEGG
+#' @param kodata KEGG annotation data
 #' @param pvalue cutoff pvalue
+#' @param ontology KEGG
 #' @param padj cutoff p adjust value
 #' @param organism organism
 #' @param keytype keytype for input genes
@@ -46,10 +48,11 @@ setGeneric("richGO", function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,organ
 #' @param minGSSize minimal size of genes annotated by ontology term for testing.
 #' @param maxGSSize maximal size of each geneset for analyzing
 #' @param keepRich keep terms with rich factor value equal 1 or not (default: TRUE)
-#' @param bulitin use KEGG bulit in KEGG annotation or not(set FALSE if you want use newest KEGG data)
+#' @param builtin use KEGG built-in annotation or not (set FALSE if you want use newest KEGG data)
 #' @param filename output filename
 #' @param padj.method pvalue adjust method(default:"BH")
 #' @param sep character string used to separate the genes when concatenating
+#' @param ... additional arguments
 ##' @return richResult
 #' @examples
 #' \dontrun{
@@ -71,14 +74,18 @@ setGeneric("richKEGG", function(x,kodata,pvalue=0.05,padj=NULL,organism=NULL,ont
 ##' @title richGSEA method
 #' @param x a vector include all log2FC with gene name
 #' @param object annotation file for all genes
+#' @param keytype gene ID type
 #' @param pvalue pvalue cutoff value
-#' @param padj adjust p value cut off method
-#' @param KEGG a logical evaluating to TRUE or FALSE indicating whether KEGG GSEA were peformed or not.
+#' @param padj adjust p value cut off
+#' @param KEGG logical, whether KEGG GSEA were performed
+#' @param minSize Minimal size of a gene set to test
+#' @param ontology ontology type
+#' @param maxSize Maximal size of a gene set to test
 #' @param padj.method p value adjust method
-#' @param minSize Minimal size of a gene set to test. All pathways below the threshold are excluded.
-#' @param maxSize Maximal size of a gene set to test. All pathways above the threshold are excluded.
+#' @param organism organism name
 #' @param table leadingEdge as vector
 #' @param sep character string used to separate the genes when concatenating
+#' @param ... additional arguments
 ##' @return GSEAResult
 #' @examples
 #' \dontrun{
@@ -113,6 +120,7 @@ setGeneric("richGSEA", function(x,object,keytype="",pvalue=0.05,padj=NULL,KEGG=F
 #' @param filename output filename
 #' @param padj.method pvalue adjust method(default:"BH")
 #' @param sep character string used to separate the genes when concatenating
+#' @param ... additional arguments
 ##' @return richResult
 ##' @examples
 ##' \dontrun{
@@ -141,6 +149,7 @@ setGeneric("enrich", function(x,object,ontology="",pvalue=0.05,padj=NULL,organis
 #' @importFrom dplyr filter left_join
 #' @param x vector contains gene names or dataframe with DEGs information
 #' @param kodata KEGG annotation data
+#' @param level pathway level ("Level1", "Level2", or "Level3")
 #' @param pvalue cutoff pvalue
 #' @param padj cutoff p adjust value
 #' @param organism organism
@@ -151,10 +160,10 @@ setGeneric("enrich", function(x,object,ontology="",pvalue=0.05,padj=NULL,organis
 #' @param minGSSize minimal size of genes annotated by ontology term for testing.
 #' @param maxGSSize maximal size of each geneset for analyzing
 #' @param keepRich keep terms with rich factor value equal 1 or not (default: TRUE)
-#' @param bulitin use KEGG bulit in KEGG annotation or not(set FALSE if you want use newest KEGG data)
 #' @param filename output filename
 #' @param padj.method pvalue adjust method(default:"BH")
 #' @param sep character string used to separate the genes when concatenating
+#' @param ... additional arguments
 #' @examples
 #' \dontrun{
 #'   hsako <- buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
@@ -169,86 +178,86 @@ setGeneric("richLevel", function(x,kodata,level="Level2",pvalue =0.05, padj=NULL
                                  keepRich=TRUE, filename=NULL,padj.method="BH",sep=",",...)
   standardGeneric("richLevel"))
 
-##' ggdot
+##' richDot
 ##'
-##' @name ggdot
-##' @rdname ggdot-methods
-##' @title ggdot method
+##' @name richDot
+##' @rdname richDot-methods
+##' @title richDot method
 ##' @param object enrichment result or data.frame
-##' @param top number of terms you want to display,
+##' @param top number of terms you want to display
 ##' @param pvalue cutoff value of pvalue (if padj set as NULL)
+##' @param order order by Term or richFactor
 ##' @param low low color
 ##' @param high high color
 ##' @param alpha transparency alpha
 ##' @param font.x font of x axis
-##' @param font y font of y axis
+##' @param font.y font of y axis
 ##' @param fontsize.x fontsize of x axis
 ##' @param fontsize.y fontsize of y axis
 ##' @param short automatic short name or not
-##' @param order order by Term or richFactor
+##' @param padj cutoff value of p adjust value
 ##' @param usePadj use p adjust value as color or not (should use with padj)
-##' @param font.size font size for xlim or ylim
-##' @param orderp order by p value(adjusted p value)
+##' @param orderp order by p value (adjusted p value)
+##' @param filename figure output name
 ##' @param width figure width
 ##' @param height figure height
+##' @param ... additional arguments
 ##' @return ggplot2 object
 ##' @examples
 #' \dontrun{
 #'   hsako <- buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
 #'   gene <- sample(unique(hsako$GeneID),1000)
 #'   res <- richKEGG(gene,kodata = hsako)
-#'   ggdot(res)
+#'   richDot(res)
 #' }
 ##' @export
 ##' @author Kai Guo
-setGeneric("ggdot", function(object,top=50,pvalue=0.05,order=FALSE,
+setGeneric("richDot", function(object,top=50,pvalue=0.05,order=FALSE,
                              low="lightpink",high="red",alpha=0.7,
                              font.x="bold",font.y="bold",fontsize.x=10,fontsize.y=10,
                              short=FALSE,
                              padj=NULL,usePadj=TRUE,orderp=FALSE,filename=NULL,width=10,height=8,...)
-    standardGeneric("ggdot"))
+    standardGeneric("richDot"))
 
-##' ggbar
+##' richBar
 ##'
-##' @name ggbar
-##' @rdname ggbar-methods
+##' @name richBar
+##' @rdname richBar-methods
 ##' @title ggbar method
 ##' @param object enrichment result or data.frame
-##' @param top number of terms you want to display,
+##' @param top number of terms you want to display
 ##' @param pvalue cutoff value of pvalue (if padj set as NULL)
-##' @param low low color
-##' @param high high color
-##' @param alpha transparency alpha
-##' @param font.x font of x axis
-##' @param font y font of y axis
+##' @param padj cutoff value of p adjust value
+##' @param order order by Term or richFactor
+##' @param usePadj use p adjust value as color or not
 ##' @param fontsize.x fontsize of x axis
 ##' @param fontsize.y fontsize of y axis
 ##' @param short automatic short name or not
-##' @param order order by Term or richFactor
-##' @param usePadj use p adjust value as color or not (should use with padj)
-##' @param font.size font size for xlim or ylim
-##' @param orderp order by p value(adjusted p value)
+##' @param fontsize.text font size for bar text labels
+##' @param angle angle of x axis text
+##' @param orderp order by p value (adjusted p value)
 ##' @param filename figure output name
 ##' @param width figure width
 ##' @param height figure height
-##' @param horiz horiz or not
+##' @param horiz horizontal bar plot or not
+##' @param ... additional arguments
 ##' @return ggplot2 object
 ##' @examples
 #' \dontrun{
 #'   hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
 #'   gene=sample(unique(hsako$GeneID),1000)
 #'   res<-richKEGG(gene,kodata = hsako)
-#'   ggbar(res)
+#'   richBar(res)
 #' }
 ##' @export
 ##' @author Kai Guo
-setGeneric("ggbar", function(object,top=50,pvalue=0.05,padj=NULL,order=FALSE,
+setGeneric("richBar", function(object,top=50,pvalue=0.05,padj=NULL,order=FALSE,
                              usePadj=TRUE,fontsize.x=10,fontsize.y=10,short=FALSE,fontsize.text=3,angle=0,orderp=FALSE,
                              filename=NULL,
                              width=10,height=8,horiz=TRUE,...)
-    standardGeneric("ggbar"))
-##' ggnetplot
-##' @rdname ggnetplot-method
+    standardGeneric("richBar"))
+##' richNetplot
+##' @rdname richNetplot-method
 ##' @title ggnetplot method
 ##' @param object richResult or dataframe
 ##' @param top number of terms to show (default: 50)
@@ -273,67 +282,76 @@ setGeneric("ggbar", function(object,top=50,pvalue=0.05,padj=NULL,order=FALSE,
 ##' @param repel use ggrepel text function or not
 ##' @param segment.size segment size for ggrepel text
 ##' @param sep character string used to separate the genes when concatenating
+##' @param ... additional arguments
 ##' @return ggplot2 object
 ##' @examples
 #' \dontrun{
 #'   hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
 #'   gene<-sample(unique(hsako$GeneID),1000)
 #'   res<-richKEGG(gene,kodata = hsako)
-#'   ggnetplot(res)
+#'   richNetplot(res)
 #' }
 ##' @export
 ##' @author Kai Guo
-setGeneric("ggnetplot",function(object,top=50, pvalue=0.05, padj=NULL,
+setGeneric("richNetplot",function(object,top=50, pvalue=0.05, padj=NULL,
                                 usePadj =TRUE, useTerm=TRUE,low="orange",high="red",
                                 writeCyt=FALSE, cytoscapeFile=NULL,
                                 label.color = "black", label.size = 2, node.shape=NULL,
                                 layout = "fruchtermanreingold",savefig=FALSE,filename=NULL,
                                 width=7,height=7,node.alpha=0.7,repel=TRUE,segment.size=0.2,sep=",",...)
-  standardGeneric("ggnetplot"))
+  standardGeneric("richNetplot"))
 
 
-##' ggnetwork
+##' richNetwork
 ##'
-##' @name ggnetwork
-##' @rdname ggnetwork-methods
+##' @name richNetwork
+##' @rdname richNetwork-methods
 ##' @title ggnetwork method
 ##' @param object richResult,GSEAResult object or dataframe
 ##' @param gene vector contains gene names or dataframe with DEGs information
 ##' @param top number of terms to display
 ##' @param pvalue cutoff value of pvalue (if padj set as NULL)
 ##' @param padj cutoff value of p adjust value
-##' @param weightcut cutoff valule for edge
 ##' @param usePadj use p adjust value as color or not (should use with padj)
-##' @param layout layout for the network (layout.fruchterman.reingold)
 ##' @param low color used for small value
 ##' @param high color used for large value
+##' @param weightcut cutoff value for edge weight
+##' @param useTerm use Term name instead of Annotation ID
 ##' @param writeCyt write out the cytoscape file
 ##' @param cytoscapeFile output cytoscape File
-##' @param cytoscapeFormat output file format ("edgelist", "pajek", "ncol", "lgl", "graphml", "dimacs", "gml", "dot","leda")
-##' @param segment.size size for label segment
-##' @param node.alpha alpha-transparency scales
-##' @param label.font label font
+##' @param cytoscapeFormat output file format
 ##' @param label.color label color
 ##' @param label.size label size
-##' @param filename figure output name
+##' @param node.shape shape of the nodes
+##' @param layout layout method
 ##' @param savefig save the figure or not
+##' @param visNet use visNetwork for interactive plot
+##' @param smooth smooth edges in visNetwork
+##' @param nodeselect enable node selection in visNetwork
+##' @param edit enable editing in visNetwork
+##' @param savehtml save visNetwork as HTML file
+##' @param filename figure output name
 ##' @param width figure width
 ##' @param height figure height
+##' @param segment.size size for label segment
+##' @param node.alpha alpha-transparency scales
+##' @param sep character string used to separate the genes when concatenating
+##' @param ... additional arguments
 ##' @return ggplot2 object
 ##' @examples
 #' \dontrun{
 #'   hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
 #'   gene<-sample(unique(hsako$GeneID),1000)
 #'   res<-richKEGG(gene,kodata = hsako)
-#'   ggnetwork(res)
+#'   richNetwork(res)
 #' }
 ##' @export
-setGeneric("ggnetwork", function(object,gene,top = 50, pvalue = 0.05, padj = NULL,usePadj=TRUE,low = "orange",high = "red",
+setGeneric("richNetwork", function(object,gene,top = 50, pvalue = 0.05, padj = NULL,usePadj=TRUE,low = "orange",high = "red",
                                  weightcut = 0.2, useTerm = TRUE, writeCyt = FALSE,cytoscapeFile = NULL,cytoscapeFormat="graphml",
                                  label.color = "black", label.size = 2,node.shape=NULL, layout = "fruchtermanreingold",savefig=FALSE,
                                  visNet=FALSE,smooth=TRUE,nodeselect=FALSE,edit=FALSE,savehtml=FALSE,filename=NULL,
                                  width=7,height=7,segment.size=0.2,node.alpha=0.7,sep=",",...)
-  standardGeneric("ggnetwork"))
+  standardGeneric("richNetwork"))
 
 
 ##' result generic
@@ -345,7 +363,7 @@ result<-function(x){
 }
 ##' detail generic
 ##' @param x richResult object
-##' @return detail return detial for these significant genes
+##' @return detail return detail for these significant genes
 ##' @export
 detail<-function(x){
   UseMethod("detail",x)

@@ -15,21 +15,11 @@ as.data.frame.GSEAResult <- function(x, ...) {
 }
 
 
-#' S4 row- and column-related methods for Annot, richResult, GSEAResult
-#'
-#' These methods let you get rownames, colnames, names, etc. for your custom S4 classes.
-#'
-#' @param x An object of class Annot, richResult, or GSEAResult
-#' @param ... Further arguments (ignored)
-#'
-#' @name s4-accessors
-#' @rdname s4-accessors
-NULL
+# S4 row- and column-related methods (docs in accessors.R)
 
 # --- row.names() methods ---
 
-#' @rdname s4-accessors
-#' @aliases row.names,Annot-method
+#' @noRd
 setMethod(
   "row.names",
   signature(x = "Annot"),
@@ -38,8 +28,7 @@ setMethod(
   }
 )
 
-#' @rdname s4-accessors
-#' @aliases row.names,richResult-method
+#' @noRd
 setMethod(
   "row.names",
   signature(x = "richResult"),
@@ -48,8 +37,7 @@ setMethod(
   }
 )
 
-#' @rdname s4-accessors
-#' @aliases row.names,GSEAResult-method
+#' @noRd
 setMethod(
   "row.names",
   signature(x = "GSEAResult"),
@@ -60,8 +48,7 @@ setMethod(
 )
 
 
-#' @rdname s4-accessors
-#' @aliases rownames,Annot-method
+#' @noRd
 setMethod(
   "rownames",
   signature(x = "Annot"),
@@ -70,8 +57,7 @@ setMethod(
   }
 )
 
-#' @rdname s4-accessors
-#' @aliases rownames,richResult-method
+#' @noRd
 setMethod(
   "rownames",
   signature(x = "richResult"),
@@ -80,8 +66,7 @@ setMethod(
   }
 )
 
-#' @rdname s4-accessors
-#' @aliases rownames,GSEAResult-method
+#' @noRd
 setMethod(
   "rownames",
   signature(x = "GSEAResult"),
@@ -92,8 +77,7 @@ setMethod(
 
 # --- names() methods ---
 
-#' @rdname s4-accessors
-#' @aliases names,Annot-method
+#' @noRd
 setMethod(
   "names",
   signature(x = "Annot"),
@@ -102,8 +86,7 @@ setMethod(
   }
 )
 
-#' @rdname s4-accessors
-#' @aliases names,richResult-method
+#' @noRd
 setMethod(
   "names",
   signature(x = "richResult"),
@@ -112,8 +95,7 @@ setMethod(
   }
 )
 
-#' @rdname s4-accessors
-#' @aliases names,GSEAResult-method
+#' @noRd
 setMethod(
   "names",
   signature(x = "GSEAResult"),
@@ -124,8 +106,7 @@ setMethod(
 
 # --- colnames() methods ---
 
-#' @rdname s4-accessors
-#' @aliases colnames,Annot-method
+#' @noRd
 setMethod(
   "colnames",
   signature(x = "Annot"),
@@ -134,8 +115,7 @@ setMethod(
   }
 )
 
-#' @rdname s4-accessors
-#' @aliases colnames,richResult-method
+#' @noRd
 setMethod(
   "colnames",
   signature(x = "richResult"),
@@ -144,8 +124,7 @@ setMethod(
   }
 )
 
-#' @rdname s4-accessors
-#' @aliases colnames,GSEAResult-method
+#' @noRd
 setMethod(
   "colnames",
   signature(x = "GSEAResult"),
@@ -282,16 +261,8 @@ setMethod(
   }
 )
 
-#' S4 summary method for richResult objects
-#'
-#' Summarizes the content of a \code{richResult} object.
-#'
-#' @param object A \code{richResult} object
-#' @param ... Not used
-#'
-#' @return Prints summary info to the console
-#' @export
-#' @aliases summary,richResult-method
+## summary methods defined in accessors.R (canonical location)
+## These are kept here only as fallback definitions without roxygen tags
 setMethod(
   f = "summary",
   signature = "richResult",
@@ -301,23 +272,12 @@ setMethod(
   }
 )
 
-#' S4 summary method for GSEAResult objects
-#'
-#' Summarizes the content of a \code{GSEAResult} object.
-#'
-#' @param object A \code{GSEAResult} object
-#' @param ... Not used
-#'
-#' @return Prints summary info to the console
-#' @export
-#' @aliases summary,GSEAResult-method
 setMethod(
   f = "summary",
   signature = "GSEAResult",
   definition = function(object, ...) {
-    # If GSEAResult extends richResult, you could also callNextMethod().
     cat("Total significant biological term is:",
-        table(object@result$padj < 0.05)[[2]], "\n")
+        sum(object@result$padj < 0.05, na.rm = TRUE), "\n")
   }
 )
 
@@ -515,7 +475,7 @@ getdetail<-function(rese,resd,sep){
 
 ##' @importFrom AnnotationDbi keys
 .get_go_dat<-function(ont="BP"){
-  require(GO.db)
+  if(!requireNamespace("GO.db",quietly=TRUE)) stop("GO.db package required")
   key<-keys(GO.db)
   suppressMessages(go_dat<-AnnotationDbi::select(GO.db, keys=key, columns=c("TERM","ONTOLOGY"),keytype="GOID"))
   if(ont=="BP") res<-as.data.frame(subset(go_dat,ONTOLOGY=="BP"))
@@ -557,10 +517,12 @@ getdetail<-function(rese,resd,sep){
   return(module)
 }
 
-##' build annotaion for kegg
+##' build annotation for kegg
 ##' @param ontype GO or KEGG
 ##' @examples
+##' \dontrun{
 ##' annot = getann("GO")
+##' }
 ##' @author Kai Guo
 getann<-function(ontype="GO"){
   if(ontype=="GO"){
@@ -576,7 +538,7 @@ getann<-function(ontype="GO"){
 }
 
 #' reverse List
-#' @param lhs: list with names
+#' @param lhs list with names
 #' @export
 #' @author Kai Guo
 # replace this with c++
@@ -585,7 +547,9 @@ reverseList_bk<-function(lhs){
   res<-sf(as.data.frame(cbind(lhs_n,unlist(lhs))))
   return(res)
 }
-#' ovelap
+#' Compute Jaccard overlap between two vectors
+#' @param x first vector
+#' @param y second vector
 overlap <- function(x, y) {
   x <- unlist(x)
   y <- unlist(y)
@@ -607,24 +571,23 @@ GO_child <- function(node = "GO:0008150", ontology = "BP") {
 }
 
 #' Convert ID between ENTREZID to SYMBOL or other type ID based on bioconductor annotation package
-#' @param species: you can check the support species by using showData()
-#' @param fkeytype: the gene type you want to convert
-#' @param tkeytype: the gene type you want to get
+#' @param species species name, check supported species with showData()
+#' @param keys character vector of gene identifiers to convert
+#' @param fkeytype the source gene ID type
+#' @param tkeytype the target gene ID type
 #' @examples
 #' \dontrun{
 #'   hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
 #'   hsako<-as.data.frame(hsako)
 #'   gene=sample(unique(hsako$GeneID),1000)
-#'   id<-idconvert(species="human",fkeytype="SYMBOL",tkeytype="ENTREZID")
+#'   id<-idconvert(species="human",keys=gene,fkeytype="SYMBOL",tkeytype="ENTREZID")
 #' }
-#' @export
-#' @author Kai Guo
 #' @export
 #' @author Kai Guo
 idconvert<-function(species,keys,fkeytype,tkeytype){
   dbname<-.getdbname(species);
-  suppressMessages(require(dbname,character.only = T))
-  dbname<-eval(parse(text=dbname))
+  if(!requireNamespace(dbname,quietly=TRUE)) stop(paste("Package",dbname,"is required"))
+  dbname<-getExportedValue(dbname, dbname)
   unlist(mapIds(dbname,keys=as.vector(keys),
          column=tkeytype,
          keytype=fkeytype,
@@ -633,130 +596,65 @@ idconvert<-function(species,keys,fkeytype,tkeytype){
 .getdbname<-function(species="human"){
   dbname=.getdb(species=species);
   if(is.null(dbname)){
-    cat("You must check if your request database is avaliable by using showData,
+    cat("You must check if your request database is available by using showData(),
         If not you could make your database by using makeOwnGO and makeOwnKO
         and give a user defined database\n")
-    stop("databse error!")
+    stop("database error!")
   }
   return(dbname)
 }
+#' Central species lookup table used by all species-mapping functions.
+#' Each row: common name, Bioconductor OrgDb, KEGG 3-letter code,
+#'           msigdbr scientific name, Reactome scientific name.
+.species_table <- function() {
+  data.frame(
+    species  = c("anopheles","arabidopsis","bovine","celegans","canine","chicken",
+                 "chipm","ecoli","ecsakai","fly","human","malaria","mouse",
+                 "pig","rat","rhesus","streptomyces","toxoplasma","xenopus",
+                 "yeast","zebrafish"),
+    dbname   = c("org.Ag.eg.db","org.At.tair.db","org.Bt.eg.db","org.Ce.eg.db",
+                 "org.Cf.eg.db","org.Gg.eg.db","org.Pt.eg.db","org.EcK12.eg.db",
+                 "org.EcSakai.eg.db","org.Dm.eg.db","org.Hs.eg.db","org.Pf.plasmo.db",
+                 "org.Mm.eg.db","org.Ss.eg.db","org.Rn.eg.db","org.Mmu.eg.db",
+                 "org.Sco.eg.db","org.Tgondii.eg.db","org.Xl.eg.db",
+                 "org.Sc.sgd.db","org.Dr.eg.db"),
+    kegg     = c("aga","ath","bta","cel","cfa","gga","ptr","eco","ecs","dme",
+                 "hsa","pfa","mmu","ssc","rno","mcc","sco",NA,"xla","sce","dre"),
+    msigdb   = c(NA,NA,"Bos taurus","Caenorhabditis elegans","Canis lupus familiaris",
+                 "Gallus gallus",NA,NA,NA,"Drosophila melanogaster","Homo sapiens",
+                 NA,"Mus musculus","Sus scrofa","Rattus norvegicus",NA,NA,NA,NA,
+                 "Saccharomyces cerevisiae","Danio rerio"),
+    reactome = c(NA,"Arabidopsis thaliana","Bos taurus","Caenorhabditis elegans",
+                 "Canis familiaris","Gallus gallus",NA,NA,NA,"Drosophila melanogaster",
+                 "Homo sapiens","Plasmodium falciparum","Mus musculus","Sus scrofa",
+                 "Rattus norvegicus",NA,NA,NA,"Xenopus tropicalis",
+                 "Saccharomyces cerevisiae","Danio rerio"),
+    stringsAsFactors = FALSE
+  )
+}
+
 .getdb<-function(species=species){
-  species=tryCatch(match.arg(species,c("anopheles","arabidopsis","bovine","celegans","canine","fly","zebrafish",
-                                       "ecoli","ecsakai","chicken","human","mouse","rhesus","malaria","chipm","rat",
-                                       "toxoplasma","streptomyces","pig","yeast","xenopus","warm")),
-                   error=function(cond){return("unsupported")})
-  if (species == "anopheles") {
-    dbname <- "org.Ag.eg.db"
-  } else if (species == "arabidopsis") {
-    dbname <- "org.At.tair.db"
-  } else if (species == "bovine") {
-    dbname <- "org.Bt.eg.db"
-  } else if (species == "canine") {
-    dbname <- "org.Cf.eg.db"
-  } else if (species == "worm" || species == "celegans") {
-    dbname <- "org.Ce.eg.db"
-  } else if (species == "chicken") {
-    dbname <- "org.Gg.eg.db"
-  } else if (species == "ecolik12") {
-    dbname <- "org.EcK12.eg.db"
-  } else if (species == "ecsakai") {
-    dbname <- "org.EcSakai.eg.db"
-  } else if (species == "fly") {
-    dbname <- "org.Dm.eg.db"
-  } else if (species == "human") {
-    dbname <- "org.Hs.eg.db"
-  } else if (species == "malaria") {
-    dbname <- "org.Pf.plasmo.db"
-  } else if (species == "chipm") {
-    dbname <- "org.Pt.eg.db"
-  }else if (species == "mouse") {
-    dbname <- "org.Mm.eg.db"
-  } else if (species == "pig") {
-    dbname <- "org.Ss.eg.db"
-  } else if (species == "rat") {
-    dbname <- "org.Rn.eg.db"
-  } else if (species == "rhesus") {
-    dbname <- "org.Mmu.eg.db"
-  } else if (species == "xenopus") {
-    dbname <- "org.Xl.eg.db"
-  } else if (species == "yeast") {
-    dbname <- "org.Sc.sgd.db"
-  } else if (species == "streptomyces") {
-    dbname <- "org.Sco.eg.db"
-  } else if (species == "zebrafish") {
-    dbname <- "org.Dr.eg.db"
-  } else if (species == "toxoplasma"){
-    dbname<- "org.Tgondii.eg.db"
-  } else {
-    dbname <- NULL
-  }
-  return(dbname)
+  tbl <- .species_table()
+  idx <- match(species, tbl$species)
+  if (is.na(idx)) return(NULL)
+  tbl$dbname[idx]
 }
 .getspeices<-function(species="human"){
-  species=tryCatch(match.arg(species,c("anopheles","arabidopsis","bovine","celegans","canine","fly","zebrafish",
-                                       "ecoli","ecsakai","chicken","human","mouse","rhesus","malaria","chipm","rat",
-                                       "toxoplasma","sco","pig","yeast","xenopus","warm")),
-                   error=function(cond){return("unsupported")})
-  if (species == "anopheles") {
-    species <- "aga"
-  } else if (species == "arabidopsis") {
-    species <- "ath"
-  } else if (species == "bovine") {
-    species <- "bta"
-  } else if (species == "canine") {
-    species <- "cfa"
-  } else if (species == "chicken") {
-    species <- "gga"
-  } else if (species == "chipm") {
-    species <- "ptr"
-  } else if (species == "ecolik12") {
-    species <- "eco"
-  } else if (species == "ecsakai") {
-    species <- "ecs"
-  } else if (species == "fly") {
-    species <- "dme"
-  } else if (species == "human") {
-    species <- "hsa"
-  } else if (species == "malaria") {
-    species <- "pfa"
-  } else if (species == "mouse") {
-    species <- "mmu"
-  } else if (species == "pig") {
-    species <- "ssc"
-  } else if (species == "rat") {
-    species <- "rno"
-  } else if (species == "rhesus") {
-    species <- "mcc"
-  } else if (species == "worm" || species == "celegans") {
-    species <- "cel"
-  } else if (species == "xenopus") {
-    species <- "xla"
-  } else if (species == "yeast") {
-    species <- "sce"
-  } else if (species =="streptomyces"){
-    species <- "sco"
-  } else if (species == "zebrafish") {
-    species <- "dre"
-  } else {
-    species <- NULL
-  }
-  return(species)
+  tbl <- .species_table()
+  idx <- match(species, tbl$species)
+  if (is.na(idx)) return(NULL)
+  tbl$kegg[idx]
 }
-#' show avaliable data based on bioconductor annotation package
+#' show available data based on bioconductor annotation package
 #' @export
 #' @author Kai Guo
 showData<-function(){
-  species=c("anopheles","arabidopsis","bovine","celegans","canine","fly","zebrafish",
-            "ecoli","ecsakai","chicken","human","mouse","rhesus","malaria","chipm","rat",
-            "toxoplasma","sco","pig","yeast","xenopus")
-  dbname=c("org.Ag.eg.db","org.At.tair.db","org.Bt.eg.db","org.Ce.eg.db","org.Cf.eg.db","org.Dm.eg.db",
-           "org.Dr.eg.db","org.EcK12.eg.db","org.EcSakai.eg.db","org.Gg.eg.db","org.Hs.eg.db","org.Mm.eg.db",
-           "org.Mmu.eg.db","org.Pf.plasmo.db","org.Pt.eg.db","org.Rn.eg.db","org.Sc.sgd.db","org.Sco.eg.db",
-           "org.Ss.eg.db","org.Tgondii.eg.db","org.Xl.eg.db")
-  dbdata<-data.frame(dbname=dbname,species=species)
-  dbdata
+  tbl <- .species_table()
+  data.frame(dbname = tbl$dbname, species = tbl$species)
 }
 ##' vector to data.frame
+##' @param x named vector to convert
+##' @param name column names for the resulting data.frame
 vec_to_df<-function(x,name){
   dd<-data.frame(names(x),x)
   colnames(dd)<-name
@@ -766,38 +664,16 @@ vec_to_df<-function(x,name){
 ##' msigdb support species
 ##' @param species with common name
 .getmsig<-function(species="human"){
-  out<-NULL
-  if(species=="human"){
-    out<-"Homo sapiens"
-  }else if(species=="mouse"){
-    out<-"Mus musculus"
-  }else if(species=="rat"){
-    out<-"Rattus norvegicus"
-  }else if(species=="celegans"){
-    out<-"Caenorhabditis elegans"
-  }else if(species=="fly"){
-    out<-"rosophila melanogaster"
-  }else if(species=="yeast"){
-    out<-"Saccharomyces cerevisiae"
-  }else if(species=="bovine"){
-    out<-"Bos taurus"
-  }else if(species=="canine"){
-    out<-"Canis lupus familiaris"
-  }else if(species=="pig"){
-    out<-"Sus scrofa"
-  }else if(species=="chicken"){
-    out<-"Gallus gallus"
-  }else if(species=="zebrafish"){
-    out<-"Danio rerio"
-  }else{
-    out<-NULL
-  }
+  tbl <- .species_table()
+  idx <- match(species, tbl$species)
+  if (is.na(idx)) return(NULL)
+  tbl$msigdb[idx]
 }
-##' Print MSIGDB infomation
+##' Print MSIGDB information
 ##' @export
 msigdbinfo <- function() {
   cat("#--------------------------------------------------------------#\n")
-  cat("# Molecular Signatures Database                        v6.2.1  #\n")
+  cat("# Molecular Signatures Database             (via msigdbr)       #\n")
   cat("#--------------------------------------------------------------#\n")
   cat("# Category | Subcategory # Details ----------------------------#\n")
   cat("# C1               # Positional (326)                          #\n")
@@ -825,15 +701,10 @@ msigdbinfo <- function() {
   cat(sort(listspe),"\n")
 }
 .getrodbname<-function(species){
- # "Schizosaccharomyces pombe","Taeniopygia guttata",,"Mycobacterium tuberculosis"
-  spe<-c("Homo sapiens","Dictyostelium discoideum","Plasmodium falciparum",
-         "Saccharomyces cerevisiae","Caenorhabditis elegans",
-         "Sus scrofa","Bos taurus","Canis familiaris","Mus musculus","Rattus norvegicus",
-         "Xenopus tropicalis","Danio rerio",
-         "Drosophila melanogaster","Arabidopsis thaliana","Oryza sativa","Gallus gallus")
-  names(spe)<-c("human","dictyostelium","malaria","yeast","celegans","pig",
-                    "bovine","dog","mouse","rat","xenopus","zebrafish","fly","arabidopsis","rice","chicken")
-  return(spe[species])
+  tbl <- .species_table()
+  idx <- match(species, tbl$species)
+  if (is.na(idx)) return(NULL)
+  tbl$reactome[idx]
 }
 ##'
 setAs(from = "data.frame", to = "Annot", def = function(from){
@@ -871,39 +742,40 @@ setAs(from = "data.frame", to = "richResult", def = function(from){
   gene<-unique(unlist(strsplit(GeneID,",")))
   genenumber <- length(gene)
   resultFis <- data.frame(Annot, Term, Annotated, Significant, Pvalue, Padj, GeneID)
-  rownames(resultFis) <- Annotated
+  rownames(resultFis) <- Annot
   new("richResult",
       result=resultFis,
-      detail=detail,
-      pvalueCutoff   = pvalue,
-      pAdjustMethod  = padj.method,
-      padjCutoff   = padj,
-      genenumber    = length(input),
+      detail=data.frame(),
+      pvalueCutoff   = pvalueCutoff,
+      pAdjustMethod  = pAdjustMethod,
+      padjCutoff   = padjCutoff,
+      genenumber    = genenumber,
       organism       = organism,
       ontology       = ontology,
-      gene           = input,
-      keytype        = keytype
+      gene           = gene,
+      keytype        = keytype,
+      sep            = ","
   )
 })
 
 #' rbind generic function for richResult object
-#'@importFrom S4Vectors bindROWS
+#' @param ... richResult objects to combine
 #'@export
 #'@author Kai Guo
 rbind.richResult<-function(...){
     objects <- list(...)
     objects <- lapply(objects,as.data.frame)
-    bindROWS(objects[[1L]],objects=objects[-1L])
+    do.call(rbind, objects)
 }
 
 #' rbind generic function for GSEAResult object
-#'@importFrom S4Vectors bindROWS
+#' @param ... GSEAResult objects to combine
 #'@export
 #'@author Kai Guo
 rbind.GSEAResult<-function(...){
   objects <- list(...)
   objects <- lapply(objects,as.data.frame)
-  bindROWS(objects[[1L]],objects=objects[-1L])
+  do.call(rbind, objects)
 }
 
 #' Insert newlines after every n words (defaults to 4)
@@ -916,9 +788,7 @@ rbind.GSEAResult<-function(...){
 #' @param n Integer. Number of words per line (default 4).
 #' @return Character vector with inserted newlines.
 #'
-#' @examples
-#' .paste.char("This is a long string we want to split after four words")
-#' .paste.char(c("One phrase", "Another phrase with many words"), n=3)
+#' @keywords internal
 .paste.char <- function(x, n = 4) {
   sapply(x, function(elem) {
     words <- strsplit(elem, "\\s+")[[1]]
@@ -937,16 +807,165 @@ rbind.GSEAResult<-function(...){
 #'
 #' @param x Character vector.
 #' @return Character vector without newlines.
-#'
-#' @examples
-#' .clean.char("First line\nSecond line\nThird line")
+#' @keywords internal
 .clean.char <- function(x) {
   gsub("\\n", " ", x)
 }
 
-#' remove the newlines
-.clean.char<-function(x){
-  return(gsub('\\\n',' ',x))
+#' Validate common enrichment inputs
+#'
+#' @param x gene vector or data.frame
+#' @param annot annotation data.frame (2+ columns: GeneID, Term)
+#' @param pvalue p-value cutoff
+#' @param padj adjusted p-value cutoff (or NULL)
+#' @param padj.method p-value adjustment method
+#' @param minSize minimum significant genes
+#' @param maxSize maximum significant genes
+.validate_enrichment_input <- function(x, annot = NULL, pvalue = 0.05, padj = NULL,
+                                        padj.method = "BH", minSize = 1, maxSize = 500) {
+  if (is.data.frame(x)) {
+    if (nrow(x) == 0) stop("Input data.frame has no rows")
+  } else {
+    x <- as.vector(x)
+    if (length(x) == 0) stop("Input gene vector is empty")
+    if (all(is.na(x))) stop("All input genes are NA")
+    if (any(duplicated(x))) {
+      message(sum(duplicated(x)), " duplicated genes removed from input")
+    }
+  }
+  if (!is.null(annot)) {
+    if (!is.data.frame(annot)) stop("Annotation must be a data.frame")
+    if (ncol(annot) < 2) stop("Annotation data.frame must have at least 2 columns (GeneID, Term)")
+    if (nrow(annot) == 0) stop("Annotation data.frame is empty")
+  }
+  if (!is.numeric(pvalue) || pvalue <= 0 || pvalue > 1) {
+    stop("pvalue must be a number in (0, 1]")
+  }
+  if (!is.null(padj) && (!is.numeric(padj) || padj <= 0 || padj > 1)) {
+    stop("padj must be NULL or a number in (0, 1]")
+  }
+  if (!padj.method %in% p.adjust.methods) {
+    stop("padj.method must be one of: ", paste(p.adjust.methods, collapse = ", "))
+  }
+  if (minSize > maxSize) stop("minSize cannot be greater than maxSize")
+  invisible(TRUE)
+}
+
+#' Compute ORA statistics (shared across enrichment functions)
+#'
+#' @param k named numeric vector of significant gene counts per term
+#' @param M named numeric vector of annotated gene counts per term
+#' @param N total number of annotated genes (background)
+#' @param n number of input genes found in annotation
+#' @param padj.method p-value adjustment method (default "BH")
+#' @return list with RichFactor, FoldEnrichment, zscore, Pvalue, Padj vectors
+.compute_ora_stats <- function(k, M, N, n, padj.method = "BH") {
+  rhs <- hyper_bench_vector(k, M, N, n)
+  lhs <- p.adjust(rhs, method = padj.method)
+  Annotated <- M[names(rhs)]
+  Significant <- k[names(rhs)]
+  RichFactor <- Significant / Annotated
+  FoldEnrichment <- RichFactor * N / n
+  mu <- M * n / N
+  sigma <- mu * (N - n) * (N - M) / N / (N - 1)
+  zscore <- (k - mu) / sqrt(sigma)
+  list(rhs = rhs, lhs = lhs, Annotated = Annotated, Significant = Significant,
+       RichFactor = RichFactor, FoldEnrichment = FoldEnrichment, zscore = zscore)
+}
+
+#' Filter ORA result data.frame (shared across enrichment functions)
+#'
+#' @param resultFis data.frame with enrichment results
+#' @param pvalue p-value cutoff
+#' @param padj adjusted p-value cutoff (or NULL)
+#' @param minSize minimum significant genes
+#' @param maxSize maximum significant genes
+#' @param minGSSize minimum annotated genes for testing
+#' @param maxGSSize maximum annotated genes for testing
+#' @param keepRich keep terms with RichFactor == 1
+#' @return filtered data.frame
+.filter_ora_result <- function(resultFis, pvalue, padj, minSize, maxSize,
+                                minGSSize, maxGSSize, keepRich) {
+  resultFis <- resultFis[order(resultFis$Pvalue), ]
+  resultFis <- subset(resultFis, Significant <= maxSize)
+  resultFis <- subset(resultFis, Annotated <= maxGSSize)
+  if (keepRich == FALSE) {
+    resultFis <- subset(resultFis, Significant >= minSize)
+    resultFis <- subset(resultFis, Annotated >= minGSSize)
+  } else {
+    resultFis <- subset(resultFis, Significant >= minSize | RichFactor == 1 | Annotated >= minGSSize)
+  }
+  if (is.null(padj)) {
+    resultFis <- resultFis[resultFis$Pvalue < pvalue, ]
+  } else {
+    resultFis <- resultFis[resultFis$Padj < padj, ]
+  }
+  rownames(resultFis) <- resultFis$Annot
+  resultFis
+}
+
+#' Build detail data.frame from enrichment results (shared across enrichment functions)
+#'
+#' @param resultFis enrichment result data.frame
+#' @param x original input (gene vector or data.frame)
+#' @param sep separator for gene IDs
+#' @return data.frame with gene-term detail mapping
+.build_detail <- function(resultFis, x, sep = ",") {
+  if (is.data.frame(x)) {
+    detail <- getdetail(resultFis, x, sep = sep)
+  } else {
+    if (length(as.vector(resultFis$GeneID)) >= 1) {
+      gene <- strsplit(as.vector(resultFis$GeneID), split = sep)
+      names(gene) <- resultFis$Annot
+      gened <- data.frame(
+        "TERM" = rep(names(gene), times = unlist(lapply(gene, length))),
+        "Annot" = rep(resultFis$Term, times = unlist(lapply(gene, length))),
+        "GeneID" = unlist(gene), row.names = NULL,
+        "Pvalue" = rep(resultFis$Pvalue, times = unlist(lapply(gene, length))),
+        "Padj" = rep(resultFis$Padj, times = unlist(lapply(gene, length)))
+      )
+    } else {
+      gene <- x
+      names(gene) <- resultFis$Annot
+      gened <- data.frame("TERM" = "", "Annot" = "", "GeneID" = x,
+                          row.names = NULL, "Pvalue" = 1, "Padj" = 1)
+    }
+    gened$GeneID <- as.character(gened$GeneID)
+    detail <- gened
+  }
+  detail
+}
+
+#' Create a richResult S4 object (shared across enrichment functions)
+#'
+#' @param resultFis enrichment result data.frame
+#' @param detail detail data.frame
+#' @param pvalue p-value cutoff
+#' @param padj adjusted p-value cutoff
+#' @param padj.method p-value adjustment method
+#' @param input character vector of input genes
+#' @param organism organism name
+#' @param ontology ontology type
+#' @param keytype key type
+#' @param sep separator
+#' @return richResult S4 object
+.make_richResult <- function(resultFis, detail, pvalue, padj, padj.method,
+                              input, organism, ontology, keytype, sep = ",") {
+  if (is.null(organism)) organism <- character()
+  if (is.null(keytype)) keytype <- character()
+  if (is.null(padj)) padj <- numeric()
+  new("richResult",
+      result = resultFis,
+      detail = detail,
+      pvalueCutoff = pvalue,
+      pAdjustMethod = padj.method,
+      padjCutoff = padj,
+      genenumber = length(input),
+      organism = organism,
+      ontology = ontology,
+      gene = input,
+      keytype = keytype,
+      sep = sep)
 }
 
 ##'
@@ -967,6 +986,9 @@ setAs(from = "Annot", to = "data.frame", def = function(from){
 })
 
 ##' kappa function
+##' @param x comma-separated gene string for first term
+##' @param y comma-separated gene string for second term
+##' @param geneall character vector of all genes (background)
 .kappa<-function(x,y,geneall){
   x<-unlist(strsplit(x,","))
   y<-unlist(strsplit(y,","))
@@ -989,6 +1011,8 @@ setAs(from = "Annot", to = "data.frame", def = function(from){
   return(kab)
 }
 ##' calculate enrichment score
+##' @param x character vector of term identifiers
+##' @param df data.frame with enrichment results containing Pvalue column
 .calculate_Enrichment_Score<-function(x,df){
   pvalue <- df[x,"Pvalue"]
   esp = ifelse(pvalue==0,16,-log10(pvalue))
@@ -996,6 +1020,8 @@ setAs(from = "Annot", to = "data.frame", def = function(from){
 }
 
 ##' merge term
+##' @param x named list of term clusters
+##' @param overlap numeric overlap threshold for merging
 .merge_term<-function(x,overlap){
   ml <- x
   res<-list();

@@ -8,15 +8,27 @@
 #' @importFrom ggplot2 theme_minimal
 #' @importFrom ggplot2 coord_equal
 #' @importFrom ggplot2 coord_flip
-#' @importFrom reshape2 melt
-#' @importFrom magrittr %>%
 #' @param richRes list of enrichment object
 #' @param top the number of Terms you want to display
 #' @param colnames the compare DEG group names
 #' @param xsize size of group name
 #' @param ysize size of Terms name
+#' @param usePadj use adjusted p-value instead of p-value
+#' @param horizontal flip the heatmap horizontally
+#' @param returnData return the data instead of the plot
+#' @param ... additional arguments
+#' @examples
+#' \dontrun{
+#'   hsago <- buildAnnot(species="human", keytype="SYMBOL", anntype="GO")
+#'   hsako <- buildAnnot(species="human", keytype="SYMBOL", anntype="KEGG")
+#'   gene <- sample(unique(hsago$GeneID), 1000)
+#'   resgo <- richGO(gene, godata = hsago, ontology = "BP")
+#'   resko <- richKEGG(gene, kodata = hsako)
+#'   richHeatmap(list(GO = resgo, KEGG = resko), top = 50)
+#' }
+#' @export
 #' @author Kai Guo
-ggheatmap<-function(richRes, top = 50, colnames = NULL, xsize = 6, ysize = 6,usePadj=FALSE,
+richHeatmap<-function(richRes, top = 50, colnames = NULL, xsize = 6, ysize = 6,usePadj=FALSE,
                      horizontal=FALSE,returnData=FALSE,...)
 {
   object<-Reduce(function(x, y) rbind(x, y), lapply(richRes, function(x)x@result[1:top,]))
@@ -40,8 +52,15 @@ ggheatmap<-function(richRes, top = 50, colnames = NULL, xsize = 6, ysize = 6,use
   cor_mat<-cor(t(res[,2:ncol(res)]))
   dd <- as.dist((1-cor_mat)/2);
   hc <- hclust(dd);
-  melted <- melt(res[hc$order,])
-  melted$Term<-factor(melted$Term,levels=res$Term[hc$order])
+  res_ord <- res[hc$order, ]
+  value_cols <- setdiff(colnames(res_ord), "Term")
+  melted <- data.frame(
+    Term = rep(res_ord$Term, times = length(value_cols)),
+    variable = rep(value_cols, each = nrow(res_ord)),
+    value = unlist(res_ord[, value_cols], use.names = FALSE),
+    stringsAsFactors = FALSE
+  )
+  melted$Term <- factor(melted$Term, levels = res_ord$Term)
   maxp = max(-log10(melted[, 3])) + 0.5
   if(!isTRUE(usePadj)){
     colnames(melted)[3] <- "Padj"

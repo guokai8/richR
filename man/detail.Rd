@@ -10,7 +10,7 @@ detail(x)
 \item{x}{richResult object}
 }
 \value{
-detail return detial for these significant genes
+detail return detail for these significant genes
 }
 \description{
 detail generic

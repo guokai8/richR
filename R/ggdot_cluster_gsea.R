@@ -27,8 +27,6 @@
 #'
 #' @import ggplot2
 #' @import dplyr
-#' @import tidyr
-#' @import cowplot
 #'
 .ggcluster_gsea <- function(
     data,
@@ -158,24 +156,24 @@
   )
 
   p_main <- ggplot() +
-    lapply(1:nrow(curve_lines_data), function(i) {
+    lapply(seq_len(nrow(curve_lines_data)), function(i) {
       geom_curve(
         data = curve_lines_data[i, ],
         aes(x = x_start, y = y_start, xend = x_end, yend = y_end),
         curvature = curve_lines_data$curvature[i],
         color = curve_color,
-        size = curve_size
+        linewidth = curve_size
       )
     }) +
     geom_segment(data = segment_lines_data,
                  aes(x = x_start, y = y_start, xend = x_end, yend = y_end),
-                 color = curve_color, size = curve_size) +
+                 color = curve_color, linewidth = curve_size) +
     geom_segment(data = pathways_lines,
                  aes(x = x, y = y_start, xend = x, yend = y_end),
-                 color = vertical_line_color, size = vertical_line_size) +
+                 color = vertical_line_color, linewidth = vertical_line_size) +
     geom_segment(data = lines_horizontal,
                  aes(x = x_start, y = y, xend = x_end, yend = y_end),
-                 color = dot_line_color, size = dot_line_size, linetype = dot_line_type) +
+                 color = dot_line_color, linewidth = dot_line_size, linetype = dot_line_type) +
     geom_segment(data = vlines_data,
                  aes(x = x, y = y_start, xend = x, yend = y_end),
                  color = vline_color, linetype = vline_type) +
@@ -224,9 +222,11 @@
       legend.box.margin = margin(0, 0, 0, 0)
     )
 
-  legend <- get_legend(p_legend)
+  if (!requireNamespace("cowplot", quietly = TRUE))
+    stop("Package 'cowplot' is required for cluster plots. Install it with install.packages('cowplot').")
+  legend <- cowplot::get_legend(p_legend)
 
-  final_plot <- plot_grid(
+  final_plot <- cowplot::plot_grid(
     p_main,
     legend,
     ncol = 2,

@@ -27,6 +27,8 @@ richGSEA_internal(
 
 \item{object}{annotation file for all genes}
 
+\item{keytype}{gene ID type}
+
 \item{pvalue}{pvalue cutoff value}
 
 \item{padj}{adjust p value cut off method}
@@ -42,6 +44,10 @@ richGSEA_internal(
 \item{maxGSSize}{maximal size of each geneset for analyzing}
 
 \item{padj.method}{p value adjust method}
+
+\item{organism}{organism name}
+
+\item{ontology}{ontology type}
 
 \item{table}{leadingEdge as vector}
 

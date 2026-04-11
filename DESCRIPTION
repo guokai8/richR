@@ -1,14 +1,22 @@
 Package: richR
 Type: Package
 Title: Function Enrichment analysis and Network construction
-Version: 0.0.40
-Author: Kai Guo
-Maintainer: Kai Guo <guokai8@gmail.com>
-Description: This package is used for for enrichment analysis and network construction.
+Version: 0.1.2
+Authors@R: c(
+    person("Kai", "Guo", email = "guokai8@gmail.com", role = c("aut")),
+    person("Junguk", "Hur", email = "junguk.hur@med.und.edu",
+           role = c("aut", "cre")))
+Description: Provides functions for functional enrichment
+    analysis (ORA) via hypergeometric testing, Gene Set Enrichment Analysis (GSEA),
+    and kappa-score-based term clustering. Provides publication-ready
+    visualizations including bar plots, dot plots, network graphs, heatmaps,
+    and cluster plots. Includes a color-enhanced UpSet plot for set intersection
+    visualization.
 License: GPL-3
 LazyData: TRUE
 Depends: R (>= 3.5.0)
 Imports:
+    methods,
     Rcpp,
     ggplot2,
     GO.db,
@@ -27,13 +35,16 @@ Imports:
     GGally,
     rlang,
     S4Vectors,
-    sna
+    tidyr
 LinkingTo: Rcpp
 Suggests:
     knitr,
     testthat,
-    rmarkdown
+    rmarkdown,
+    plotly,
+    org.Hs.eg.db,
+    reactome.db
 VignetteBuilder: knitr
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 biocViews:
 Encoding: UTF-8

@@ -3,9 +3,7 @@
 \docType{class}
 \name{richResult-class}
 \alias{richResult-class}
-\alias{show,richResult-method}
 \alias{plot,richResult-method}
-\alias{summary,richResult-method}
 \title{Class "richResult"
 This class represents the result of enrichment analysis.}
 \description{

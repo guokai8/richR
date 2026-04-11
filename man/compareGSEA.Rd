@@ -36,9 +36,13 @@ compareGSEA(
 
 \item{label}{display the NES values or not}
 
-\item{scales}{Should scales be fixed ("fixed", the default), free ("free"), or free in one dimension ("free_x", "free_y")?}
+\item{gseaParam}{GSEA parameter for enrichment score calculation}
 
-\item{top}{number of terms you want to display,}
+\item{ticksSize}{size of the tick marks}
+
+\item{ncol}{number of columns for faceted plot layout}
+
+\item{scales}{Should scales be fixed ("fixed", the default), free ("free"), or free in one dimension ("free_x", "free_y")?}
 }
 \description{
 compare GSEA enrichment results across different samples and generate figure

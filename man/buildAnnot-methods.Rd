@@ -19,16 +19,16 @@ buildAnnot(
 
 \item{anntype}{annotation type}
 
-\item{OP}{BP,CC,MF default use all}
+\item{builtin}{use default database (TRUE or FALSE)}
 
-\item{bulitin}{use default database(TRUE or FALSE)}
+\item{OP}{BP,CC,MF default use all}
 }
 \description{
 build annotation database
 }
 \examples{
 \dontrun{
-annot<-buildAnnot(species="human",keytype="ENTREZID",anntype="GO",bulitin=TRUE)
+annot<-buildAnnot(species="human",keytype="ENTREZID",anntype="GO",builtin=TRUE)
 }
 }
 \author{

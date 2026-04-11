@@ -75,15 +75,4 @@
 This function generates a KEGG cluster plot, showing pathways and their relationships
 across different clusters with customizable aesthetics.
 }
-\examples{
-data <- data.frame(
-    Term = c("Peroxisome", "PPAR signaling pathway", "Fatty acid elongation"),
-    Level2 = c("Transport and catabolism", "Endocrine system", "Lipid metabolism"),
-    group = c("Cluster1", "Cluster1", "Cluster1"),
-    Padj = c(0.015, 0.24, 0.23),
-    Significant = c(7, 5, 3),
-    Annotated = c(87, 89, 29)
-)
-.ggcluster_enrich(data)
-
-}
+\keyword{internal}

@@ -1,18 +1,20 @@
 #' Enrichment analysis for any type of annotation data
 #' @param x a vector include all log2FC with gene name
 #' @param object annotation file for all genes
+#' @param keytype gene ID type
 #' @param pvalue pvalue cutoff value
 #' @param padj adjust p value cut off method
 #' @param KEGG a logical evaluating to TRUE or FALSE indicating whether KEGG GSEA were peformed or not.
-#' @param padj.method p value adjust method
 #' @param minSize Minimal size of a gene set to test. All pathways below the threshold are excluded.
 #' @param maxSize Maximal size of a gene set to test. All pathways above the threshold are excluded.
 #' @param minGSSize minimal size of genes annotated by ontology term for testing.
 #' @param maxGSSize maximal size of each geneset for analyzing
+#' @param padj.method p value adjust method
+#' @param organism organism name
+#' @param ontology ontology type
 #' @param table leadingEdge as vector
 #' @param sep character string used to separate the genes when concatenating
 #' @importFrom fgsea fgseaMultilevel
-#' @export
 #' @author Kai Guo
 richGSEA_internal<-function(x,object,keytype="",pvalue=0.05,padj=NULL,KEGG=FALSE,minSize=15,maxSize=500,
                             minGSSize = 10, maxGSSize = 500,
@@ -63,17 +65,18 @@ richGSEA_internal<-function(x,object,keytype="",pvalue=0.05,padj=NULL,KEGG=FALSE
 
 #' GSEA Enrichment analysis function
 #' @param x a vector include all log2FC with gene name
-#' @param object annotation file for all genes
+#' @param object data.frame annotation
+#' @param keytype gene ID type
 #' @param pvalue pvalue cutoff value
-#' @param padj adjust p value cut off method
-#' @param KEGG a logical evaluating to TRUE or FALSE indicating whether KEGG GSEA were peformed or not.
+#' @param padj adjust p value cut off
+#' @param KEGG logical, whether KEGG GSEA were performed
+#' @param minSize Minimal size of a gene set to test
+#' @param ontology ontology type
+#' @param maxSize Maximal size of a gene set to test
+#' @param padj.method pvalue adjust method
 #' @param organism organism name
-#' @param keytype keytype for input genes
-#' @param padj.method pvalue adjust method(default:"BH")
-#' @param minSize Minimal size of a gene set to test. All pathways below the threshold are excluded.
-#' @param maxSize Maximal size of a gene set to test. All pathways above the threshold are excluded.
 #' @param table leadingEdge as vector
-#' @param sep character string used to separate the genes when concatenating
+#' @param sep character string used to separate the genes
 #' @export
 #' @examples
 #' \dontrun{
@@ -85,22 +88,25 @@ richGSEA_internal<-function(x,object,keytype="",pvalue=0.05,padj=NULL,KEGG=FALSE
 #' res<-richGSEA(gene,object = hsako)
 #' }
 #' @author Kai Guo
-setMethod("richGSEA", signature(object = "data.frame"),definition = function(x,object,keytype="",pvalue=0.05,padj=NULL,KEGG=FALSE,minSize=15,ontology=ontology,
+setMethod("richGSEA", signature(object = "data.frame"),definition = function(x,object,keytype="",pvalue=0.05,padj=NULL,KEGG=FALSE,minSize=15,ontology="",
                                                                              maxSize=500,padj.method="BH",organism=NULL,table=TRUE,sep=",") {
   richGSEA_internal(x,object,keytype=keytype,pvalue=pvalue,padj=padj,KEGG=KEGG,minSize=minSize,ontology=ontology,
                     maxSize=maxSize,padj.method=padj.method,organism=organism,table=table,sep=sep)
 })
 #' GSEA Enrichment analysis function
 #' @param x a vector include all log2FC with gene name
-#' @param object annotation file for all genes
+#' @param object Annot object
+#' @param keytype gene ID type
 #' @param pvalue pvalue cutoff value
-#' @param padj adjust p value cut off method
-#' @param KEGG a logical evaluating to TRUE or FALSE indicating whether KEGG GSEA were peformed or not.
-#' @param padj.method p value adjust method
-#' @param minSize Minimal size of a gene set to test. All pathways below the threshold are excluded.
-#' @param maxSize Maximal size of a gene set to test. All pathways above the threshold are excluded.
+#' @param padj adjust p value cut off
+#' @param KEGG logical, whether KEGG GSEA were performed
+#' @param minSize Minimal size of a gene set to test
+#' @param ontology ontology type
+#' @param maxSize Maximal size of a gene set to test
+#' @param padj.method pvalue adjust method
+#' @param organism organism name
 #' @param table leadingEdge as vector
-#' @param sep character string used to separate the genes when concatenating
+#' @param sep character string used to separate the genes
 #' @examples
 #' \dontrun{
 #' hsako<-buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
@@ -111,14 +117,14 @@ setMethod("richGSEA", signature(object = "data.frame"),definition = function(x,o
 #' }
 #' @export
 #' @author Kai Guo
-setMethod("richGSEA", signature(object = "Annot"),definition = function(x,object,keytype="",pvalue=0.05,padj=NULL,KEGG=FALSE,minSize=15,ontology=ontology,
+setMethod("richGSEA", signature(object = "Annot"),definition = function(x,object,keytype="",pvalue=0.05,padj=NULL,KEGG=FALSE,minSize=15,ontology="",
                                                                         maxSize=500,padj.method="BH",organism=NULL,table=TRUE,sep=",") {
   richGSEA_internal(x,object@annot,keytype=object@keytype,pvalue=pvalue,padj=padj,KEGG=KEGG,minSize=minSize,ontology=object@anntype,
                     maxSize=maxSize,padj.method=padj.method,organism=object@species,table=table,sep=sep)
 })
 
 
-#' @name ggGSEA
+#' @name richGSEAplot
 #' @title plot the gsea result
 #' @param object Annot object
 #' @param term the significant term
@@ -127,7 +133,6 @@ setMethod("richGSEA", signature(object = "Annot"),definition = function(x,object
 #' @param default whether to use default table plot or individual enrichment plots
 #' @importFrom fgsea plotEnrichment plotGseaTable
 #' @importFrom ggplot2 ggtitle
-#' @importFrom cowplot plot_grid
 #' @examples
 #' \dontrun{
 #' set.seed(123)
@@ -140,7 +145,7 @@ setMethod("richGSEA", signature(object = "Annot"),definition = function(x,object
 #' }
 #' @export
 #' @author Kai Guo
-ggGSEA <- function(term, object, gseaRes, top = 10, default = TRUE) {
+richGSEAplot <- function(term, object, gseaRes, top = 10, default = TRUE) {
   # Input validation
   if(!inherits(gseaRes, "GSEAResult")) {
     stop("gseaRes must be a GSEAResult object")
@@ -174,7 +179,9 @@ ggGSEA <- function(term, object, gseaRes, top = 10, default = TRUE) {
       res <- lapply(gseaRes_result$pathway[1:top], function(y) {
         plotEnrichment(annod[[y]], stats = x) + ggtitle(y)
       })
-      plot_grid(plotlist = res, ncol = 5)
+      if (!requireNamespace("cowplot", quietly = TRUE))
+        stop("Package 'cowplot' is required for grid GSEA plots. Install it with install.packages('cowplot').")
+      cowplot::plot_grid(plotlist = res, ncol = 5)
     }
   } else {
     plotEnrichment(annod[[term]], stats = x)
@@ -228,7 +235,7 @@ ggGSEA <- function(term, object, gseaRes, top = 10, default = TRUE) {
 #' }
 #' @export
 #' @author Kai Guo
-plotGSEA <- function(object, gseaRes, mycol = NULL,
+richGSEAcurve <- function(object, gseaRes, mycol = NULL,
                      up_color = "#E31A1C", down_color = "#1F78B4", show_direction = TRUE,
                      pathways = NULL, pathway_pattern = NULL, category = NULL,
                      min_genes = NULL, max_genes = NULL, top = 10,
@@ -396,7 +403,7 @@ plotGSEA <- function(object, gseaRes, mycol = NULL,
     theme_bw() +
     geom_segment(data = pathway_segments,
                  mapping = aes(x = x, y = -diff/4, xend = x, yend = diff/4, color = Group),
-                 size = ticksSize) +
+                 linewidth = ticksSize) +
     theme(panel.border = element_blank(),
           panel.grid.minor = element_blank(),
           legend.position = legend_position,
@@ -449,12 +456,12 @@ plotGSEA <- function(object, gseaRes, mycol = NULL,
       # Add group separators in legend
       if(length(up_indices) > 0 && length(down_indices) > 0) {
         legend_title_with_groups <- paste0(legend_title, "\n",
-                                           "↑ Up-regulated (", length(up_indices), ") | ",
-                                           "↓ Down-regulated (", length(down_indices), ")")
+                                           "Up-regulated (", length(up_indices), ") | ",
+                                           "Down-regulated (", length(down_indices), ")")
       } else if(length(up_indices) > 0) {
-        legend_title_with_groups <- paste0(legend_title, "\n↑ Up-regulated (", length(up_indices), ")")
+        legend_title_with_groups <- paste0(legend_title, "\nUp-regulated (", length(up_indices), ")")
       } else {
-        legend_title_with_groups <- paste0(legend_title, "\n↓ Down-regulated (", length(down_indices), ")")
+        legend_title_with_groups <- paste0(legend_title, "\nDown-regulated (", length(down_indices), ")")
       }
 
       # Apply the colors and labels - single scale_color_manual call
@@ -756,15 +763,19 @@ filterPathways <- function(gseaRes, nes_cutoff = NULL, padj_cutoff = 0.05, pval_
 
 #' GSEA Enrichment analysis function for data frame with log2FC and name specifc
 #' @param x data.frame include the gene name and log2FC
+#' @param object annotation file for all genes
 #' @param log2FC the column name for log2FoldChange
 #' @param gene.col the gene name column if rownames won't be used as gene name
-#' @param object annotation file for all genes
-#' @param simplify boolean value to indicate if the simple table shoule be returned
+#' @param simplify boolean value to indicate if the simple table should be returned
+#' @param keytype gene ID type
 #' @param pvalue pvalue cutoff value
-#' @param padj adjust p value cut off method
+#' @param padj adjust p value cut off
+#' @param KEGG logical, whether KEGG GSEA were performed
+#' @param minSize Minimal size of a gene set to test
+#' @param ontology ontology type
+#' @param maxSize Maximal size of a gene set to test
 #' @param padj.method p value adjust method
-#' @param minSize Minimal size of a gene set to test. All pathways below the threshold are excluded.
-#' @param maxSize Maximal size of a gene set to test. All pathways above the threshold are excluded.
+#' @param organism organism name
 #' @param table leadingEdge as vector
 #' @param sep character string used to separate the genes when concatenating
 #' @export

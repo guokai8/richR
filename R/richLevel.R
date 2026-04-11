@@ -3,6 +3,7 @@
 #' @importFrom rlang sym
 #' @param x vector contains gene names or dataframe with DEGs information
 #' @param kodata KEGG annotation data
+#' @param level pathway level ("Level1", "Level2", or "Level3")
 #' @param pvalue cutoff pvalue
 #' @param padj cutoff p adjust value
 #' @param organism organism
@@ -21,8 +22,9 @@ richLevel_internal<-function(x,kodata,level="Level2",pvalue =0.05, padj=NULL,
                              organism=NULL,keytype="SYMBOL",ontology="",minSize=2,maxSize=500,
                              minGSSize = 10, maxGSSize = 500,
                              keepRich=TRUE, filename=NULL,padj.method="BH",sep=","){
-  data(path)
-  annot<-left_join(kodata,path,by=c('PATH'="ko"))
+  path_env <- new.env(parent = emptyenv())
+  data("path", envir = path_env)
+  annot<-left_join(kodata,path_env$path,by=c('PATH'="ko"))
   annot<-annot[,c("GeneID",level)]
   annot<-annot[!is.na(annot[,2]),]
   result<-enrich(x = x,object = annot,pvalue=pvalue,padj=padj,organism=organism,minSize=minSize,
@@ -35,6 +37,7 @@ richLevel_internal<-function(x,kodata,level="Level2",pvalue =0.05, padj=NULL,
 #' @importFrom rlang sym
 #' @param x vector contains gene names or dataframe with DEGs information
 #' @param kodata KEGG annotation data
+#' @param level pathway level ("Level1", "Level2", or "Level3")
 #' @param pvalue cutoff pvalue
 #' @param padj cutoff p adjust value
 #' @param organism organism
@@ -71,6 +74,7 @@ setMethod("richLevel", signature(kodata = "data.frame"),definition = function(x,
 #' @importFrom dplyr filter left_join
 #' @param x vector contains gene names or dataframe with DEGs information
 #' @param kodata KEGG annotation data
+#' @param level pathway level ("Level1", "Level2", or "Level3")
 #' @param pvalue cutoff pvalue
 #' @param padj cutoff p adjust value
 #' @param organism organism

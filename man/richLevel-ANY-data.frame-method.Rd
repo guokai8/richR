@@ -28,6 +28,8 @@
 
 \item{kodata}{KEGG annotation data}
 
+\item{level}{pathway level ("Level1", "Level2", or "Level3")}
+
 \item{pvalue}{cutoff pvalue}
 
 \item{padj}{cutoff p adjust value}

@@ -26,11 +26,27 @@ richDAVID(
 
 \item{keytype}{key type export}
 
+\item{species}{species name}
+
 \item{anntype}{GOTERM_BP_FAT, KEGG_PATHWAY,GOTERM_CC_FAT}
+
+\item{universe}{background gene universe}
 
 \item{pvalue}{cutoff pvalue}
 
 \item{padj}{cutoff p adjust value}
+
+\item{minSize}{minimal number of genes included in significant terms}
+
+\item{maxSize}{maximum number of genes included in significant terms}
+
+\item{keepRich}{keep terms with rich factor value equal 1 or not (default: TRUE)}
+
+\item{filename}{output filename}
+
+\item{padj.method}{pvalue adjust method (default: "BH")}
+
+\item{sep}{character string used to separate the genes when concatenating}
 
 \item{david.user}{richR@und.edu}
 }

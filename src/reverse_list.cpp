@@ -1,9 +1,11 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
+// Forward declaration of sf() defined in sf.cpp
+List sf(DataFrame &x);
+
 // [[Rcpp::export]]
 List reverseList(const List& lhs) {
-  Function sf("sf");  // 从 R 全局环境中获取名为 "sf" 的函数
   
   // 1) 拿到 lhs 的名字向量
   CharacterVector nm = lhs.names();

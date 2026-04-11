@@ -2,26 +2,26 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 hyper_bench_vector <- function(xin, yin, N, n) {
-    .Call('_richR_hyper_bench_vector', PACKAGE = 'richR', xin, yin, N, n)
+    .Call(`_richR_hyper_bench_vector`, xin, yin, N, n)
 }
 
 name_table <- function(lh) {
-    .Call('_richR_name_table', PACKAGE = 'richR', lh)
+    .Call(`_richR_name_table`, lh)
 }
 
 reverseList <- function(lhs) {
-    .Call('_richR_reverseList', PACKAGE = 'richR', lhs)
+    .Call(`_richR_reverseList`, lhs)
 }
 
 fast_factor <- function(x) {
-    .Call('_richR_fast_factor', PACKAGE = 'richR', x)
+    .Call(`_richR_fast_factor`, x)
 }
 
 sf <- function(x) {
-    .Call('_richR_sf', PACKAGE = 'richR', x)
+    .Call(`_richR_sf`, x)
 }
 
 uniq <- function(xa) {
-    .Call('_richR_uniq', PACKAGE = 'richR', xa)
+    .Call(`_richR_uniq`, xa)
 }
 

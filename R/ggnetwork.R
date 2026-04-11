@@ -1,46 +1,44 @@
 ##' generate network based on Enrichment results
-##' @rdname ggnetwork
+##' @rdname richNetwork
 ##' @param object richResult,GSEAResult object or dataframe
 ##' @param gene vector contains gene names or dataframe with DEGs information
 ##' @param top number of terms to display
 ##' @param pvalue cutoff value of pvalue (if padj set as NULL)
 ##' @param padj cutoff value of p adjust value
-##' @param weightcut cutoff valule for edge
 ##' @param usePadj use p adjust value as color or not (should use with padj)
-##' @param layout layout method ('fruchtermanreingold','kamadakawai','target','circle')
 ##' @param low color used for small value
 ##' @param high color used for large value
+##' @param weightcut cutoff value for edge weight
+##' @param useTerm use Term name instead of Annotation ID
 ##' @param writeCyt write out the cytoscape file
 ##' @param cytoscapeFile output cytoscape File
 ##' @param cytoscapeFormat Character string giving the output file format
-##' @param segment.size size for label segment
-##' @param node.alpha alpha-transparency scales
-##' @param label.font label font
 ##' @param label.color label color
 ##' @param label.size label size
-##' @param filename figure output name
+##' @param node.shape shape of the nodes
+##' @param layout layout method ('fruchtermanreingold','kamadakawai','target','circle')
 ##' @param savefig save the figure or not
+##' @param visNet use visNetwork for interactive plot
+##' @param smooth smooth edges in visNetwork
+##' @param nodeselect enable node selection in visNetwork
+##' @param edit enable editing in visNetwork
+##' @param savehtml save visNetwork as HTML file
+##' @param filename figure output name
 ##' @param width figure width
 ##' @param height figure height
+##' @param segment.size size for label segment
+##' @param node.alpha alpha-transparency scales
 ##' @param sep character string used to separate the genes when concatenating
-##' @importFrom reshape2 melt
+##' @param ... additional arguments
 ##' @importFrom igraph graph.data.frame
-##' @importFrom ggrepel geom_text_repel
 ##' @importFrom igraph delete.edges
 ##' @importFrom ggplot2 theme
-##' @importFrom GGally ggnet2
 ##' @importFrom ggplot2 ggsave
-##' @importFrom intergraph asNetwork
 ##' @importFrom igraph E
 ##' @importFrom igraph E<-
 ##' @importFrom igraph V
 ##' @importFrom igraph V<-
 ##' @importFrom igraph write_graph
-##' @importFrom visNetwork visIgraph
-##' @importFrom visNetwork visSave
-##' @importFrom visNetwork visInteraction
-##' @importFrom visNetwork visOptions
-##' @importFrom magrittr %>%
 ##' @author Kai Guo
 ggnetwork_internal<-function (object=object,gene=gene,top = 50, pvalue = 0.05, padj = NULL,usePadj=TRUE,low = "orange",high = "red",
                               weightcut = 0.2, useTerm = TRUE, writeCyt = FALSE,cytoscapeFile = NULL,cytoscapeFormat="graphml",
@@ -112,7 +110,7 @@ ggnetwork_internal<-function (object=object,gene=gene,top = 50, pvalue = 0.05, p
     names(pvalue) = object$Annot
     rownames(object)<-object$Annot
   }
-  wn <- melt(w, as.is = TRUE)
+  wn <- as.data.frame(as.table(w), stringsAsFactors = FALSE)
   wn <- wn[wn[, 1] != wn[, 2], ]
   wn <- wn[!is.na(wn[, 3]), ]
   wn <- wn[wn[, 3] > 0, ]
@@ -161,141 +159,171 @@ ggnetwork_internal<-function (object=object,gene=gene,top = 50, pvalue = 0.05, p
     }
   }
   if (isTRUE(visNet)) {
-    graph <- visIgraph(g, smooth = smooth)
+    if (!requireNamespace("visNetwork", quietly = TRUE))
+      stop("Package 'visNetwork' is required for interactive network plots. Install it with install.packages('visNetwork').")
+    graph <- visNetwork::visIgraph(g, smooth = smooth)
     if(nodeselect==TRUE){
-      graph<-graph%>%visOptions(highlightNearest = TRUE, nodesIdSelection = TRUE)%>%
-        visInteraction(navigationButtons = TRUE)
+      graph <- visNetwork::visOptions(graph, highlightNearest = TRUE, nodesIdSelection = TRUE)
+      graph <- visNetwork::visInteraction(graph, navigationButtons = TRUE)
     }
     if(edit==TRUE){
-      graph<-graph%>%visInteraction(navigationButtons = TRUE)%>%visOptions(manipulation = TRUE)
+      graph <- visNetwork::visInteraction(graph, navigationButtons = TRUE)
+      graph <- visNetwork::visOptions(graph, manipulation = TRUE)
     }
     if(savehtml==TRUE){
       if(is.null(filename)){
         filename="network"
       }
-      visSave(graph,file = paste0(filename,".html"))
+      visNetwork::visSave(graph,file = paste0(filename,".html"))
     }
     graph
   }else{
-  p<-ggnet2(g, node.size = V(g)$size, node.color = V(g)$color,mode=layout,
+  if (!requireNamespace("GGally", quietly = TRUE))
+    stop("Package 'GGally' is required for network plots. Install it with install.packages('GGally').")
+  if (!requireNamespace("intergraph", quietly = TRUE))
+    stop("Package 'intergraph' is required for network plots. Install it with install.packages('intergraph').")
+  if (!requireNamespace("ggrepel", quietly = TRUE))
+    stop("Package 'ggrepel' is required for network plots. Install it with install.packages('ggrepel').")
+  p<-GGally::ggnet2(g, node.size = V(g)$size, node.color = V(g)$color,mode=layout,
             edge.size = E(g)$width/20,node.shape=node.shape,node.alpha=node.alpha) +
-    geom_text_repel(label = V(g)$name,
+    ggrepel::geom_text_repel(label = V(g)$name,
                     size=label.size,segment.size=segment.size,color=label.color)+
     theme(legend.position = "none")
   if(savefig==TRUE){
     if(is.null(filename)){
       filename="network"
     }
-    ggsave(p,file=paste0(filename,".pdf"),width=width,height = height)
+    ggsave(p,filename=paste0(filename,".pdf"),width=width,height = height)
   }
   p
   }
 }
 
 ##' network for Enrichment results
-##' @rdname ggnetwork
-##' @param object richResult,GSEAResult object or dataframe
-##' @param gene vector contains gene names or dataframe with DEGs information
+##' @rdname richNetwork-methods
+##' @param object richResult object
 ##' @param top number of terms to display
 ##' @param pvalue cutoff value of pvalue (if padj set as NULL)
 ##' @param padj cutoff value of p adjust value
-##' @param weightcut cutoff valule for edge
-##' @param usePadj use p adjust value as color or not (should use with padj)
-##' @param layout layout method ('fruchtermanreingold','kamadakawai','target','circle')
+##' @param usePadj use p adjust value as color or not
 ##' @param low color used for small value
 ##' @param high color used for large value
+##' @param weightcut cutoff value for edge weight
+##' @param useTerm use Term name instead of Annotation ID
 ##' @param writeCyt write out the cytoscape file
 ##' @param cytoscapeFile output cytoscape File
-##' @param cytoscapeFormat Character string giving the output file format
-##' @param segment.size size for label segment
-##' @param node.alpha alpha-transparency scales
-##' @param label.font label font
+##' @param cytoscapeFormat output file format
 ##' @param label.color label color
 ##' @param label.size label size
-##' @param filename figure output name
+##' @param node.shape shape of the nodes
+##' @param layout layout method
 ##' @param savefig save the figure or not
+##' @param visNet use visNetwork for interactive plot
+##' @param smooth smooth edges in visNetwork
+##' @param nodeselect enable node selection in visNetwork
+##' @param edit enable editing in visNetwork
+##' @param savehtml save visNetwork as HTML file
+##' @param filename figure output name
 ##' @param width figure width
 ##' @param height figure height
+##' @param segment.size size for label segment
+##' @param node.alpha alpha-transparency scales
+##' @param ... additional arguments
 ##' @export
 ##' @author Kai Guo
-setMethod("ggnetwork", signature(object = "richResult"),definition = function(object,top = 50, pvalue = 0.05, padj = NULL,usePadj=TRUE,low = "orange",high = "red",
+setMethod("richNetwork", signature(object = "richResult"),definition = function(object,top = 50, pvalue = 0.05, padj = NULL,usePadj=TRUE,low = "orange",high = "red",
                                                                               weightcut = 0.2, useTerm = TRUE, writeCyt = FALSE,cytoscapeFile = NULL,cytoscapeFormat="graphml",
                                                                               label.color = "black", label.size = 2,node.shape=NULL, layout = "fruchtermanreingold",savefig=FALSE,
                                                                               visNet=FALSE,smooth=TRUE,nodeselect=FALSE,edit=FALSE,savehtml=FALSE,filename=NULL,
                                                                               width=7,height=7,segment.size=0.2,node.alpha=0.7,...) {
   ggnetwork_internal(object@result,gene=object@gene,top=top,pvalue=pvalue,padj=padj,usePadj=usePadj,weightcut=weightcut,useTerm=useTerm,
                      writeCyt=writeCyt,cytoscapeFile=cytoscapeFile,cytoscapeFormat=cytoscapeFormat,
-                     label.font=label.font,label.color=label.color,label.size=label.size,node.shape=node.shape,
+                     label.color=label.color,label.size=label.size,node.shape=node.shape,
                      layout=layout,savefig=savefig,width=width,height=height,
                      visNet=visNet,smooth=smooth,nodeselect=nodeselect,edit=edit,
                      filename=filename,node.alpha=node.alpha,sep=object@sep,...)
 })
 ##' network for Enrichment results
-##' @rdname ggnetwork
-##' @param object richResult,GSEAResult object or dataframe
-##' @param gene vector contains gene names or dataframe with DEGs information
+##' @rdname richNetwork-methods
+##' @param object data.frame of enrichment results
+##' @param gene vector contains gene names
 ##' @param top number of terms to display
 ##' @param pvalue cutoff value of pvalue (if padj set as NULL)
 ##' @param padj cutoff value of p adjust value
-##' @param weightcut cutoff valule for edge
-##' @param usePadj use p adjust value as color or not (should use with padj)
-##' @param layout layout method ('fruchtermanreingold','kamadakawai','target','circle')
+##' @param usePadj use p adjust value as color or not
 ##' @param low color used for small value
 ##' @param high color used for large value
+##' @param weightcut cutoff value for edge weight
+##' @param useTerm use Term name instead of Annotation ID
 ##' @param writeCyt write out the cytoscape file
 ##' @param cytoscapeFile output cytoscape File
-##' @param cytoscapeFormat Character string giving the output file format
-##' @param segment.size size for label segment
-##' @param node.alpha alpha-transparency scales
-##' @param label.font label font
+##' @param cytoscapeFormat output file format
 ##' @param label.color label color
 ##' @param label.size label size
-##' @param filename figure output name
+##' @param node.shape shape of the nodes
+##' @param layout layout method
 ##' @param savefig save the figure or not
+##' @param visNet use visNetwork for interactive plot
+##' @param smooth smooth edges in visNetwork
+##' @param nodeselect enable node selection in visNetwork
+##' @param edit enable editing in visNetwork
+##' @param savehtml save visNetwork as HTML file
+##' @param filename figure output name
 ##' @param width figure width
 ##' @param height figure height
+##' @param segment.size size for label segment
+##' @param node.alpha alpha-transparency scales
+##' @param sep character string used to separate the genes
+##' @param ... additional arguments
 ##' @export
 ##' @author Kai Guo
-setMethod("ggnetwork", signature(object = "data.frame"),definition = function(object,gene=NULL,top = 50, pvalue = 0.05, padj = NULL,usePadj=TRUE,low = "orange",high = "red",
+setMethod("richNetwork", signature(object = "data.frame"),definition = function(object,gene=NULL,top = 50, pvalue = 0.05, padj = NULL,usePadj=TRUE,low = "orange",high = "red",
                                                                               weightcut = 0.2, useTerm = TRUE, writeCyt = FALSE,cytoscapeFile = NULL,cytoscapeFormat="graphml",
                                                                               label.color = "black", label.size = 2,node.shape=NULL, layout = "fruchtermanreingold",savefig=FALSE,
                                                                               visNet=FALSE,smooth=TRUE,nodeselect=FALSE,edit=FALSE,savehtml=FALSE,filename=NULL,
                                                                               width=7,height=7,segment.size=0.2,node.alpha=0.7,sep=",",...) {
   ggnetwork_internal(object,gene=gene,top=top,pvalue=pvalue,padj=padj,usePadj=usePadj,weightcut=weightcut,useTerm=useTerm,writeCyt=writeCyt,cytoscapeFile=cytoscapeFile,
                      cytoscapeFormat=cytoscapeFormat,
-                     label.font=label.font,label.color=label.color,label.size=label.size,node.shape=node.shape,
+                     label.color=label.color,label.size=label.size,node.shape=node.shape,
                      layout=layout,savefig=savefig,width=width,height=height,
                      visNet=visNet,smooth=smooth,nodeselect=nodeselect,edit=edit,
                      filename=filename,node.alpha=node.alpha,sep=sep,...)
 })
 #
 ##' network for Enrichment results
-##' @rdname ggnetwork
-##' @param object data.frame object
-##' @param gene vector contains gene names or dataframe with DEGs information
+##' @rdname richNetwork-methods
+##' @param object GSEAResult object
+##' @param gene vector contains gene names
 ##' @param top number of terms to display
 ##' @param pvalue cutoff value of pvalue (if padj set as NULL)
 ##' @param padj cutoff value of p adjust value
-##' @param weightcut cutoff valule for edge
-##' @param usePadj use p adjust value as color or not (should use with padj)
-##' @param layout layout method ('fruchtermanreingold','kamadakawai','target','circle')
+##' @param usePadj use p adjust value as color or not
 ##' @param low color used for small value
 ##' @param high color used for large value
+##' @param weightcut cutoff value for edge weight
+##' @param useTerm use Term name instead of Annotation ID
 ##' @param writeCyt write out the cytoscape file
 ##' @param cytoscapeFile output cytoscape File
-##' @param cytoscapeFormat Character string giving the output file format
-##' @param segment.size size for label segment
-##' @param node.alpha alpha-transparency scales
-##' @param label.font label font
+##' @param cytoscapeFormat output file format
 ##' @param label.color label color
 ##' @param label.size label size
-##' @param filename figure output name
+##' @param node.shape shape of the nodes
+##' @param layout layout method
 ##' @param savefig save the figure or not
+##' @param visNet use visNetwork for interactive plot
+##' @param smooth smooth edges in visNetwork
+##' @param nodeselect enable node selection in visNetwork
+##' @param edit enable editing in visNetwork
+##' @param savehtml save visNetwork as HTML file
+##' @param filename figure output name
 ##' @param width figure width
 ##' @param height figure height
+##' @param segment.size size for label segment
+##' @param node.alpha alpha-transparency scales
+##' @param ... additional arguments
 ##' @export
 ##' @author Kai Guo
-setMethod("ggnetwork", signature(object = "GSEAResult"),definition = function(object,gene,top = 50, pvalue = 0.05, padj = NULL,usePadj=TRUE,low = "orange",high = "red",
+setMethod("richNetwork", signature(object = "GSEAResult"),definition = function(object,gene,top = 50, pvalue = 0.05, padj = NULL,usePadj=TRUE,low = "orange",high = "red",
                                                                               weightcut = 0.2, useTerm = TRUE, writeCyt = FALSE,cytoscapeFile = NULL,cytoscapeFormat="graphml",
                                                                               label.color = "black", label.size = 2,node.shape=NULL, layout = "fruchtermanreingold",savefig=FALSE,
                                                                               visNet=FALSE,smooth=TRUE,nodeselect=FALSE,edit=FALSE,savehtml=FALSE,filename="network",
@@ -309,7 +337,7 @@ setMethod("ggnetwork", signature(object = "GSEAResult"),definition = function(ob
   colnames(object@result)<-c("Annot","Term","Pvalue","Padj","Significant","GeneID")
   ggnetwork_internal(object@result,gene=object@gene,top=top,pvalue=pvalue,padj=padj,usePadj=usePadj,weightcut=weightcut,useTerm=useTerm,
                      writeCyt=writeCyt,cytoscapeFile=cytoscapeFile,cytoscapeFormat=cytoscapeFormat,
-                     label.font=label.font,label.color=label.color,label.size=label.size,node.shape=node.shape,
+                     label.color=label.color,label.size=label.size,node.shape=node.shape,
                      layout=layout,savefig=savefig,width=width,height=height,
                      visNet=visNet,smooth=smooth,nodeselect=nodeselect,edit=edit,
                      filename=filename,node.alpha=node.alpha,sep=sep,...)

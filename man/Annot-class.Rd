@@ -3,8 +3,6 @@
 \docType{class}
 \name{Annot-class}
 \alias{Annot-class}
-\alias{summary,}
-\alias{Annot-method}
 \title{Class "Annot"
 This class represents the Annotation information}
 \description{
