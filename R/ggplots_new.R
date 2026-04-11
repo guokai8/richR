@@ -207,14 +207,19 @@ ggNES_internal <- function(resultFis,
   if (nrow(resultFis) == 0) { message("No significant terms to plot."); return(invisible(NULL)) }
   if (isTRUE(short)) resultFis$Term <- vapply(resultFis$Term, function(x) .paste.char(x, n = 6), character(1))
 
-  resultFis$direction <- resultFis$NES > 0
+  resultFis$direction <- ifelse(resultFis$NES > 0, "Up", "Down")
+  resultFis$direction <- factor(resultFis$direction, levels = c("Down", "Up"))
+  # Drop unused levels so legend only shows directions present in data
+  resultFis$direction <- droplevels(resultFis$direction)
+
+  dir_colors <- c(Down = down.color, Up = up.color)
+  dir_colors <- dir_colors[levels(resultFis$direction)]
 
   p <- ggplot2::ggplot(resultFis, ggplot2::aes(x = stats::reorder(Term, NES),
                                                 y = NES, fill = direction)) +
     ggplot2::geom_bar(stat = "identity") +
     ggplot2::coord_flip() +
-    ggplot2::scale_fill_manual(values = c("FALSE" = down.color, "TRUE" = up.color),
-                               labels = c("Down", "Up"), name = "Direction") +
+    ggplot2::scale_fill_manual(values = dir_colors, name = "Direction") +
     ggplot2::labs(title = "GSEA NES Barplot", x = NULL, y = "Normalized Enrichment Score") +
     ggplot2::theme_minimal()
 
