@@ -30,7 +30,7 @@ utils::globalVariables(c(
   # new ggplots
   "is_sig", "direction", "cum_rank", "Dim1", "Dim2",
   "Gene", "abs_fc", "fc_value", "gene_label", "present", "effect",
-  "log_annotated", "log2_fe"
+  "log_annotated", "log2_fe", "similarity", "xend", "yend"
 ))
 
 #' Internal richR functions and methods

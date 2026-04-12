@@ -442,6 +442,8 @@ ggtermsim_internal <- function(resultFis,
                                low        = "grey80",
                                high       = "#b2182b",
                                label.size = 3,
+                               sim.cutoff = 0.2,
+                               size.range = c(3, 10),
                                short      = FALSE,
                                sep        = ",",
                                filename   = NULL,
@@ -452,37 +454,73 @@ ggtermsim_internal <- function(resultFis,
   if (nrow(resultFis) < 3) { message("Need at least 3 terms for MDS."); return(invisible(NULL)) }
   if (isTRUE(short)) resultFis$Term <- vapply(resultFis$Term, function(x) .paste.char(x, n = 6), character(1))
 
-  # compute Jaccard distance matrix
+  # Jaccard similarity matrix
   gene_lists <- strsplit(as.character(resultFis$GeneID), split = sep)
   n <- length(gene_lists)
-  jac <- matrix(0, n, n)
+  sim <- matrix(0, n, n)
   for (i in seq_len(n)) {
     for (j in seq_len(n)) {
       inter <- length(intersect(gene_lists[[i]], gene_lists[[j]]))
       uni   <- length(union(gene_lists[[i]], gene_lists[[j]]))
-      jac[i, j] <- if (uni > 0) 1 - inter / uni else 1
+      sim[i, j] <- if (uni > 0) inter / uni else 0
     }
   }
-  # MDS
-  mds <- stats::cmdscale(stats::as.dist(jac), k = 2)
+  # MDS on distance (1 - similarity)
+  dist_mat <- 1 - sim
+  mds <- stats::cmdscale(stats::as.dist(dist_mat), k = 2)
+
   mds_df <- data.frame(
-    Term       = resultFis$Term,
-    Dim1       = mds[, 1],
-    Dim2       = mds[, 2],
+    Term        = resultFis$Term,
+    Dim1        = mds[, 1],
+    Dim2        = mds[, 2],
     Significant = resultFis$Significant,
-    neg_log_p  = if (isTRUE(usePadj) && "Padj" %in% names(resultFis)) -log10(resultFis$Padj) else -log10(resultFis$Pvalue)
+    neg_log_p   = if (isTRUE(usePadj) && "Padj" %in% names(resultFis)) -log10(resultFis$Padj) else -log10(resultFis$Pvalue)
   )
 
-  p <- ggplot2::ggplot(mds_df, ggplot2::aes(x = Dim1, y = Dim2, size = Significant, color = neg_log_p)) +
-    ggplot2::geom_point(alpha = 0.8) +
-    ggrepel::geom_text_repel(ggplot2::aes(label = Term), size = label.size,
-                              max.overlaps = 20, show.legend = FALSE,
-                              segment.color = "grey50", segment.alpha = 0.6) +
+  # Build edges for term pairs above similarity cutoff
+  edges <- data.frame(x = numeric(0), y = numeric(0),
+                      xend = numeric(0), yend = numeric(0),
+                      similarity = numeric(0))
+  for (i in seq_len(n - 1)) {
+    for (j in (i + 1):n) {
+      if (sim[i, j] >= sim.cutoff) {
+        edges <- rbind(edges, data.frame(
+          x = mds[i, 1], y = mds[i, 2],
+          xend = mds[j, 1], yend = mds[j, 2],
+          similarity = sim[i, j]))
+      }
+    }
+  }
+
+  p <- ggplot2::ggplot()
+
+  # Draw edges first (behind nodes)
+  if (nrow(edges) > 0) {
+    p <- p + ggplot2::geom_segment(data = edges,
+             ggplot2::aes(x = x, y = y, xend = xend, yend = yend, linewidth = similarity),
+             color = "grey70", alpha = 0.5, show.legend = FALSE) +
+      ggplot2::scale_linewidth_continuous(range = c(0.3, 2))
+  }
+
+  # Nodes
+  p <- p +
+    ggplot2::geom_point(data = mds_df,
+             ggplot2::aes(x = Dim1, y = Dim2, size = Significant, color = neg_log_p),
+             alpha = 0.85) +
     ggplot2::scale_color_gradient(low = low, high = high,
                                   name = if (isTRUE(usePadj)) "-log10(Padj)" else "-log10(Pvalue)") +
-    ggplot2::labs(title = "Term Similarity Scatter Plot (MDS)",
-                  x = "Dimension 1", y = "Dimension 2") +
-    ggplot2::theme_minimal(base_size = 12)
+    ggplot2::scale_size_continuous(range = size.range, name = "Gene Count") +
+    ggplot2::guides(color = ggplot2::guide_colourbar(order = 1),
+                    size  = ggplot2::guide_legend(order = 2)) +
+    ggrepel::geom_text_repel(data = mds_df,
+              ggplot2::aes(x = Dim1, y = Dim2, label = Term),
+              size = label.size, max.overlaps = 20, show.legend = FALSE,
+              segment.color = "grey50", segment.alpha = 0.5) +
+    ggplot2::labs(x = NULL, y = NULL) +
+    ggplot2::theme_minimal(base_size = 12) +
+    ggplot2::theme(axis.text  = ggplot2::element_blank(),
+                   axis.ticks = ggplot2::element_blank(),
+                   panel.grid = ggplot2::element_blank())
 
   if (!is.null(filename)) ggplot2::ggsave(filename, p, width = width, height = height)
   p

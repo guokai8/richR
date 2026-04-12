@@ -389,7 +389,12 @@ setMethod("richECDF", signature(object = "data.frame"), function(object, top = 3
 # ----------------------------------------------------------
 #  richTermSim  (aliases: ggtermsim, ggTermSim)
 # ----------------------------------------------------------
-#' Term similarity scatter plot (MDS)
+#' Enrichment map — term similarity network
+#'
+#' Positions terms by MDS of gene-set overlap (Jaccard) and draws
+#' edges between terms that share genes above a similarity cutoff.
+#' Node size = gene count, colour = -log10(p). Connected clusters
+#' reveal groups of functionally related pathways.
 #'
 #' @param object richResult, data.frame, or GSEAResult
 #' @param top number of terms (default 20)
@@ -399,6 +404,8 @@ setMethod("richECDF", signature(object = "data.frame"), function(object, top = 3
 #' @param low low-end gradient colour
 #' @param high high-end gradient colour
 #' @param label.size label size
+#' @param sim.cutoff minimum Jaccard similarity to draw an edge (0-1)
+#' @param size.range point size range for gene count mapping
 #' @param short shorten term names
 #' @param sep gene-ID separator
 #' @param filename save path
@@ -410,12 +417,14 @@ setMethod("richECDF", signature(object = "data.frame"), function(object, top = 3
 #' \dontrun{
 #'   res <- richKEGG(gene, kodata = hsako)
 #'   richTermSim(res)
+#'   richTermSim(res, sim.cutoff = 0.3)
 #' }
 #' @rdname richTermSim-methods
 #' @export
 setGeneric("richTermSim", function(object, top = 20, pvalue = 0.05, padj = NULL,
                                     usePadj = TRUE, low = "grey80", high = "#b2182b",
-                                    label.size = 3, short = FALSE, sep = ",",
+                                    label.size = 3, sim.cutoff = 0.2, size.range = c(3, 10),
+                                    short = FALSE, sep = ",",
                                     filename = NULL, width = 10, height = 8, ...)
   standardGeneric("richTermSim"))
 
@@ -423,10 +432,12 @@ setGeneric("richTermSim", function(object, top = 20, pvalue = 0.05, padj = NULL,
 #' @export
 setMethod("richTermSim", signature(object = "richResult"), function(object, top = 20, pvalue = 0.05, padj = NULL,
                                     usePadj = TRUE, low = "grey80", high = "#b2182b",
-                                    label.size = 3, short = FALSE, sep = ",",
+                                    label.size = 3, sim.cutoff = 0.2, size.range = c(3, 10),
+                                    short = FALSE, sep = ",",
                                     filename = NULL, width = 10, height = 8, ...) {
   ggtermsim_internal(object@result, top = top, pvalue = pvalue, padj = padj,
                      usePadj = usePadj, low = low, high = high, label.size = label.size,
+                     sim.cutoff = sim.cutoff, size.range = size.range,
                      short = short, sep = object@sep, filename = filename,
                      width = width, height = height)
 })
@@ -435,10 +446,12 @@ setMethod("richTermSim", signature(object = "richResult"), function(object, top 
 #' @export
 setMethod("richTermSim", signature(object = "data.frame"), function(object, top = 20, pvalue = 0.05, padj = NULL,
                                     usePadj = TRUE, low = "grey80", high = "#b2182b",
-                                    label.size = 3, short = FALSE, sep = ",",
+                                    label.size = 3, sim.cutoff = 0.2, size.range = c(3, 10),
+                                    short = FALSE, sep = ",",
                                     filename = NULL, width = 10, height = 8, ...) {
   ggtermsim_internal(object, top = top, pvalue = pvalue, padj = padj,
                      usePadj = usePadj, low = low, high = high, label.size = label.size,
+                     sim.cutoff = sim.cutoff, size.range = size.range,
                      short = short, sep = sep, filename = filename,
                      width = width, height = height)
 })
@@ -447,11 +460,13 @@ setMethod("richTermSim", signature(object = "data.frame"), function(object, top 
 #' @export
 setMethod("richTermSim", signature(object = "GSEAResult"), function(object, top = 20, pvalue = 0.05, padj = NULL,
                                     usePadj = TRUE, low = "grey80", high = "#b2182b",
-                                    label.size = 3, short = FALSE, sep = ",",
+                                    label.size = 3, sim.cutoff = 0.2, size.range = c(3, 10),
+                                    short = FALSE, sep = ",",
                                     filename = NULL, width = 10, height = 8, ...) {
   df <- .gsea_to_ora_frame(object)
   ggtermsim_internal(df, top = top, pvalue = pvalue, padj = padj,
                      usePadj = usePadj, low = low, high = high, label.size = label.size,
+                     sim.cutoff = sim.cutoff, size.range = size.range,
                      short = short, sep = object@sep, filename = filename,
                      width = width, height = height)
 })
