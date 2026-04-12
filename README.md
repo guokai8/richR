@@ -181,7 +181,8 @@ richGeneBar(resgo, top = 10)
 richNES(res_gsea, top = 20)
 
 # Running enrichment score curve (classic GSEA plot)
-richGSEAcurve(res_gsea, term = "hsa04110")
+richGSEAcurve(object = hsako, gseaRes = res_gsea)
+richGSEAcurve(object = hsako, gseaRes = res_gsea, pathways = "hsa04110")
 
 # ECDF step plot — cumulative rank distribution of gene sets
 richECDF(res_gsea)
