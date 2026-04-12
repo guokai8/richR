@@ -619,8 +619,8 @@ gggenebar_internal <- function(resultFis,
   p <- ggplot2::ggplot(resultFis, ggplot2::aes(x = stats::reorder(Term, RichFactor), y = RichFactor)) +
     ggplot2::geom_bar(stat = "identity", ggplot2::aes(fill = neg_log_p), alpha = bar.alpha) +
     ggplot2::scale_fill_gradient(low = low, high = high, name = color_label) +
-    ggplot2::geom_text(ggplot2::aes(label = gene_label),
-                       hjust = 0, nudge_y = 0.01, size = text.size, color = "black", fontface = "italic") +
+    ggplot2::geom_text(ggplot2::aes(label = gene_label, y = 0),
+                       hjust = 0, nudge_y = 0.005, size = text.size, color = "black", fontface = "italic") +
     ggplot2::coord_flip() +
     ggplot2::labs(title = "Enriched Terms with Key Genes", x = NULL, y = "RichFactor") +
     ggplot2::theme_minimal(base_size = 12) +
