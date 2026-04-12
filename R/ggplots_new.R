@@ -300,10 +300,9 @@ ggscatter_internal <- function(resultFis,
                                usePadj    = TRUE,
                                low        = "#fee0d2",
                                high       = "#b2182b",
-                               point.size = c(2, 8),
+                               size.range = c(2, 8),
                                label.size = 3,
                                label.top  = 5,
-                               show.expected = TRUE,
                                short      = FALSE,
                                filename   = NULL,
                                width      = 10,
@@ -313,9 +312,30 @@ ggscatter_internal <- function(resultFis,
   if (nrow(resultFis) == 0) { message("No significant terms to plot."); return(invisible(NULL)) }
   if (isTRUE(short)) resultFis$Term <- vapply(resultFis$Term, function(x) .paste.char(x, n = 6), character(1))
 
-  neg_log <- if (isTRUE(usePadj) && "Padj" %in% names(resultFis)) -log10(resultFis$Padj) else -log10(resultFis$Pvalue)
-  resultFis$neg_log_p <- neg_log
-  color_label <- if (isTRUE(usePadj)) "-log10(Padj)" else "-log10(Pvalue)"
+  # y-axis: -log10(p)
+  sig_col <- if (isTRUE(usePadj) && "Padj" %in% names(resultFis)) "Padj" else "Pvalue"
+  resultFis$neg_log_p <- -log10(resultFis[[sig_col]])
+
+  # x-axis: zscore (enrichment z-score: how far from expected)
+  # Fall back to log2(FoldEnrichment) if zscore unavailable
+  if ("zscore" %in% names(resultFis)) {
+    resultFis$x_val <- resultFis$zscore
+    x_label <- "Enrichment z-score"
+  } else {
+    if (!"FoldEnrichment" %in% names(resultFis)) {
+      if ("Significant" %in% names(resultFis) && "Annotated" %in% names(resultFis)) {
+        resultFis$FoldEnrichment <- resultFis$Significant / resultFis$Annotated
+      } else {
+        resultFis$FoldEnrichment <- 1
+      }
+    }
+    resultFis$x_val <- log2(pmax(resultFis$FoldEnrichment, 0.001))
+    x_label <- "log2(Fold Enrichment)"
+  }
+
+  # color: RichFactor (enrichment strength)
+  if (!"RichFactor" %in% names(resultFis) && "Significant" %in% names(resultFis) && "Annotated" %in% names(resultFis))
+    resultFis$RichFactor <- resultFis$Significant / resultFis$Annotated
 
   # Label top terms
   resultFis <- resultFis[order(resultFis$neg_log_p, decreasing = TRUE), ]
@@ -323,33 +343,18 @@ ggscatter_internal <- function(resultFis,
   n_label <- min(label.top, nrow(resultFis))
   resultFis$label[seq_len(n_label)] <- resultFis$Term[seq_len(n_label)]
 
-  # Observed vs Expected: x=Annotated (pathway size), y=Significant (observed overlap)
-  # Diagonal = expected overlap under H0 (n/N * Annotated)
-  p <- ggplot2::ggplot(resultFis, ggplot2::aes(x = Annotated, y = Significant,
-                                                color = neg_log_p, size = neg_log_p)) +
+  p <- ggplot2::ggplot(resultFis, ggplot2::aes(x = x_val, y = neg_log_p,
+                                                size = Significant, color = RichFactor)) +
     ggplot2::geom_point(alpha = 0.8) +
-    ggplot2::scale_color_gradient(low = low, high = high, name = color_label) +
-    ggplot2::scale_size_continuous(range = point.size, name = color_label) +
-    ggplot2::labs(title = "Observed vs Expected Overlap",
-                  x = "Annotated (pathway size)", y = "Significant (observed overlap)") +
+    ggplot2::scale_color_gradient(low = low, high = high, name = "RichFactor") +
+    ggplot2::scale_size_continuous(range = size.range, name = "Gene Count") +
+    ggplot2::guides(color = ggplot2::guide_colourbar(order = 1),
+                    size  = ggplot2::guide_legend(order = 2)) +
+    ggplot2::labs(title = "Enrichment Landscape",
+                  x = x_label,
+                  y = paste0("-log10(", sig_col, ")")) +
     ggplot2::theme_minimal(base_size = 12) +
     ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5, face = "bold"))
-
-  # Add expected line: slope = n_input / N_background
-  if (isTRUE(show.expected) && "Annotated" %in% names(resultFis) && "Significant" %in% names(resultFis)) {
-    # Estimate ratio from data: median(Significant/Annotated) under null ~ input_ratio
-    # More precise: use the total input gene count if available
-    input_ratio <- if ("InputCount" %in% names(resultFis)) {
-      resultFis$InputCount[1] / max(resultFis$Annotated)
-    } else {
-      stats::median(resultFis$Significant / resultFis$Annotated)
-    }
-    p <- p + ggplot2::geom_abline(intercept = 0, slope = input_ratio,
-                                   linetype = "dashed", color = "grey50", linewidth = 0.6) +
-      ggplot2::annotate("text", x = max(resultFis$Annotated) * 0.8,
-                        y = max(resultFis$Annotated) * input_ratio * 0.85,
-                        label = "Expected", color = "grey40", size = 3.5, fontface = "italic")
-  }
 
   if (any(resultFis$label != "")) {
     p <- p + ggrepel::geom_text_repel(

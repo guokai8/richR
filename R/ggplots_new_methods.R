@@ -289,22 +289,19 @@ setMethod("richNES", signature(object = "data.frame"), function(object, top = 20
 #' @export
 setGeneric("richScatter", function(object, top = 20, pvalue = 0.05, padj = NULL,
                                     usePadj = TRUE, low = "#fee0d2", high = "#b2182b",
-                                    point.size = c(2, 8), label.size = 3, label.top = 5,
-                                    show.expected = TRUE, short = FALSE,
-                                    filename = NULL, width = 10, height = 8, ...)
+                                    size.range = c(2, 8), label.size = 3, label.top = 5,
+                                    short = FALSE, filename = NULL, width = 10, height = 8, ...)
   standardGeneric("richScatter"))
 
 #' @rdname richScatter-methods
 #' @export
 setMethod("richScatter", signature(object = "richResult"), function(object, top = 20, pvalue = 0.05, padj = NULL,
                                     usePadj = TRUE, low = "#fee0d2", high = "#b2182b",
-                                    point.size = c(2, 8), label.size = 3, label.top = 5,
-                                    show.expected = TRUE, short = FALSE,
-                                    filename = NULL, width = 10, height = 8, ...) {
+                                    size.range = c(2, 8), label.size = 3, label.top = 5,
+                                    short = FALSE, filename = NULL, width = 10, height = 8, ...) {
   ggscatter_internal(object@result, top = top, pvalue = pvalue, padj = padj,
-                     usePadj = usePadj, low = low, high = high, point.size = point.size,
-                     label.size = label.size, label.top = label.top,
-                     show.expected = show.expected, short = short,
+                     usePadj = usePadj, low = low, high = high, size.range = size.range,
+                     label.size = label.size, label.top = label.top, short = short,
                      filename = filename, width = width, height = height)
 })
 
@@ -312,13 +309,11 @@ setMethod("richScatter", signature(object = "richResult"), function(object, top 
 #' @export
 setMethod("richScatter", signature(object = "data.frame"), function(object, top = 20, pvalue = 0.05, padj = NULL,
                                     usePadj = TRUE, low = "#fee0d2", high = "#b2182b",
-                                    point.size = c(2, 8), label.size = 3, label.top = 5,
-                                    show.expected = TRUE, short = FALSE,
-                                    filename = NULL, width = 10, height = 8, ...) {
+                                    size.range = c(2, 8), label.size = 3, label.top = 5,
+                                    short = FALSE, filename = NULL, width = 10, height = 8, ...) {
   ggscatter_internal(object, top = top, pvalue = pvalue, padj = padj,
-                     usePadj = usePadj, low = low, high = high, point.size = point.size,
-                     label.size = label.size, label.top = label.top,
-                     show.expected = show.expected, short = short,
+                     usePadj = usePadj, low = low, high = high, size.range = size.range,
+                     label.size = label.size, label.top = label.top, short = short,
                      filename = filename, width = width, height = height)
 })
 
@@ -326,14 +321,12 @@ setMethod("richScatter", signature(object = "data.frame"), function(object, top 
 #' @export
 setMethod("richScatter", signature(object = "GSEAResult"), function(object, top = 20, pvalue = 0.05, padj = NULL,
                                     usePadj = TRUE, low = "#fee0d2", high = "#b2182b",
-                                    point.size = c(2, 8), label.size = 3, label.top = 5,
-                                    show.expected = TRUE, short = FALSE,
-                                    filename = NULL, width = 10, height = 8, ...) {
+                                    size.range = c(2, 8), label.size = 3, label.top = 5,
+                                    short = FALSE, filename = NULL, width = 10, height = 8, ...) {
   df <- .gsea_to_ora_frame(object)
   ggscatter_internal(df, top = top, pvalue = pvalue, padj = padj,
-                     usePadj = usePadj, low = low, high = high, point.size = point.size,
-                     label.size = label.size, label.top = label.top,
-                     show.expected = show.expected, short = short,
+                     usePadj = usePadj, low = low, high = high, size.range = size.range,
+                     label.size = label.size, label.top = label.top, short = short,
                      filename = filename, width = width, height = height)
 })
 
