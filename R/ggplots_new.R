@@ -91,9 +91,10 @@ ggvolcano_internal <- function(resultFis,
                                pvalue     = 0.05,
                                padj       = NULL,
                                usePadj    = TRUE,
-                               sig.color  = "#b2182b",
-                               ns.color   = "grey70",
-                               point.size = 3,
+                               low        = "#2166ac",
+                               mid        = "white",
+                               high       = "#b2182b",
+                               size.range = c(2, 8),
                                label.size = 3,
                                label.top  = 5,
                                short      = FALSE,
@@ -105,7 +106,7 @@ ggvolcano_internal <- function(resultFis,
   if (nrow(resultFis) > top) resultFis <- resultFis[seq_len(top), ]
   if (isTRUE(short)) resultFis$Term <- vapply(resultFis$Term, function(x) .paste.char(x, n = 6), character(1))
 
-  # Determine x-axis: log2(FoldEnrichment) for ORA, NES for GSEA
+  # x-axis: log2(FoldEnrichment) for ORA, NES for GSEA
   is_gsea <- "NES" %in% names(resultFis)
   if (is_gsea) {
     resultFis$effect <- resultFis$NES
@@ -122,23 +123,24 @@ ggvolcano_internal <- function(resultFis,
     x_label <- "log2(Fold Enrichment)"
   }
 
-  cutoff <- if (!is.null(padj)) padj else pvalue
+  # y / size: -log10(p)
   sig_col <- if (isTRUE(usePadj) && "Padj" %in% names(resultFis)) "Padj" else "Pvalue"
   resultFis$neg_log_p <- -log10(resultFis[[sig_col]])
-  resultFis$is_sig <- resultFis[[sig_col]] < cutoff
+  cutoff <- if (!is.null(padj)) padj else pvalue
 
-  # Label top significant terms
-  sig_df <- resultFis[resultFis$is_sig, , drop = FALSE]
-  sig_df <- sig_df[order(sig_df$neg_log_p, decreasing = TRUE), ]
+  # Label top terms by significance
+  resultFis <- resultFis[order(resultFis$neg_log_p, decreasing = TRUE), ]
   resultFis$label <- ""
-  label_idx <- which(resultFis$Term %in% utils::head(sig_df$Term, label.top))
-  resultFis$label[label_idx] <- resultFis$Term[label_idx]
+  n_label <- min(label.top, nrow(resultFis))
+  resultFis$label[seq_len(n_label)] <- resultFis$Term[seq_len(n_label)]
 
-  p <- ggplot2::ggplot(resultFis, ggplot2::aes(x = effect, y = neg_log_p, color = is_sig)) +
-    ggplot2::geom_point(size = point.size, alpha = 0.8) +
-    ggplot2::scale_color_manual(values = stats::setNames(c(ns.color, sig.color), c(FALSE, TRUE)),
-                                labels = c("NS", "Significant"),
-                                name = paste0(sig_col, " < ", cutoff)) +
+  p <- ggplot2::ggplot(resultFis, ggplot2::aes(x = effect, y = neg_log_p,
+                                                color = effect, size = neg_log_p)) +
+    ggplot2::geom_point(alpha = 0.8) +
+    ggplot2::scale_color_gradient2(low = low, mid = mid, high = high, midpoint = 0,
+                                   name = if (is_gsea) "NES" else "log2(FE)") +
+    ggplot2::scale_size_continuous(range = size.range,
+                                   name = paste0("-log10(", sig_col, ")")) +
     ggplot2::geom_hline(yintercept = -log10(cutoff), linetype = "dashed", color = "grey50") +
     ggplot2::labs(title = "Enrichment Volcano Plot",
                   x = x_label,
@@ -149,9 +151,11 @@ ggvolcano_internal <- function(resultFis,
   if (!is_gsea) p <- p + ggplot2::geom_vline(xintercept = 0, linetype = "dashed", color = "grey50")
 
   if (any(resultFis$label != "")) {
-    p <- p + ggplot2::geom_text(data = resultFis[resultFis$label != "", ],
-                                ggplot2::aes(label = label),
-                                size = label.size, vjust = -0.8, show.legend = FALSE)
+    p <- p + ggrepel::geom_text_repel(
+      data = resultFis[resultFis$label != "", ],
+      ggplot2::aes(label = label),
+      size = label.size, max.overlaps = 20, show.legend = FALSE,
+      segment.color = "grey50", segment.alpha = 0.6)
   }
 
   if (!is.null(filename)) ggplot2::ggsave(filename, p, width = width, height = height)
@@ -296,9 +300,10 @@ ggscatter_internal <- function(resultFis,
                                usePadj    = TRUE,
                                low        = "#fee0d2",
                                high       = "#b2182b",
-                               point.size = 3,
+                               point.size = c(2, 8),
                                label.size = 3,
                                label.top  = 5,
+                               show.expected = TRUE,
                                short      = FALSE,
                                filename   = NULL,
                                width      = 10,
@@ -310,29 +315,48 @@ ggscatter_internal <- function(resultFis,
 
   neg_log <- if (isTRUE(usePadj) && "Padj" %in% names(resultFis)) -log10(resultFis$Padj) else -log10(resultFis$Pvalue)
   resultFis$neg_log_p <- neg_log
-  if (!"RichFactor" %in% names(resultFis) && "Significant" %in% names(resultFis) && "Annotated" %in% names(resultFis))
-    resultFis$RichFactor <- resultFis$Significant / resultFis$Annotated
   color_label <- if (isTRUE(usePadj)) "-log10(Padj)" else "-log10(Pvalue)"
 
-  # Label top terms by significance
+  # Label top terms
   resultFis <- resultFis[order(resultFis$neg_log_p, decreasing = TRUE), ]
   resultFis$label <- ""
   n_label <- min(label.top, nrow(resultFis))
   resultFis$label[seq_len(n_label)] <- resultFis$Term[seq_len(n_label)]
 
-  p <- ggplot2::ggplot(resultFis, ggplot2::aes(x = Significant, y = RichFactor, color = neg_log_p)) +
-    ggplot2::geom_point(size = point.size, alpha = 0.8) +
+  # Observed vs Expected: x=Annotated (pathway size), y=Significant (observed overlap)
+  # Diagonal = expected overlap under H0 (n/N * Annotated)
+  p <- ggplot2::ggplot(resultFis, ggplot2::aes(x = Annotated, y = Significant,
+                                                color = neg_log_p, size = neg_log_p)) +
+    ggplot2::geom_point(alpha = 0.8) +
     ggplot2::scale_color_gradient(low = low, high = high, name = color_label) +
-    ggplot2::labs(title = "Gene Count vs Enrichment Factor",
-                  x = "Gene Count", y = "RichFactor") +
+    ggplot2::scale_size_continuous(range = point.size, name = color_label) +
+    ggplot2::labs(title = "Observed vs Expected Overlap",
+                  x = "Annotated (pathway size)", y = "Significant (observed overlap)") +
     ggplot2::theme_minimal(base_size = 12) +
     ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5, face = "bold"))
 
+  # Add expected line: slope = n_input / N_background
+  if (isTRUE(show.expected) && "Annotated" %in% names(resultFis) && "Significant" %in% names(resultFis)) {
+    # Estimate ratio from data: median(Significant/Annotated) under null ~ input_ratio
+    # More precise: use the total input gene count if available
+    input_ratio <- if ("InputCount" %in% names(resultFis)) {
+      resultFis$InputCount[1] / max(resultFis$Annotated)
+    } else {
+      stats::median(resultFis$Significant / resultFis$Annotated)
+    }
+    p <- p + ggplot2::geom_abline(intercept = 0, slope = input_ratio,
+                                   linetype = "dashed", color = "grey50", linewidth = 0.6) +
+      ggplot2::annotate("text", x = max(resultFis$Annotated) * 0.8,
+                        y = max(resultFis$Annotated) * input_ratio * 0.85,
+                        label = "Expected", color = "grey40", size = 3.5, fontface = "italic")
+  }
+
   if (any(resultFis$label != "")) {
-    p <- p + ggplot2::geom_text(data = resultFis[resultFis$label != "", ],
-                                ggplot2::aes(label = label),
-                                size = label.size, vjust = -0.8, hjust = 0.5,
-                                check_overlap = TRUE, show.legend = FALSE)
+    p <- p + ggrepel::geom_text_repel(
+      data = resultFis[resultFis$label != "", ],
+      ggplot2::aes(label = label),
+      size = label.size, max.overlaps = 20, show.legend = FALSE,
+      segment.color = "grey50", segment.alpha = 0.6)
   }
 
   if (!is.null(filename)) ggplot2::ggsave(filename, p, width = width, height = height)

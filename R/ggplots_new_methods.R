@@ -78,20 +78,21 @@ setMethod("richLollipop", signature(object = "GSEAResult"), function(object, top
 # ----------------------------------------------------------
 #' Volcano plot of enrichment results
 #'
-#' For ORA (richResult): x = log2(Fold Enrichment), y = -log10(p).
-#' For GSEA (GSEAResult): x = NES, y = -log10(p).
-#' Significant terms are highlighted and labeled.
+#' For ORA (richResult): x = log2(Fold Enrichment), y = -log10(p), color = effect.
+#' For GSEA (GSEAResult): x = NES, y = -log10(p), color = NES.
+#' Point size encodes significance; labels auto-adjusted via ggrepel.
 #'
 #' @param object richResult, GSEAResult, or data.frame
 #' @param top max terms (default 50)
 #' @param pvalue p-value cutoff
 #' @param padj adjusted p-value cutoff
-#' @param usePadj use adjusted p-value for y-axis and coloring
-#' @param sig.color colour for significant points
-#' @param ns.color colour for non-significant points
-#' @param point.size point size
+#' @param usePadj use adjusted p-value for y-axis
+#' @param low low-end gradient colour (negative effect)
+#' @param mid midpoint gradient colour
+#' @param high high-end gradient colour (positive effect)
+#' @param size.range size range for -log10(p) mapping
 #' @param label.size label text size
-#' @param label.top number of top significant terms to label
+#' @param label.top number of top terms to label (via ggrepel)
 #' @param short shorten term names
 #' @param filename save path
 #' @param width figure width
@@ -108,44 +109,44 @@ setMethod("richLollipop", signature(object = "GSEAResult"), function(object, top
 #' @rdname richVolcano-methods
 #' @export
 setGeneric("richVolcano", function(object, top = 50, pvalue = 0.05, padj = NULL,
-                                    usePadj = TRUE, sig.color = "#b2182b", ns.color = "grey70",
-                                    point.size = 3, label.size = 3, label.top = 5,
+                                    usePadj = TRUE, low = "#2166ac", mid = "white", high = "#b2182b",
+                                    size.range = c(2, 8), label.size = 3, label.top = 5,
                                     short = FALSE, filename = NULL, width = 10, height = 8, ...)
   standardGeneric("richVolcano"))
 
 #' @rdname richVolcano-methods
 #' @export
 setMethod("richVolcano", signature(object = "richResult"), function(object, top = 50, pvalue = 0.05, padj = NULL,
-                                    usePadj = TRUE, sig.color = "#b2182b", ns.color = "grey70",
-                                    point.size = 3, label.size = 3, label.top = 5,
+                                    usePadj = TRUE, low = "#2166ac", mid = "white", high = "#b2182b",
+                                    size.range = c(2, 8), label.size = 3, label.top = 5,
                                     short = FALSE, filename = NULL, width = 10, height = 8, ...) {
   ggvolcano_internal(object@result, top = top, pvalue = pvalue, padj = padj,
-                     usePadj = usePadj, sig.color = sig.color, ns.color = ns.color,
-                     point.size = point.size, label.size = label.size, label.top = label.top,
+                     usePadj = usePadj, low = low, mid = mid, high = high,
+                     size.range = size.range, label.size = label.size, label.top = label.top,
                      short = short, filename = filename, width = width, height = height)
 })
 
 #' @rdname richVolcano-methods
 #' @export
 setMethod("richVolcano", signature(object = "GSEAResult"), function(object, top = 50, pvalue = 0.05, padj = NULL,
-                                    usePadj = TRUE, sig.color = "#b2182b", ns.color = "grey70",
-                                    point.size = 3, label.size = 3, label.top = 5,
+                                    usePadj = TRUE, low = "#2166ac", mid = "white", high = "#b2182b",
+                                    size.range = c(2, 8), label.size = 3, label.top = 5,
                                     short = FALSE, filename = NULL, width = 10, height = 8, ...) {
   ggvolcano_internal(object@result, top = top, pvalue = pvalue, padj = padj,
-                     usePadj = usePadj, sig.color = sig.color, ns.color = ns.color,
-                     point.size = point.size, label.size = label.size, label.top = label.top,
+                     usePadj = usePadj, low = low, mid = mid, high = high,
+                     size.range = size.range, label.size = label.size, label.top = label.top,
                      short = short, filename = filename, width = width, height = height)
 })
 
 #' @rdname richVolcano-methods
 #' @export
 setMethod("richVolcano", signature(object = "data.frame"), function(object, top = 50, pvalue = 0.05, padj = NULL,
-                                    usePadj = TRUE, sig.color = "#b2182b", ns.color = "grey70",
-                                    point.size = 3, label.size = 3, label.top = 5,
+                                    usePadj = TRUE, low = "#2166ac", mid = "white", high = "#b2182b",
+                                    size.range = c(2, 8), label.size = 3, label.top = 5,
                                     short = FALSE, filename = NULL, width = 10, height = 8, ...) {
   ggvolcano_internal(object, top = top, pvalue = pvalue, padj = padj,
-                     usePadj = usePadj, sig.color = sig.color, ns.color = ns.color,
-                     point.size = point.size, label.size = label.size, label.top = label.top,
+                     usePadj = usePadj, low = low, mid = mid, high = high,
+                     size.range = size.range, label.size = label.size, label.top = label.top,
                      short = short, filename = filename, width = width, height = height)
 })
 
@@ -288,19 +289,22 @@ setMethod("richNES", signature(object = "data.frame"), function(object, top = 20
 #' @export
 setGeneric("richScatter", function(object, top = 20, pvalue = 0.05, padj = NULL,
                                     usePadj = TRUE, low = "#fee0d2", high = "#b2182b",
-                                    point.size = 3, label.size = 3, label.top = 5,
-                                    short = FALSE, filename = NULL, width = 10, height = 8, ...)
+                                    point.size = c(2, 8), label.size = 3, label.top = 5,
+                                    show.expected = TRUE, short = FALSE,
+                                    filename = NULL, width = 10, height = 8, ...)
   standardGeneric("richScatter"))
 
 #' @rdname richScatter-methods
 #' @export
 setMethod("richScatter", signature(object = "richResult"), function(object, top = 20, pvalue = 0.05, padj = NULL,
                                     usePadj = TRUE, low = "#fee0d2", high = "#b2182b",
-                                    point.size = 3, label.size = 3, label.top = 5,
-                                    short = FALSE, filename = NULL, width = 10, height = 8, ...) {
+                                    point.size = c(2, 8), label.size = 3, label.top = 5,
+                                    show.expected = TRUE, short = FALSE,
+                                    filename = NULL, width = 10, height = 8, ...) {
   ggscatter_internal(object@result, top = top, pvalue = pvalue, padj = padj,
                      usePadj = usePadj, low = low, high = high, point.size = point.size,
-                     label.size = label.size, label.top = label.top, short = short,
+                     label.size = label.size, label.top = label.top,
+                     show.expected = show.expected, short = short,
                      filename = filename, width = width, height = height)
 })
 
@@ -308,11 +312,13 @@ setMethod("richScatter", signature(object = "richResult"), function(object, top 
 #' @export
 setMethod("richScatter", signature(object = "data.frame"), function(object, top = 20, pvalue = 0.05, padj = NULL,
                                     usePadj = TRUE, low = "#fee0d2", high = "#b2182b",
-                                    point.size = 3, label.size = 3, label.top = 5,
-                                    short = FALSE, filename = NULL, width = 10, height = 8, ...) {
+                                    point.size = c(2, 8), label.size = 3, label.top = 5,
+                                    show.expected = TRUE, short = FALSE,
+                                    filename = NULL, width = 10, height = 8, ...) {
   ggscatter_internal(object, top = top, pvalue = pvalue, padj = padj,
                      usePadj = usePadj, low = low, high = high, point.size = point.size,
-                     label.size = label.size, label.top = label.top, short = short,
+                     label.size = label.size, label.top = label.top,
+                     show.expected = show.expected, short = short,
                      filename = filename, width = width, height = height)
 })
 
@@ -320,12 +326,14 @@ setMethod("richScatter", signature(object = "data.frame"), function(object, top 
 #' @export
 setMethod("richScatter", signature(object = "GSEAResult"), function(object, top = 20, pvalue = 0.05, padj = NULL,
                                     usePadj = TRUE, low = "#fee0d2", high = "#b2182b",
-                                    point.size = 3, label.size = 3, label.top = 5,
-                                    short = FALSE, filename = NULL, width = 10, height = 8, ...) {
+                                    point.size = c(2, 8), label.size = 3, label.top = 5,
+                                    show.expected = TRUE, short = FALSE,
+                                    filename = NULL, width = 10, height = 8, ...) {
   df <- .gsea_to_ora_frame(object)
   ggscatter_internal(df, top = top, pvalue = pvalue, padj = padj,
                      usePadj = usePadj, low = low, high = high, point.size = point.size,
-                     label.size = label.size, label.top = label.top, short = short,
+                     label.size = label.size, label.top = label.top,
+                     show.expected = show.expected, short = short,
                      filename = filename, width = width, height = height)
 })
 
