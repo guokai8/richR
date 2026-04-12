@@ -261,7 +261,7 @@ setMethod("richNES", signature(object = "data.frame"), function(object, top = 20
 #' @export
 setGeneric("richScatter", function(object, top = 20, pvalue = 0.05, padj = NULL,
                                     usePadj = TRUE, low = "#fee0d2", high = "#b2182b",
-                                    point.size = 5, label.size = 3, short = FALSE,
+                                    point.size = c(2, 8), label.size = 3, short = FALSE,
                                     filename = NULL, width = 10, height = 8, ...)
   standardGeneric("richScatter"))
 
@@ -269,7 +269,7 @@ setGeneric("richScatter", function(object, top = 20, pvalue = 0.05, padj = NULL,
 #' @export
 setMethod("richScatter", signature(object = "richResult"), function(object, top = 20, pvalue = 0.05, padj = NULL,
                                     usePadj = TRUE, low = "#fee0d2", high = "#b2182b",
-                                    point.size = 5, label.size = 3, short = FALSE,
+                                    point.size = c(2, 8), label.size = 3, short = FALSE,
                                     filename = NULL, width = 10, height = 8, ...) {
   ggscatter_internal(object@result, top = top, pvalue = pvalue, padj = padj,
                      usePadj = usePadj, low = low, high = high, point.size = point.size,
@@ -281,7 +281,7 @@ setMethod("richScatter", signature(object = "richResult"), function(object, top 
 #' @export
 setMethod("richScatter", signature(object = "data.frame"), function(object, top = 20, pvalue = 0.05, padj = NULL,
                                     usePadj = TRUE, low = "#fee0d2", high = "#b2182b",
-                                    point.size = 5, label.size = 3, short = FALSE,
+                                    point.size = c(2, 8), label.size = 3, short = FALSE,
                                     filename = NULL, width = 10, height = 8, ...) {
   ggscatter_internal(object, top = top, pvalue = pvalue, padj = padj,
                      usePadj = usePadj, low = low, high = high, point.size = point.size,
@@ -293,7 +293,7 @@ setMethod("richScatter", signature(object = "data.frame"), function(object, top 
 #' @export
 setMethod("richScatter", signature(object = "GSEAResult"), function(object, top = 20, pvalue = 0.05, padj = NULL,
                                     usePadj = TRUE, low = "#fee0d2", high = "#b2182b",
-                                    point.size = 5, label.size = 3, short = FALSE,
+                                    point.size = c(2, 8), label.size = 3, short = FALSE,
                                     filename = NULL, width = 10, height = 8, ...) {
   df <- .gsea_to_ora_frame(object)
   ggscatter_internal(df, top = top, pvalue = pvalue, padj = padj,
@@ -533,6 +533,7 @@ setMethod("richGeneDot", signature(object = "GSEAResult"), function(object, fc =
 setGeneric("richGeneHeat", function(object, fc = NULL, top = 10, max.genes = 30,
                                      pvalue = 0.05, padj = NULL, usePadj = TRUE,
                                      low = "#2166ac", mid = "white", high = "#b2182b",
+                                     na.fill = "grey90", border.color = "grey40",
                                      label.cutoff = 1.5, short = FALSE, sep = ",",
                                      filename = NULL, width = 12, height = 8, ...)
   standardGeneric("richGeneHeat"))
@@ -542,10 +543,12 @@ setGeneric("richGeneHeat", function(object, fc = NULL, top = 10, max.genes = 30,
 setMethod("richGeneHeat", signature(object = "richResult"), function(object, fc = NULL, top = 10, max.genes = 30,
                                      pvalue = 0.05, padj = NULL, usePadj = TRUE,
                                      low = "#2166ac", mid = "white", high = "#b2182b",
+                                     na.fill = "grey90", border.color = "grey40",
                                      label.cutoff = 1.5, short = FALSE, sep = ",",
                                      filename = NULL, width = 12, height = 8, ...) {
   gggeneheat_internal(object@result, fc = fc, top = top, max.genes = max.genes,
                       pvalue = pvalue, padj = padj, usePadj = usePadj, low = low, mid = mid, high = high,
+                      na.fill = na.fill, border.color = border.color,
                       label.cutoff = label.cutoff, short = short, sep = object@sep,
                       filename = filename, width = width, height = height)
 })
@@ -555,10 +558,12 @@ setMethod("richGeneHeat", signature(object = "richResult"), function(object, fc 
 setMethod("richGeneHeat", signature(object = "data.frame"), function(object, fc = NULL, top = 10, max.genes = 30,
                                      pvalue = 0.05, padj = NULL, usePadj = TRUE,
                                      low = "#2166ac", mid = "white", high = "#b2182b",
+                                     na.fill = "grey90", border.color = "grey40",
                                      label.cutoff = 1.5, short = FALSE, sep = ",",
                                      filename = NULL, width = 12, height = 8, ...) {
   gggeneheat_internal(object, fc = fc, top = top, max.genes = max.genes,
                       pvalue = pvalue, padj = padj, usePadj = usePadj, low = low, mid = mid, high = high,
+                      na.fill = na.fill, border.color = border.color,
                       label.cutoff = label.cutoff, short = short, sep = sep,
                       filename = filename, width = width, height = height)
 })
@@ -568,11 +573,13 @@ setMethod("richGeneHeat", signature(object = "data.frame"), function(object, fc 
 setMethod("richGeneHeat", signature(object = "GSEAResult"), function(object, fc = NULL, top = 10, max.genes = 30,
                                      pvalue = 0.05, padj = NULL, usePadj = TRUE,
                                      low = "#2166ac", mid = "white", high = "#b2182b",
+                                     na.fill = "grey90", border.color = "grey40",
                                      label.cutoff = 1.5, short = FALSE, sep = ",",
                                      filename = NULL, width = 12, height = 8, ...) {
   df <- .gsea_to_ora_frame(object)
   gggeneheat_internal(df, fc = fc, top = top, max.genes = max.genes,
                       pvalue = pvalue, padj = padj, usePadj = usePadj, low = low, mid = mid, high = high,
+                      na.fill = na.fill, border.color = border.color,
                       label.cutoff = label.cutoff, short = short, sep = object@sep,
                       filename = filename, width = width, height = height)
 })

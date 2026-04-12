@@ -255,7 +255,7 @@ ggscatter_internal <- function(resultFis,
                                usePadj    = TRUE,
                                low        = "#fee0d2",
                                high       = "#b2182b",
-                               point.size = 5,
+                               point.size = c(2, 8),
                                label.size = 3,
                                short      = FALSE,
                                filename   = NULL,
@@ -268,17 +268,21 @@ ggscatter_internal <- function(resultFis,
 
   neg_log <- if (isTRUE(usePadj) && "Padj" %in% names(resultFis)) -log10(resultFis$Padj) else -log10(resultFis$Pvalue)
   resultFis$neg_log_p <- neg_log
+  if (!"RichFactor" %in% names(resultFis) && "Significant" %in% names(resultFis) && "Annotated" %in% names(resultFis))
+    resultFis$RichFactor <- resultFis$Significant / resultFis$Annotated
+  color_label <- if (isTRUE(usePadj)) "-log10(Padj)" else "-log10(Pvalue)"
 
-  p <- ggplot2::ggplot(resultFis, ggplot2::aes(x = Significant, y = neg_log_p, color = neg_log_p)) +
-    ggplot2::geom_point(size = point.size) +
-    ggplot2::geom_text(ggplot2::aes(label = Term), size = label.size,
-                       hjust = 0, nudge_x = 0.5, check_overlap = TRUE) +
-    ggplot2::scale_color_gradient(low = low, high = high,
-                                  name = if (isTRUE(usePadj)) "-log10(Padj)" else "-log10(Pvalue)") +
-    ggplot2::labs(title = "Gene Count vs Significance",
-                  x = "Gene Count",
-                  y = if (isTRUE(usePadj)) "-log10(Padj)" else "-log10(Pvalue)") +
-    ggplot2::theme_minimal(base_size = 12)
+  p <- ggplot2::ggplot(resultFis, ggplot2::aes(x = RichFactor,
+                                                y = stats::reorder(Term, RichFactor),
+                                                size = Significant,
+                                                color = neg_log_p)) +
+    ggplot2::geom_point() +
+    ggplot2::scale_color_gradient(low = low, high = high, name = color_label) +
+    ggplot2::scale_size_continuous(range = point.size, name = "Gene Count") +
+    ggplot2::labs(title = "Enrichment Scatter Plot",
+                  x = "RichFactor", y = NULL) +
+    ggplot2::theme_minimal(base_size = 12) +
+    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5, face = "bold"))
 
   if (!is.null(filename)) ggplot2::ggsave(filename, p, width = width, height = height)
   p
@@ -521,6 +525,8 @@ gggeneheat_internal <- function(resultFis,
                                 low          = "#2166ac",
                                 mid          = "white",
                                 high         = "#b2182b",
+                                na.fill      = "grey90",
+                                border.color = "grey40",
                                 label.cutoff = 1.5,
                                 short        = FALSE,
                                 sep          = ",",
@@ -535,28 +541,41 @@ gggeneheat_internal <- function(resultFis,
   melted <- .melt_gene_term(resultFis, fc = fc, sep = sep, max.genes = max.genes)
   if (nrow(melted) == 0) { message("No gene-term pairs."); return(invisible(NULL)) }
 
+  # Build full gene x term grid so missing combinations appear as NA (grey)
+  all_genes <- unique(melted$Gene)
+  all_terms <- unique(melted$Term)
+  full_grid <- expand.grid(Gene = all_genes, Term = all_terms, stringsAsFactors = FALSE)
+  melted$present <- TRUE
+  melted <- merge(full_grid, melted, by = c("Gene", "Term"), all.x = TRUE)
+
   if (is.null(fc)) {
-    # No fold-change: fill by -log10(Pvalue/Padj)
     neg_log <- if (isTRUE(usePadj) && "Padj" %in% names(resultFis)) -log10(resultFis$Padj) else -log10(resultFis$Pvalue)
     pval_map <- stats::setNames(neg_log, resultFis$Term)
-    melted$neg_log_p <- pval_map[as.character(melted$Term)]
+    melted$neg_log_p <- ifelse(is.na(melted$present), NA_real_, pval_map[as.character(melted$Term)])
     fill_label <- if (isTRUE(usePadj)) "-log10(Padj)" else "-log10(Pvalue)"
     p <- ggplot2::ggplot(melted, ggplot2::aes(x = Gene, y = Term, fill = neg_log_p)) +
-      ggplot2::geom_tile(color = "white", linewidth = 0.3) +
-      ggplot2::scale_fill_gradient(low = low, high = high, name = fill_label)
+      ggplot2::geom_tile(color = border.color, linewidth = 0.5) +
+      ggplot2::scale_fill_gradient(low = low, high = high, name = fill_label,
+                                   na.value = na.fill)
   } else {
-    melted$label <- ifelse(abs(melted$fc_value) > label.cutoff, as.character(melted$Gene), "")
+    melted$fc_value[is.na(melted$present)] <- NA_real_
+    melted$label <- ifelse(!is.na(melted$fc_value) & abs(melted$fc_value) > label.cutoff,
+                           as.character(melted$Gene), "")
     p <- ggplot2::ggplot(melted, ggplot2::aes(x = Gene, y = Term, fill = fc_value)) +
-      ggplot2::geom_tile(color = "white", linewidth = 0.3) +
-      ggplot2::geom_text(data = melted[melted$label != "", ],
+      ggplot2::geom_tile(color = border.color, linewidth = 0.5) +
+      ggplot2::geom_text(data = melted[!is.na(melted$label) & melted$label != "", ],
                          ggplot2::aes(label = label), size = 2.5, color = "black") +
-      ggplot2::scale_fill_gradient2(low = low, mid = mid, high = high, name = "Fold Change")
+      ggplot2::scale_fill_gradient2(low = low, mid = mid, high = high,
+                                    name = "Fold Change", na.value = na.fill)
   }
   p <- p +
     ggplot2::labs(title = "Gene-Term Heatmap", x = "Genes", y = NULL) +
-    ggplot2::theme_minimal(base_size = 12) +
-    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, size = 8),
-                   plot.title  = ggplot2::element_text(hjust = 0.5, face = "bold"))
+    ggplot2::theme(panel.background = ggplot2::element_rect(fill = "white", color = NA),
+                   panel.grid = ggplot2::element_blank(),
+                   axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, size = 8),
+                   axis.text.y = ggplot2::element_text(size = 9),
+                   axis.ticks = ggplot2::element_line(color = "grey50"),
+                   plot.title  = ggplot2::element_text(hjust = 0.5, face = "bold", size = 14))
 
   if (!is.null(filename)) ggplot2::ggsave(filename, p, width = width, height = height)
   p
