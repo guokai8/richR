@@ -29,7 +29,8 @@ utils::globalVariables(c(
   "setAnnotationCategories", "getFunctionalAnnotationChart", "getSpecieNames",
   # new ggplots
   "is_sig", "direction", "cum_rank", "Dim1", "Dim2",
-  "Gene", "abs_fc", "fc_value", "gene_label", "present", "effect", "x_val"
+  "Gene", "abs_fc", "fc_value", "gene_label", "present", "effect",
+  "log_annotated", "log2_fe"
 ))
 
 #' Internal richR functions and methods

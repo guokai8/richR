@@ -294,13 +294,13 @@ ggNES_internal <- function(resultFis,
 #' @return a ggplot2 object
 #' @keywords internal
 ggscatter_internal <- function(resultFis,
-                               top        = 20,
+                               top        = 50,
                                pvalue     = 0.05,
                                padj       = NULL,
                                usePadj    = TRUE,
                                low        = "#fee0d2",
                                high       = "#b2182b",
-                               size.range = c(2, 8),
+                               point.size = 3,
                                label.size = 3,
                                label.top  = 5,
                                short      = FALSE,
@@ -312,47 +312,37 @@ ggscatter_internal <- function(resultFis,
   if (nrow(resultFis) == 0) { message("No significant terms to plot."); return(invisible(NULL)) }
   if (isTRUE(short)) resultFis$Term <- vapply(resultFis$Term, function(x) .paste.char(x, n = 6), character(1))
 
-  # y-axis: -log10(p)
+  # x-axis: log10(Annotated) — pathway size
+  resultFis$log_annotated <- log10(resultFis$Annotated)
+
+  # y-axis: log2(FoldEnrichment) — effect size
+  if (!"FoldEnrichment" %in% names(resultFis)) {
+    if ("Significant" %in% names(resultFis) && "Annotated" %in% names(resultFis)) {
+      resultFis$FoldEnrichment <- resultFis$Significant / resultFis$Annotated
+    } else {
+      resultFis$FoldEnrichment <- 1
+    }
+  }
+  resultFis$log2_fe <- log2(pmax(resultFis$FoldEnrichment, 0.001))
+
+  # color: -log10(p)
   sig_col <- if (isTRUE(usePadj) && "Padj" %in% names(resultFis)) "Padj" else "Pvalue"
   resultFis$neg_log_p <- -log10(resultFis[[sig_col]])
+  color_label <- paste0("-log10(", sig_col, ")")
 
-  # x-axis: zscore (enrichment z-score: how far from expected)
-  # Fall back to log2(FoldEnrichment) if zscore unavailable
-  if ("zscore" %in% names(resultFis)) {
-    resultFis$x_val <- resultFis$zscore
-    x_label <- "Enrichment z-score"
-  } else {
-    if (!"FoldEnrichment" %in% names(resultFis)) {
-      if ("Significant" %in% names(resultFis) && "Annotated" %in% names(resultFis)) {
-        resultFis$FoldEnrichment <- resultFis$Significant / resultFis$Annotated
-      } else {
-        resultFis$FoldEnrichment <- 1
-      }
-    }
-    resultFis$x_val <- log2(pmax(resultFis$FoldEnrichment, 0.001))
-    x_label <- "log2(Fold Enrichment)"
-  }
-
-  # color: RichFactor (enrichment strength)
-  if (!"RichFactor" %in% names(resultFis) && "Significant" %in% names(resultFis) && "Annotated" %in% names(resultFis))
-    resultFis$RichFactor <- resultFis$Significant / resultFis$Annotated
-
-  # Label top terms
+  # Label top terms by significance
   resultFis <- resultFis[order(resultFis$neg_log_p, decreasing = TRUE), ]
   resultFis$label <- ""
   n_label <- min(label.top, nrow(resultFis))
   resultFis$label[seq_len(n_label)] <- resultFis$Term[seq_len(n_label)]
 
-  p <- ggplot2::ggplot(resultFis, ggplot2::aes(x = x_val, y = neg_log_p,
-                                                size = Significant, color = RichFactor)) +
-    ggplot2::geom_point(alpha = 0.8) +
-    ggplot2::scale_color_gradient(low = low, high = high, name = "RichFactor") +
-    ggplot2::scale_size_continuous(range = size.range, name = "Gene Count") +
-    ggplot2::guides(color = ggplot2::guide_colourbar(order = 1),
-                    size  = ggplot2::guide_legend(order = 2)) +
-    ggplot2::labs(title = "Enrichment Landscape",
-                  x = x_label,
-                  y = paste0("-log10(", sig_col, ")")) +
+  p <- ggplot2::ggplot(resultFis, ggplot2::aes(x = log_annotated, y = log2_fe,
+                                                color = neg_log_p)) +
+    ggplot2::geom_point(size = point.size, alpha = 0.8) +
+    ggplot2::scale_color_gradient(low = low, high = high, name = color_label) +
+    ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "grey60") +
+    ggplot2::labs(x = "log10(Pathway Size)",
+                  y = "log2(Fold Enrichment)") +
     ggplot2::theme_minimal(base_size = 12) +
     ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5, face = "bold"))
 

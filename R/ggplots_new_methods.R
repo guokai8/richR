@@ -263,17 +263,23 @@ setMethod("richNES", signature(object = "data.frame"), function(object, top = 20
 # ----------------------------------------------------------
 #  richScatter  (aliases: ggscatter, ggScatter)
 # ----------------------------------------------------------
-#' Labeled scatter plot of enrichment results
+#' Enrichment funnel plot (MA-plot analogy)
+#'
+#' Plots pathway size vs fold enrichment, coloured by significance.
+#' Analogous to an MA plot in differential expression: small pathways
+#' (left) can have extreme fold enrichment by chance, while large
+#' pathways (right) with high enrichment are the most robust findings.
 #'
 #' @param object richResult, data.frame, or GSEAResult
-#' @param top number of terms (default 20)
+#' @param top number of terms (default 50)
 #' @param pvalue p-value cutoff
 #' @param padj adjusted p-value cutoff
 #' @param usePadj colour by adjusted p-value?
 #' @param low low-end gradient colour
 #' @param high high-end gradient colour
 #' @param point.size point size
-#' @param label.size label size
+#' @param label.size label text size
+#' @param label.top number of top terms to label (via ggrepel)
 #' @param short shorten term names
 #' @param filename save path
 #' @param width figure width
@@ -287,45 +293,45 @@ setMethod("richNES", signature(object = "data.frame"), function(object, top = 20
 #' }
 #' @rdname richScatter-methods
 #' @export
-setGeneric("richScatter", function(object, top = 20, pvalue = 0.05, padj = NULL,
+setGeneric("richScatter", function(object, top = 50, pvalue = 0.05, padj = NULL,
                                     usePadj = TRUE, low = "#fee0d2", high = "#b2182b",
-                                    size.range = c(2, 8), label.size = 3, label.top = 5,
+                                    point.size = 3, label.size = 3, label.top = 5,
                                     short = FALSE, filename = NULL, width = 10, height = 8, ...)
   standardGeneric("richScatter"))
 
 #' @rdname richScatter-methods
 #' @export
-setMethod("richScatter", signature(object = "richResult"), function(object, top = 20, pvalue = 0.05, padj = NULL,
+setMethod("richScatter", signature(object = "richResult"), function(object, top = 50, pvalue = 0.05, padj = NULL,
                                     usePadj = TRUE, low = "#fee0d2", high = "#b2182b",
-                                    size.range = c(2, 8), label.size = 3, label.top = 5,
+                                    point.size = 3, label.size = 3, label.top = 5,
                                     short = FALSE, filename = NULL, width = 10, height = 8, ...) {
   ggscatter_internal(object@result, top = top, pvalue = pvalue, padj = padj,
-                     usePadj = usePadj, low = low, high = high, size.range = size.range,
+                     usePadj = usePadj, low = low, high = high, point.size = point.size,
                      label.size = label.size, label.top = label.top, short = short,
                      filename = filename, width = width, height = height)
 })
 
 #' @rdname richScatter-methods
 #' @export
-setMethod("richScatter", signature(object = "data.frame"), function(object, top = 20, pvalue = 0.05, padj = NULL,
+setMethod("richScatter", signature(object = "data.frame"), function(object, top = 50, pvalue = 0.05, padj = NULL,
                                     usePadj = TRUE, low = "#fee0d2", high = "#b2182b",
-                                    size.range = c(2, 8), label.size = 3, label.top = 5,
+                                    point.size = 3, label.size = 3, label.top = 5,
                                     short = FALSE, filename = NULL, width = 10, height = 8, ...) {
   ggscatter_internal(object, top = top, pvalue = pvalue, padj = padj,
-                     usePadj = usePadj, low = low, high = high, size.range = size.range,
+                     usePadj = usePadj, low = low, high = high, point.size = point.size,
                      label.size = label.size, label.top = label.top, short = short,
                      filename = filename, width = width, height = height)
 })
 
 #' @rdname richScatter-methods
 #' @export
-setMethod("richScatter", signature(object = "GSEAResult"), function(object, top = 20, pvalue = 0.05, padj = NULL,
+setMethod("richScatter", signature(object = "GSEAResult"), function(object, top = 50, pvalue = 0.05, padj = NULL,
                                     usePadj = TRUE, low = "#fee0d2", high = "#b2182b",
-                                    size.range = c(2, 8), label.size = 3, label.top = 5,
+                                    point.size = 3, label.size = 3, label.top = 5,
                                     short = FALSE, filename = NULL, width = 10, height = 8, ...) {
   df <- .gsea_to_ora_frame(object)
   ggscatter_internal(df, top = top, pvalue = pvalue, padj = padj,
-                     usePadj = usePadj, low = low, high = high, size.range = size.range,
+                     usePadj = usePadj, low = low, high = high, point.size = point.size,
                      label.size = label.size, label.top = label.top, short = short,
                      filename = filename, width = width, height = height)
 })
