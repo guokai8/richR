@@ -475,7 +475,9 @@ ggtermsim_internal <- function(resultFis,
 
   p <- ggplot2::ggplot(mds_df, ggplot2::aes(x = Dim1, y = Dim2, size = Significant, color = neg_log_p)) +
     ggplot2::geom_point(alpha = 0.8) +
-    ggplot2::geom_text(ggplot2::aes(label = Term), size = label.size, check_overlap = TRUE, nudge_y = 0.3) +
+    ggrepel::geom_text_repel(ggplot2::aes(label = Term), size = label.size,
+                              max.overlaps = 20, show.legend = FALSE,
+                              segment.color = "grey50", segment.alpha = 0.6) +
     ggplot2::scale_color_gradient(low = low, high = high,
                                   name = if (isTRUE(usePadj)) "-log10(Padj)" else "-log10(Pvalue)") +
     ggplot2::labs(title = "Term Similarity Scatter Plot (MDS)",
