@@ -141,7 +141,7 @@ setMethod("richGSEA", signature(object = "Annot"),definition = function(x,object
 #' gene<-rnorm(1000)
 #' names(gene)<-name
 #' res<-richGSEA(gene,object = hsako)
-#' ggGSEA(term = res$pathway, object = hsako, gseaRes = res, default = FALSE)
+#' richGSEAplot(term = res$pathway, object = hsako, gseaRes = res, default = FALSE)
 #' }
 #' @export
 #' @author Kai Guo
@@ -224,14 +224,14 @@ richGSEAplot <- function(term, object, gseaRes, top = 10, default = TRUE) {
 #' names(gene)<-name
 #' res<-richGSEA(gene,object = hsako)
 #' # Plot with directional coloring (default)
-#' plotGSEA(object = hsako, gseaRes = res, show_direction = TRUE)
+#' richGSEAcurve(object = hsako, gseaRes = res, show_direction = TRUE)
 #' # Plot specific pathways
-#' plotGSEA(object = hsako, gseaRes = res,
+#' richGSEAcurve(object = hsako, gseaRes = res,
 #'          pathways = c("MAPK signaling pathway", "PI3K-Akt signaling pathway"))
 #' # Plot pathways matching pattern
-#' plotGSEA(object = hsako, gseaRes = res, pathway_pattern = "signaling")
+#' richGSEAcurve(object = hsako, gseaRes = res, pathway_pattern = "signaling")
 #' # Traditional multi-color approach
-#' plotGSEA(object = hsako, gseaRes = res, show_direction = FALSE)
+#' richGSEAcurve(object = hsako, gseaRes = res, show_direction = FALSE)
 #' }
 #' @export
 #' @author Kai Guo
@@ -595,7 +595,7 @@ searchPathways <- function(gseaRes, keyword, ignore_case = TRUE) {
 }
 
 #' Save GSEA plot with optimal dimensions
-#' @param plot_obj ggplot object from plotGSEA
+#' @param plot_obj ggplot object from richGSEAcurve
 #' @param filename output filename
 #' @param width plot width in inches
 #' @param height plot height in inches
@@ -605,7 +605,7 @@ searchPathways <- function(gseaRes, keyword, ignore_case = TRUE) {
 #' @export
 #' @examples
 #' \dontrun{
-#' p <- plotGSEA(object = hsako, gseaRes = res)
+#' p <- richGSEAcurve(object = hsako, gseaRes = res)
 #' saveGSEAplot(p, "gsea_plot.pdf")
 #' saveGSEAplot(p, "gsea_plot.png", dpi = 600)
 #' }
@@ -627,7 +627,7 @@ saveGSEAplot <- function(plot_obj, filename, width = 12, height = 8, dpi = 300, 
 #' @param height plot height
 #' @param dpi resolution
 #' @param format output format (pdf, png, etc.)
-#' @param ... additional arguments passed to plotGSEA
+#' @param ... additional arguments passed to richGSEAcurve
 #' @export
 #' @examples
 #' \dontrun{
@@ -653,7 +653,7 @@ batchGSEAplot <- function(gsea_list, object, output_dir = "gsea_plots",
     message("Processing: ", name)
 
     tryCatch({
-      p <- plotGSEA(object = object, gseaRes = gsea_list[[name]],
+      p <- richGSEAcurve(object = object, gseaRes = gsea_list[[name]],
                     plot_title = paste("GSEA:", name), ...)
       filename <- file.path(output_dir, paste0(name, "_gsea.", format))
       ggsave(filename, p, width = width, height = height, dpi = dpi)

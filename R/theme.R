@@ -10,10 +10,10 @@
 #' @examples
 #' \dontrun{
 #' library(ggplot2)
-#' ggdot(res) + theme_richR()
+#' richDot(res) + theme_richR()
 #'
 #' # Larger fonts for presentations
-#' ggbar(res) + theme_richR(base_size = 16)
+#' richBar(res) + theme_richR(base_size = 16)
 #' }
 #' @importFrom ggplot2 theme theme_minimal element_text element_line element_blank
 #'   element_rect margin %+replace%

@@ -1,7 +1,7 @@
 #' Batch enrichment analysis across multiple gene lists
 #'
 #' Runs enrichment analysis on a named list of gene vectors and returns
-#' combined results ready for \code{comparedot()} visualization.
+#' combined results ready for \code{richCompareDot()} visualization.
 #'
 #' @param gene_lists Named list of character vectors (gene IDs per group)
 #' @param annot Annot object or annotation data.frame
@@ -15,7 +15,7 @@
 #' \describe{
 #'   \item{results}{Named list of richResult objects}
 #'   \item{combined}{Combined data.frame with a \code{group} column,
-#'     ready for \code{comparedot()}}
+#'     ready for \code{richCompareDot()}}
 #' }
 #'
 #' @examples
@@ -33,7 +33,7 @@
 #' head(result(batch$results[["Treatment"]]))
 #'
 #' # Visualize comparison
-#' comparedot(batch$combined)
+#' richCompareDot(batch$combined)
 #' }
 #' @export
 #' @author Junguk Hur
