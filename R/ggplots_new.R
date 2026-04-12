@@ -90,28 +90,69 @@ ggvolcano_internal <- function(resultFis,
                                top        = 50,
                                pvalue     = 0.05,
                                padj       = NULL,
+                               usePadj    = TRUE,
                                sig.color  = "#b2182b",
                                ns.color   = "grey70",
                                point.size = 3,
+                               label.size = 3,
+                               label.top  = 5,
+                               short      = FALSE,
                                filename   = NULL,
                                width      = 10,
                                height     = 8) {
 
   resultFis <- .standardise_gsea_cols(resultFis)
   if (nrow(resultFis) > top) resultFis <- resultFis[seq_len(top), ]
+  if (isTRUE(short)) resultFis$Term <- vapply(resultFis$Term, function(x) .paste.char(x, n = 6), character(1))
+
+  # Determine x-axis: log2(FoldEnrichment) for ORA, NES for GSEA
+  is_gsea <- "NES" %in% names(resultFis)
+  if (is_gsea) {
+    resultFis$effect <- resultFis$NES
+    x_label <- "Normalized Enrichment Score (NES)"
+  } else {
+    if (!"FoldEnrichment" %in% names(resultFis)) {
+      if ("Significant" %in% names(resultFis) && "Annotated" %in% names(resultFis)) {
+        resultFis$FoldEnrichment <- resultFis$Significant / resultFis$Annotated
+      } else {
+        resultFis$FoldEnrichment <- 1
+      }
+    }
+    resultFis$effect <- log2(pmax(resultFis$FoldEnrichment, 0.001))
+    x_label <- "log2(Fold Enrichment)"
+  }
+
   cutoff <- if (!is.null(padj)) padj else pvalue
-  sig_col <- if (!is.null(padj)) "Padj" else "Pvalue"
+  sig_col <- if (isTRUE(usePadj) && "Padj" %in% names(resultFis)) "Padj" else "Pvalue"
+  resultFis$neg_log_p <- -log10(resultFis[[sig_col]])
   resultFis$is_sig <- resultFis[[sig_col]] < cutoff
 
-  p <- ggplot2::ggplot(resultFis, ggplot2::aes(x = NES, y = -log10(Padj), color = is_sig)) +
-    ggplot2::geom_point(size = point.size) +
+  # Label top significant terms
+  sig_df <- resultFis[resultFis$is_sig, , drop = FALSE]
+  sig_df <- sig_df[order(sig_df$neg_log_p, decreasing = TRUE), ]
+  resultFis$label <- ""
+  label_idx <- which(resultFis$Term %in% utils::head(sig_df$Term, label.top))
+  resultFis$label[label_idx] <- resultFis$Term[label_idx]
+
+  p <- ggplot2::ggplot(resultFis, ggplot2::aes(x = effect, y = neg_log_p, color = is_sig)) +
+    ggplot2::geom_point(size = point.size, alpha = 0.8) +
     ggplot2::scale_color_manual(values = stats::setNames(c(ns.color, sig.color), c(FALSE, TRUE)),
+                                labels = c("NS", "Significant"),
                                 name = paste0(sig_col, " < ", cutoff)) +
-    ggplot2::geom_vline(xintercept = 0, linetype = "dashed") +
-    ggplot2::labs(title = "Volcano Plot of Gene Sets",
-                  x = "Normalized Enrichment Score (NES)",
-                  y = "-log10(Padj)") +
-    ggplot2::theme_minimal()
+    ggplot2::geom_hline(yintercept = -log10(cutoff), linetype = "dashed", color = "grey50") +
+    ggplot2::labs(title = "Enrichment Volcano Plot",
+                  x = x_label,
+                  y = paste0("-log10(", sig_col, ")")) +
+    ggplot2::theme_minimal(base_size = 12) +
+    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5, face = "bold"))
+
+  if (!is_gsea) p <- p + ggplot2::geom_vline(xintercept = 0, linetype = "dashed", color = "grey50")
+
+  if (any(resultFis$label != "")) {
+    p <- p + ggplot2::geom_text(data = resultFis[resultFis$label != "", ],
+                                ggplot2::aes(label = label),
+                                size = label.size, vjust = -0.8, show.legend = FALSE)
+  }
 
   if (!is.null(filename)) ggplot2::ggsave(filename, p, width = width, height = height)
   p
@@ -255,8 +296,9 @@ ggscatter_internal <- function(resultFis,
                                usePadj    = TRUE,
                                low        = "#fee0d2",
                                high       = "#b2182b",
-                               point.size = c(2, 8),
+                               point.size = 3,
                                label.size = 3,
+                               label.top  = 5,
                                short      = FALSE,
                                filename   = NULL,
                                width      = 10,
@@ -272,17 +314,26 @@ ggscatter_internal <- function(resultFis,
     resultFis$RichFactor <- resultFis$Significant / resultFis$Annotated
   color_label <- if (isTRUE(usePadj)) "-log10(Padj)" else "-log10(Pvalue)"
 
-  p <- ggplot2::ggplot(resultFis, ggplot2::aes(x = RichFactor,
-                                                y = stats::reorder(Term, RichFactor),
-                                                size = Significant,
-                                                color = neg_log_p)) +
-    ggplot2::geom_point() +
+  # Label top terms by significance
+  resultFis <- resultFis[order(resultFis$neg_log_p, decreasing = TRUE), ]
+  resultFis$label <- ""
+  n_label <- min(label.top, nrow(resultFis))
+  resultFis$label[seq_len(n_label)] <- resultFis$Term[seq_len(n_label)]
+
+  p <- ggplot2::ggplot(resultFis, ggplot2::aes(x = Significant, y = RichFactor, color = neg_log_p)) +
+    ggplot2::geom_point(size = point.size, alpha = 0.8) +
     ggplot2::scale_color_gradient(low = low, high = high, name = color_label) +
-    ggplot2::scale_size_continuous(range = point.size, name = "Gene Count") +
-    ggplot2::labs(title = "Enrichment Scatter Plot",
-                  x = "RichFactor", y = NULL) +
+    ggplot2::labs(title = "Gene Count vs Enrichment Factor",
+                  x = "Gene Count", y = "RichFactor") +
     ggplot2::theme_minimal(base_size = 12) +
     ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5, face = "bold"))
+
+  if (any(resultFis$label != "")) {
+    p <- p + ggplot2::geom_text(data = resultFis[resultFis$label != "", ],
+                                ggplot2::aes(label = label),
+                                size = label.size, vjust = -0.8, hjust = 0.5,
+                                check_overlap = TRUE, show.legend = FALSE)
+  }
 
   if (!is.null(filename)) ggplot2::ggsave(filename, p, width = width, height = height)
   p
