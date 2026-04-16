@@ -13,6 +13,8 @@ ggtermsim_internal(
   low = "grey80",
   high = "#b2182b",
   label.size = 3,
+  sim.cutoff = 0.2,
+  size.range = c(3, 10),
   short = FALSE,
   sep = ",",
   filename = NULL,

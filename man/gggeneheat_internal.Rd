@@ -15,6 +15,8 @@ gggeneheat_internal(
   low = "#2166ac",
   mid = "white",
   high = "#b2182b",
+  na.fill = "grey90",
+  border.color = "grey40",
   label.cutoff = 1.5,
   short = FALSE,
   sep = ",",

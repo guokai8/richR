@@ -142,7 +142,7 @@ hsago <- buildAnnot(species="human",keytype="SYMBOL",anntype = "GO")
 gene <- sample(unique(hsako$GeneID),1000)
 resko <-richKEGG(gene,kodata = hsako)
 resgo <- richGO(gene,hsago)
-ggnetmap(list(resgo,resko))
+richNetmap(list(resgo, resko))
 }
 }
 \author{
