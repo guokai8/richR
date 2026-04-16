@@ -2,20 +2,45 @@
 % Please edit documentation in R/ggplots_new_methods.R, R/zzz_ggplots_aliases.R
 \name{richVolcano}
 \alias{richVolcano}
+\alias{richVolcano,richResult-method}
 \alias{richVolcano,GSEAResult-method}
 \alias{richVolcano,data.frame-method}
 \alias{ggvolcano}
 \alias{ggVolcano}
-\title{Volcano plot of GSEA gene sets}
+\title{Volcano plot of enrichment results}
 \usage{
 richVolcano(
   object,
   top = 50,
   pvalue = 0.05,
   padj = NULL,
-  sig.color = "#b2182b",
-  ns.color = "grey70",
-  point.size = 3,
+  usePadj = TRUE,
+  low = "#2166ac",
+  mid = "white",
+  high = "#b2182b",
+  size.range = c(2, 8),
+  label.size = 3,
+  label.top = 5,
+  short = FALSE,
+  filename = NULL,
+  width = 10,
+  height = 8,
+  ...
+)
+
+\S4method{richVolcano}{richResult}(
+  object,
+  top = 50,
+  pvalue = 0.05,
+  padj = NULL,
+  usePadj = TRUE,
+  low = "#2166ac",
+  mid = "white",
+  high = "#b2182b",
+  size.range = c(2, 8),
+  label.size = 3,
+  label.top = 5,
+  short = FALSE,
   filename = NULL,
   width = 10,
   height = 8,
@@ -27,9 +52,14 @@ richVolcano(
   top = 50,
   pvalue = 0.05,
   padj = NULL,
-  sig.color = "#b2182b",
-  ns.color = "grey70",
-  point.size = 3,
+  usePadj = TRUE,
+  low = "#2166ac",
+  mid = "white",
+  high = "#b2182b",
+  size.range = c(2, 8),
+  label.size = 3,
+  label.top = 5,
+  short = FALSE,
   filename = NULL,
   width = 10,
   height = 8,
@@ -41,9 +71,14 @@ richVolcano(
   top = 50,
   pvalue = 0.05,
   padj = NULL,
-  sig.color = "#b2182b",
-  ns.color = "grey70",
-  point.size = 3,
+  usePadj = TRUE,
+  low = "#2166ac",
+  mid = "white",
+  high = "#b2182b",
+  size.range = c(2, 8),
+  label.size = 3,
+  label.top = 5,
+  short = FALSE,
   filename = NULL,
   width = 10,
   height = 8,
@@ -55,9 +90,14 @@ richVolcano(
   top = 50,
   pvalue = 0.05,
   padj = NULL,
-  sig.color = "#b2182b",
-  ns.color = "grey70",
-  point.size = 3,
+  usePadj = TRUE,
+  low = "#2166ac",
+  mid = "white",
+  high = "#b2182b",
+  size.range = c(2, 8),
+  label.size = 3,
+  label.top = 5,
+  short = FALSE,
   filename = NULL,
   width = 10,
   height = 8,
@@ -69,9 +109,14 @@ richVolcano(
   top = 50,
   pvalue = 0.05,
   padj = NULL,
-  sig.color = "#b2182b",
-  ns.color = "grey70",
-  point.size = 3,
+  usePadj = TRUE,
+  low = "#2166ac",
+  mid = "white",
+  high = "#b2182b",
+  size.range = c(2, 8),
+  label.size = 3,
+  label.top = 5,
+  short = FALSE,
   filename = NULL,
   width = 10,
   height = 8,
@@ -79,7 +124,7 @@ richVolcano(
 )
 }
 \arguments{
-\item{object}{GSEAResult or data.frame with GSEA results}
+\item{object}{richResult, GSEAResult, or data.frame}
 
 \item{top}{max terms (default 50)}
 
@@ -87,11 +132,21 @@ richVolcano(
 
 \item{padj}{adjusted p-value cutoff}
 
-\item{sig.color}{colour for significant points}
+\item{usePadj}{use adjusted p-value for y-axis}
 
-\item{ns.color}{colour for non-significant points}
+\item{low}{low-end gradient colour (negative effect)}
 
-\item{point.size}{point size}
+\item{mid}{midpoint gradient colour}
+
+\item{high}{high-end gradient colour (positive effect)}
+
+\item{size.range}{size range for -log10(p) mapping}
+
+\item{label.size}{label text size}
+
+\item{label.top}{number of top terms to label (via ggrepel)}
+
+\item{short}{shorten term names}
 
 \item{filename}{save path}
 
@@ -105,11 +160,15 @@ richVolcano(
 ggplot2 object
 }
 \description{
-Volcano plot of GSEA gene sets
+For ORA (richResult): x = log2(Fold Enrichment), y = -log10(p), color = effect.
+For GSEA (GSEAResult): x = NES, y = -log10(p), color = NES.
+Point size encodes significance; labels auto-adjusted via ggrepel.
 }
 \examples{
 \dontrun{
-  res <- richGSEA(genelist, gseadata)
-  richVolcano(res)
+  resgo <- richGO(gene, godata = hsago, ontology = "BP")
+  richVolcano(resgo)
+  resgs <- richGSEA(genelist, gseadata)
+  richVolcano(resgs)
 }
 }
