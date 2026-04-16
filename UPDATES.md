@@ -1,5 +1,43 @@
 # richR Updates
 
+## Version 0.1.3 (2026-04-16)
+
+### Bug Fixes
+
+- **`richUpset()` bar-to-dot alignment**: The intersection bar chart
+  and the dot matrix previously used a nested `plot_grid()` layout
+  where each row laid out the left gutter and the main plot
+  independently. Differences in y-axis label widths (bar-chart tick
+  labels vs. set-name labels) produced distinct panel start positions,
+  causing the bars to drift out of alignment with the dots beneath
+  them. Panels are now pre-aligned with `cowplot::align_plots()` and
+  placed at explicit coordinates with `ggdraw()` + `draw_plot()` so
+  the bar chart and matrix always share identical x-ranges regardless
+  of label width. The `set.size.show = FALSE` branch additionally
+  gained `align = "v", axis = "lr"` to `plot_grid()` for the same
+  reason.
+
+### Enhancements
+
+- **`richUpset()` multi-set bar colors**: Previously, bars representing
+  multi-set intersections inherited the color of the largest
+  participating set. Bars for different intersections could therefore
+  share a color, making it hard to tell visually which sets were
+  combined. Multi-set bars now use an RGB-blend of the participating
+  set colors (computed by the new internal helper `.blend_colors()`).
+  Single-set bars still use the set color, and setting
+  `main.bar.color` still overrides every bar to a uniform color.
+
+### Internal
+
+- New internal helper `.blend_colors()` in `R/ggupset.R` that averages
+  RGB channels of a vector of color specifications.
+- NAMESPACE: added `importFrom(cowplot, align_plots)`,
+  `importFrom(cowplot, ggdraw)`, `importFrom(cowplot, draw_plot)`,
+  `importFrom(grDevices, col2rgb)`, `importFrom(grDevices, rgb)`.
+
+---
+
 ## Version 0.1.2 (2026-03-28)
 
 ### New Features
