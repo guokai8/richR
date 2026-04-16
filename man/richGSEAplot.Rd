@@ -31,7 +31,7 @@ name=sample(unique(hsako$GeneID),1000)
 gene<-rnorm(1000)
 names(gene)<-name
 res<-richGSEA(gene,object = hsako)
-ggGSEA(term = res$pathway, object = hsako, gseaRes = res, default = FALSE)
+richGSEAplot(term = res$pathway, object = hsako, gseaRes = res, default = FALSE)
 }
 }
 \author{

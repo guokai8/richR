@@ -118,15 +118,15 @@ sets <- list(
   "Treatment B" = c("TP53", "EGFR", "KRAS", "AKT1", "RB1"),
   "Control"     = c("TP53", "MYC", "KRAS", "CDK2", "CCND1")
 )
-ggupset(sets)
+richUpset(sets)
 
 # Custom colors
-ggupset(sets, mycol = c("dodgerblue", "goldenrod1", "seagreen3"))
+richUpset(sets, mycol = c("dodgerblue", "goldenrod1", "seagreen3"))
 
 # From richResult objects
 res1 <- richKEGG(gene1, kodata = hsako)
 res2 <- richKEGG(gene2, kodata = hsako)
-ggupset(list("Sample1" = res1, "Sample2" = res2))
+richUpset(list("Sample1" = res1, "Sample2" = res2))
 }
 }
 \author{
