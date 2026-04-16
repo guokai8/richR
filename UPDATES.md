@@ -35,6 +35,10 @@
 - NAMESPACE: added `importFrom(cowplot, align_plots)`,
   `importFrom(cowplot, ggdraw)`, `importFrom(cowplot, draw_plot)`,
   `importFrom(grDevices, col2rgb)`, `importFrom(grDevices, rgb)`.
+- DESCRIPTION: declared `sna` in `Imports`. `GGally::ggnet2()` (used
+  by `R/ggrich.R`) loads `sna` at runtime; without the declaration
+  the CI vignette build for `richR.Rmd` fails with
+  `rlib_error_package_not_found: The package "sna" is required`.
 
 ---
 

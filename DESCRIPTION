@@ -35,6 +35,7 @@ Imports:
     GGally,
     rlang,
     S4Vectors,
+    sna,
     tidyr
 LinkingTo: Rcpp
 Suggests:
