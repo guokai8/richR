@@ -125,7 +125,7 @@ idconvert <- function(species, keys, fkeytype, tkeytype) {
   dbname <- .getdbname(species)
   if (!requireNamespace(dbname, quietly = TRUE)) stop(paste("Package", dbname, "is required"), call. = FALSE)
   dbname <- getExportedValue(dbname, dbname)
-  unlist(mapIds(dbname, keys = as.vector(keys),
+  unlist(AnnotationDbi::mapIds(dbname, keys = as.vector(keys),
                 column = tkeytype,
                 keytype = fkeytype,
                 multiVals = "first"))
