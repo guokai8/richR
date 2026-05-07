@@ -20,6 +20,8 @@ richGeneHeat(
   low = "#2166ac",
   mid = "white",
   high = "#b2182b",
+  na.fill = "grey90",
+  border.color = "grey40",
   label.cutoff = 1.5,
   short = FALSE,
   sep = ",",
@@ -40,6 +42,8 @@ richGeneHeat(
   low = "#2166ac",
   mid = "white",
   high = "#b2182b",
+  na.fill = "grey90",
+  border.color = "grey40",
   label.cutoff = 1.5,
   short = FALSE,
   sep = ",",
@@ -60,6 +64,8 @@ richGeneHeat(
   low = "#2166ac",
   mid = "white",
   high = "#b2182b",
+  na.fill = "grey90",
+  border.color = "grey40",
   label.cutoff = 1.5,
   short = FALSE,
   sep = ",",
@@ -80,6 +86,8 @@ richGeneHeat(
   low = "#2166ac",
   mid = "white",
   high = "#b2182b",
+  na.fill = "grey90",
+  border.color = "grey40",
   label.cutoff = 1.5,
   short = FALSE,
   sep = ",",
@@ -100,6 +108,8 @@ richGeneHeat(
   low = "#2166ac",
   mid = "white",
   high = "#b2182b",
+  na.fill = "grey90",
+  border.color = "grey40",
   label.cutoff = 1.5,
   short = FALSE,
   sep = ",",
@@ -120,6 +130,8 @@ richGeneHeat(
   low = "#2166ac",
   mid = "white",
   high = "#b2182b",
+  na.fill = "grey90",
+  border.color = "grey40",
   label.cutoff = 1.5,
   short = FALSE,
   sep = ",",
@@ -149,6 +161,10 @@ richGeneHeat(
 \item{mid}{colour for zero FC}
 
 \item{high}{colour for positive FC (or high significance when fc=NULL)}
+
+\item{na.fill}{tile fill colour for gene-term combinations with no data (default \code{"grey90"})}
+
+\item{border.color}{tile border colour (default \code{"grey40"})}
 
 \item{label.cutoff}{absolute FC above which gene names are shown}
 

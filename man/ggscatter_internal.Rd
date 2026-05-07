@@ -6,14 +6,15 @@
 \usage{
 ggscatter_internal(
   resultFis,
-  top = 20,
+  top = 50,
   pvalue = 0.05,
   padj = NULL,
   usePadj = TRUE,
   low = "#fee0d2",
   high = "#b2182b",
-  point.size = 5,
+  point.size = 3,
   label.size = 3,
+  label.top = 5,
   short = FALSE,
   filename = NULL,
   width = 10,

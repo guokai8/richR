@@ -20,8 +20,9 @@
 #' @param matrix.color Single color for active dots when \code{color.by.set = FALSE}
 #'   (default: "black")
 #' @param inactive.color Color for inactive dots in matrix (default: "grey80")
-#' @param main.bar.color Color for intersection bar chart. If NULL, bars use the
-#'   color of the largest set in each intersection.
+#' @param main.bar.color Color for intersection bar chart. If NULL (default),
+#'   single-set bars use the set color and multi-set intersection bars use an
+#'   RGB-blend of the participating set colors.
 #' @param text.scale Numeric vector of length 6 for scaling text elements:
 #'   c(intersection size title, intersection size tick labels,
 #'   set size title, set size tick labels, set names, numbers above bars).
@@ -38,7 +39,8 @@
 #'   coord_flip element_blank element_text labs margin scale_color_identity
 #'   scale_fill_identity scale_x_continuous scale_x_discrete scale_y_continuous
 #'   theme theme_minimal theme_void ggsave
-#' @importFrom cowplot plot_grid
+#' @importFrom cowplot plot_grid align_plots ggdraw draw_plot
+#' @importFrom grDevices col2rgb rgb
 #'
 #' @examples
 #' \dontrun{
@@ -157,14 +159,12 @@ richUpset <- function(x,
   }
   ts <- text.scale * c(10, 8, 10, 8, 9, 3)
 
-  # --- Determine bar colors ---
+  # --- Determine bar colors (single-set: set color; multi-set: blended) ---
   bar_colors <- sapply(seq_len(n_intersects), function(i) {
     if (!is.null(main.bar.color)) return(main.bar.color)
     active_sets <- set_names[as.logical(intersect_data[i, set_names])]
     if (length(active_sets) == 1) return(mycol[active_sets])
-    # For multi-set intersections, use the color of the first (largest) active set
-    set_order <- names(sort(sapply(gene_lists[active_sets], length), decreasing = TRUE))
-    return(mycol[set_order[1]])
+    .blend_colors(mycol[active_sets])
   })
 
   # --- 1. Intersection size bar chart (top) ---
@@ -308,17 +308,22 @@ richUpset <- function(x,
         plot.margin = margin(0, 0, 5, 5)
       )
 
-    # Combine: empty | bars on top, set sizes | matrix on bottom
-    p_empty <- ggplot() + theme_void()
+    # Align the bar chart and matrix on their shared intersection x-axis so
+    # their panels have identical widths, then place them with ggdraw for
+    # pixel-accurate positioning regardless of y-axis label width.
+    aligned <- align_plots(p_bars, p_matrix, align = "v", axis = "lr")
+    set_w  <- 0.15
+    main_w <- 1 - set_w
+    top_h  <- 0.6
+    bot_h  <- 1 - top_h
 
-    final_plot <- plot_grid(
-      plot_grid(p_empty, p_bars, ncol = 2, rel_widths = c(0.2, 1)),
-      plot_grid(p_setsize, p_matrix, ncol = 2, rel_widths = c(0.2, 1), align = "h"),
-      ncol = 1,
-      rel_heights = c(0.6, 0.4)
-    )
+    final_plot <- ggdraw() +
+      draw_plot(aligned[[1]], x = set_w, y = bot_h, width = main_w, height = top_h) +
+      draw_plot(p_setsize,    x = 0,     y = 0,     width = set_w,  height = bot_h) +
+      draw_plot(aligned[[2]], x = set_w, y = 0,     width = main_w, height = bot_h)
   } else {
-    final_plot <- plot_grid(p_bars, p_matrix, ncol = 1, rel_heights = c(0.6, 0.4))
+    final_plot <- plot_grid(p_bars, p_matrix, ncol = 1, rel_heights = c(0.6, 0.4),
+                            align = "v", axis = "lr")
   }
 
   if (!is.null(filename)) {
@@ -327,6 +332,23 @@ richUpset <- function(x,
   }
 
   return(final_plot)
+}
+
+#' Blend multiple colors by averaging RGB channels
+#'
+#' Used by \code{richUpset} to color multi-set intersection bars. Given a vector
+#' of color specifications, returns a single hex color whose R/G/B channels are
+#' the mean of the inputs. Length-1 input is returned unchanged.
+#'
+#' @param colors Character vector of color specifications (any form accepted by
+#'   \code{grDevices::col2rgb}).
+#' @return A single hex color string.
+#' @keywords internal
+.blend_colors <- function(colors) {
+  if (length(colors) == 1) return(colors)
+  rgbs <- col2rgb(colors)
+  blended <- round(rowMeans(rgbs))
+  rgb(blended[1], blended[2], blended[3], maxColorValue = 255)
 }
 
 #' Extract gene lists from various input types

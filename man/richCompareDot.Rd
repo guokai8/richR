@@ -96,7 +96,7 @@ gene2 <- sample(unique(hsako$GeneID),1000)
 resko1 <-richKEGG(gene1,kodata = hsako)
 resko2 <-richKEGG(gene2,kodata = hsako)
 res<-compareResult(list(S1=resko1,S2=resko2))
-comparedot(res,pvalue=0.05)
+richCompareDot(res, pvalue = 0.05)
 }
 }
 \author{

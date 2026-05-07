@@ -7,7 +7,7 @@
 \alias{richTermSim,GSEAResult-method}
 \alias{ggtermsim}
 \alias{ggTermSim}
-\title{Term similarity scatter plot (MDS)}
+\title{Enrichment map — term similarity network}
 \usage{
 richTermSim(
   object,
@@ -18,6 +18,8 @@ richTermSim(
   low = "grey80",
   high = "#b2182b",
   label.size = 3,
+  sim.cutoff = 0.2,
+  size.range = c(3, 10),
   short = FALSE,
   sep = ",",
   filename = NULL,
@@ -35,6 +37,8 @@ richTermSim(
   low = "grey80",
   high = "#b2182b",
   label.size = 3,
+  sim.cutoff = 0.2,
+  size.range = c(3, 10),
   short = FALSE,
   sep = ",",
   filename = NULL,
@@ -52,6 +56,8 @@ richTermSim(
   low = "grey80",
   high = "#b2182b",
   label.size = 3,
+  sim.cutoff = 0.2,
+  size.range = c(3, 10),
   short = FALSE,
   sep = ",",
   filename = NULL,
@@ -69,6 +75,8 @@ richTermSim(
   low = "grey80",
   high = "#b2182b",
   label.size = 3,
+  sim.cutoff = 0.2,
+  size.range = c(3, 10),
   short = FALSE,
   sep = ",",
   filename = NULL,
@@ -86,6 +94,8 @@ richTermSim(
   low = "grey80",
   high = "#b2182b",
   label.size = 3,
+  sim.cutoff = 0.2,
+  size.range = c(3, 10),
   short = FALSE,
   sep = ",",
   filename = NULL,
@@ -103,6 +113,8 @@ richTermSim(
   low = "grey80",
   high = "#b2182b",
   label.size = 3,
+  sim.cutoff = 0.2,
+  size.range = c(3, 10),
   short = FALSE,
   sep = ",",
   filename = NULL,
@@ -128,6 +140,10 @@ richTermSim(
 
 \item{label.size}{label size}
 
+\item{sim.cutoff}{minimum Jaccard similarity to draw an edge (0-1)}
+
+\item{size.range}{point size range for gene count mapping}
+
 \item{short}{shorten term names}
 
 \item{sep}{gene-ID separator}
@@ -144,11 +160,15 @@ richTermSim(
 ggplot2 object
 }
 \description{
-Term similarity scatter plot (MDS)
+Positions terms by MDS of gene-set overlap (Jaccard) and draws
+edges between terms that share genes above a similarity cutoff.
+Node size = gene count, colour = -log10(p). Connected clusters
+reveal groups of functionally related pathways.
 }
 \examples{
 \dontrun{
   res <- richKEGG(gene, kodata = hsako)
   richTermSim(res)
+  richTermSim(res, sim.cutoff = 0.3)
 }
 }

@@ -30,7 +30,7 @@ batchGSEAplot(
 
 \item{format}{output format (pdf, png, etc.)}
 
-\item{...}{additional arguments passed to plotGSEA}
+\item{...}{additional arguments passed to richGSEAcurve}
 }
 \description{
 Create multiple GSEA plots for different comparisons

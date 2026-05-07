@@ -7,18 +7,19 @@
 \alias{richScatter,GSEAResult-method}
 \alias{ggscatter}
 \alias{ggScatter}
-\title{Labeled scatter plot of enrichment results}
+\title{Enrichment funnel plot (MA-plot analogy)}
 \usage{
 richScatter(
   object,
-  top = 20,
+  top = 50,
   pvalue = 0.05,
   padj = NULL,
   usePadj = TRUE,
   low = "#fee0d2",
   high = "#b2182b",
-  point.size = 5,
+  point.size = 3,
   label.size = 3,
+  label.top = 5,
   short = FALSE,
   filename = NULL,
   width = 10,
@@ -28,14 +29,15 @@ richScatter(
 
 \S4method{richScatter}{richResult}(
   object,
-  top = 20,
+  top = 50,
   pvalue = 0.05,
   padj = NULL,
   usePadj = TRUE,
   low = "#fee0d2",
   high = "#b2182b",
-  point.size = 5,
+  point.size = 3,
   label.size = 3,
+  label.top = 5,
   short = FALSE,
   filename = NULL,
   width = 10,
@@ -45,14 +47,15 @@ richScatter(
 
 \S4method{richScatter}{data.frame}(
   object,
-  top = 20,
+  top = 50,
   pvalue = 0.05,
   padj = NULL,
   usePadj = TRUE,
   low = "#fee0d2",
   high = "#b2182b",
-  point.size = 5,
+  point.size = 3,
   label.size = 3,
+  label.top = 5,
   short = FALSE,
   filename = NULL,
   width = 10,
@@ -62,14 +65,15 @@ richScatter(
 
 \S4method{richScatter}{GSEAResult}(
   object,
-  top = 20,
+  top = 50,
   pvalue = 0.05,
   padj = NULL,
   usePadj = TRUE,
   low = "#fee0d2",
   high = "#b2182b",
-  point.size = 5,
+  point.size = 3,
   label.size = 3,
+  label.top = 5,
   short = FALSE,
   filename = NULL,
   width = 10,
@@ -79,14 +83,15 @@ richScatter(
 
 richScatter(
   object,
-  top = 20,
+  top = 50,
   pvalue = 0.05,
   padj = NULL,
   usePadj = TRUE,
   low = "#fee0d2",
   high = "#b2182b",
-  point.size = 5,
+  point.size = 3,
   label.size = 3,
+  label.top = 5,
   short = FALSE,
   filename = NULL,
   width = 10,
@@ -96,14 +101,15 @@ richScatter(
 
 richScatter(
   object,
-  top = 20,
+  top = 50,
   pvalue = 0.05,
   padj = NULL,
   usePadj = TRUE,
   low = "#fee0d2",
   high = "#b2182b",
-  point.size = 5,
+  point.size = 3,
   label.size = 3,
+  label.top = 5,
   short = FALSE,
   filename = NULL,
   width = 10,
@@ -114,7 +120,7 @@ richScatter(
 \arguments{
 \item{object}{richResult, data.frame, or GSEAResult}
 
-\item{top}{number of terms (default 20)}
+\item{top}{number of terms (default 50)}
 
 \item{pvalue}{p-value cutoff}
 
@@ -128,7 +134,9 @@ richScatter(
 
 \item{point.size}{point size}
 
-\item{label.size}{label size}
+\item{label.size}{label text size}
+
+\item{label.top}{number of top terms to label (via ggrepel)}
 
 \item{short}{shorten term names}
 
@@ -144,7 +152,10 @@ richScatter(
 ggplot2 object
 }
 \description{
-Labeled scatter plot of enrichment results
+Plots pathway size vs fold enrichment, coloured by significance.
+Analogous to an MA plot in differential expression: small pathways
+(left) can have extreme fold enrichment by chance, while large
+pathways (right) with high enrichment are the most robust findings.
 }
 \examples{
 \dontrun{
