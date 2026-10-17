@@ -30,12 +30,12 @@ A list with two elements:
 \describe{
   \item{results}{Named list of richResult objects}
   \item{combined}{Combined data.frame with a \code{group} column,
-    ready for \code{comparedot()}}
+    ready for \code{richCompareDot()}}
 }
 }
 \description{
 Runs enrichment analysis on a named list of gene vectors and returns
-combined results ready for \code{comparedot()} visualization.
+combined results ready for \code{richCompareDot()} visualization.
 }
 \examples{
 \dontrun{
@@ -52,7 +52,7 @@ batch <- batchEnrich(gene_lists, hsako, fun = "richKEGG")
 head(result(batch$results[["Treatment"]]))
 
 # Visualize comparison
-comparedot(batch$combined)
+richCompareDot(batch$combined)
 }
 }
 \author{

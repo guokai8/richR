@@ -124,14 +124,14 @@ gene<-rnorm(1000)
 names(gene)<-name
 res<-richGSEA(gene,object = hsako)
 # Plot with directional coloring (default)
-plotGSEA(object = hsako, gseaRes = res, show_direction = TRUE)
+richGSEAcurve(object = hsako, gseaRes = res, show_direction = TRUE)
 # Plot specific pathways
-plotGSEA(object = hsako, gseaRes = res,
+richGSEAcurve(object = hsako, gseaRes = res,
          pathways = c("MAPK signaling pathway", "PI3K-Akt signaling pathway"))
 # Plot pathways matching pattern
-plotGSEA(object = hsako, gseaRes = res, pathway_pattern = "signaling")
+richGSEAcurve(object = hsako, gseaRes = res, pathway_pattern = "signaling")
 # Traditional multi-color approach
-plotGSEA(object = hsako, gseaRes = res, show_direction = FALSE)
+richGSEAcurve(object = hsako, gseaRes = res, show_direction = FALSE)
 }
 }
 \author{

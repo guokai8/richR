@@ -21,10 +21,10 @@ publication-quality figures with legible fonts and minimal clutter.
 \examples{
 \dontrun{
 library(ggplot2)
-ggdot(res) + theme_richR()
+richDot(res) + theme_richR()
 
 # Larger fonts for presentations
-ggbar(res) + theme_richR(base_size = 16)
+richBar(res) + theme_richR(base_size = 16)
 }
 }
 \author{

@@ -14,7 +14,7 @@ saveGSEAplot(
 )
 }
 \arguments{
-\item{plot_obj}{ggplot object from plotGSEA}
+\item{plot_obj}{ggplot object from richGSEAcurve}
 
 \item{filename}{output filename}
 
@@ -31,7 +31,7 @@ Save GSEA plot with optimal dimensions
 }
 \examples{
 \dontrun{
-p <- plotGSEA(object = hsako, gseaRes = res)
+p <- richGSEAcurve(object = hsako, gseaRes = res)
 saveGSEAplot(p, "gsea_plot.pdf")
 saveGSEAplot(p, "gsea_plot.png", dpi = 600)
 }

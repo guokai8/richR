@@ -563,6 +563,8 @@ setMethod("richGeneDot", signature(object = "GSEAResult"), function(object, fc =
 #' @param low colour for negative FC (or white when fc=NULL)
 #' @param mid colour for zero FC
 #' @param high colour for positive FC (or high significance when fc=NULL)
+#' @param na.fill tile fill colour for gene-term combinations with no data (default \code{"grey90"})
+#' @param border.color tile border colour (default \code{"grey40"})
 #' @param label.cutoff absolute FC above which gene names are shown
 #' @param short shorten term names
 #' @param sep gene-ID separator

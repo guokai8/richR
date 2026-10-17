@@ -74,13 +74,18 @@ gglollipop_internal <- function(resultFis,
 #'
 #' Scatter NES vs significance, highlighting significant gene sets.
 #'
-#' @param resultFis data.frame with GSEA results (columns: NES, pval or Pvalue, padj or Padj)
+#' @param resultFis data.frame with GSEA or ORA results (columns vary; NES/pval/padj for GSEA, FoldEnrichment/Pvalue/Padj for ORA)
 #' @param top max number of top terms to display (default 50)
 #' @param pvalue p-value cutoff
-#' @param padj adjusted-p cutoff
-#' @param sig.color colour for significant points (default \code{"#b2182b"})
-#' @param ns.color colour for non-significant points (default \code{"grey70"})
-#' @param point.size point size (default 3)
+#' @param padj adjusted-p cutoff (overrides \code{pvalue} when supplied)
+#' @param usePadj logical, use adjusted p-value column for significance (default TRUE)
+#' @param low colour for down-regulated (negative-effect) points (default \code{"#2166ac"})
+#' @param mid colour at zero effect (default \code{"white"})
+#' @param high colour for up-regulated (positive-effect) points (default \code{"#b2182b"})
+#' @param size.range numeric length-2, min/max point sizes mapped from -log10(p) (default \code{c(2, 8)})
+#' @param label.size font size for point labels (default 3)
+#' @param label.top number of top terms to label (default 5)
+#' @param short logical, shorten term names via \code{.paste.char()} (default FALSE)
 #' @param filename if non-NULL, save the plot to this file
 #' @param width figure width
 #' @param height figure height

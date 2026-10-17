@@ -9,28 +9,43 @@ ggvolcano_internal(
   top = 50,
   pvalue = 0.05,
   padj = NULL,
-  sig.color = "#b2182b",
-  ns.color = "grey70",
-  point.size = 3,
+  usePadj = TRUE,
+  low = "#2166ac",
+  mid = "white",
+  high = "#b2182b",
+  size.range = c(2, 8),
+  label.size = 3,
+  label.top = 5,
+  short = FALSE,
   filename = NULL,
   width = 10,
   height = 8
 )
 }
 \arguments{
-\item{resultFis}{data.frame with GSEA results (columns: NES, pval or Pvalue, padj or Padj)}
+\item{resultFis}{data.frame with GSEA or ORA results (columns vary; NES/pval/padj for GSEA, FoldEnrichment/Pvalue/Padj for ORA)}
 
 \item{top}{max number of top terms to display (default 50)}
 
 \item{pvalue}{p-value cutoff}
 
-\item{padj}{adjusted-p cutoff}
+\item{padj}{adjusted-p cutoff (overrides \code{pvalue} when supplied)}
 
-\item{sig.color}{colour for significant points (default \code{"#b2182b"})}
+\item{usePadj}{logical, use adjusted p-value column for significance (default TRUE)}
 
-\item{ns.color}{colour for non-significant points (default \code{"grey70"})}
+\item{low}{colour for down-regulated (negative-effect) points (default \code{"#2166ac"})}
 
-\item{point.size}{point size (default 3)}
+\item{mid}{colour at zero effect (default \code{"white"})}
+
+\item{high}{colour for up-regulated (positive-effect) points (default \code{"#b2182b"})}
+
+\item{size.range}{numeric length-2, min/max point sizes mapped from -log10(p) (default \code{c(2, 8)})}
+
+\item{label.size}{font size for point labels (default 3)}
+
+\item{label.top}{number of top terms to label (default 5)}
+
+\item{short}{logical, shorten term names via \code{.paste.char()} (default FALSE)}
 
 \item{filename}{if non-NULL, save the plot to this file}
 
