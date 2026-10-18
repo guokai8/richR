@@ -90,7 +90,7 @@ setMethod("richLollipop", signature(object = "GSEAResult"), function(object, top
 #' @param low low-end gradient colour (negative effect)
 #' @param mid midpoint gradient colour
 #' @param high high-end gradient colour (positive effect)
-#' @param size.range size range for -log10(p) mapping
+#' @param size.range point-size range for significance mapping
 #' @param label.size label text size
 #' @param label.top number of top terms to label (via ggrepel)
 #' @param short shorten term names
@@ -277,7 +277,7 @@ setMethod("richNES", signature(object = "data.frame"), function(object, top = 20
 #' @param usePadj colour by adjusted p-value?
 #' @param low low-end gradient colour
 #' @param high high-end gradient colour
-#' @param point.size point size
+#' @param point.size point size (default 3)
 #' @param label.size label text size
 #' @param label.top number of top terms to label (via ggrepel)
 #' @param short shorten term names
@@ -389,7 +389,7 @@ setMethod("richECDF", signature(object = "data.frame"), function(object, top = 3
 # ----------------------------------------------------------
 #  richTermSim  (aliases: ggtermsim, ggTermSim)
 # ----------------------------------------------------------
-#' Enrichment map — term similarity network
+#' Enrichment map - term similarity network
 #'
 #' Positions terms by MDS of gene-set overlap (Jaccard) and draws
 #' edges between terms that share genes above a similarity cutoff.
@@ -563,6 +563,8 @@ setMethod("richGeneDot", signature(object = "GSEAResult"), function(object, fc =
 #' @param low colour for negative FC (or white when fc=NULL)
 #' @param mid colour for zero FC
 #' @param high colour for positive FC (or high significance when fc=NULL)
+#' @param na.fill fill for missing gene-term combinations
+#' @param border.color tile border colour
 #' @param label.cutoff absolute FC above which gene names are shown
 #' @param short shorten term names
 #' @param sep gene-ID separator
