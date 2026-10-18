@@ -22,7 +22,7 @@
   n_na <- sum(is.na(input))
   input <- input[!is.na(input)]
   # Remove empty strings
-  input <- input[nchar(input) > 0]
+  input <- input[!is.na(input) & nzchar(trimws(input))]
   # Remove duplicates
   n_before <- length(input)
   input <- unique(input)

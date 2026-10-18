@@ -80,6 +80,51 @@ res_gsea <- richGSEA(genelist, object = hsako)
 res_david <- richDAVID(gene, keytype = "ENTREZID", species = "human")
 ```
 
+For ORA, `universe = NULL` uses all unique genes in the eligible annotation.
+An explicit universe is intersected with those annotated genes, so unannotated
+IDs do not contribute to the background:
+
+```r
+background <- unique(hsago$GeneID)
+resgo <- richGO(gene, godata = hsago, ontology = "BP", universe = background)
+info <- enrichmentInfo(resgo)
+info$input$effective_count
+info$background$effective_count
+
+# Object-preserving dplyr operations keep the original run's metadata snapshot.
+filtered <- dplyr::filter(resgo, Pvalue < 0.05)
+enrichmentInfo(filtered)$testing$tested_count
+```
+
+ORA counts each valid query ID once. Adjusted p-values cover terms with
+positive query overlap before size and significance filters. With
+`keepRich = TRUE`, fully rich terms (`RichFactor == 1`) can pass the lower size
+cutoffs; upper size bounds and the significance cutoff still apply.
+
+`enrichmentInfo()` reports input mapping, effective background, tested-family,
+annotation, and provenance details. Legacy objects without recorded metadata
+return `available = FALSE`. The snapshot describes the original analysis after
+object-preserving operations such as `filter()` and `arrange()`; extracting a
+data frame (for example, with `result()` or `as.data.frame()`) carries no
+metadata guarantee.
+
+GSEA accepts optional backend controls. `NULL` leaves each control out of the
+backend call, preserving its defaults. `nproc` and `BPPARAM` cannot be supplied
+together. A supplied `seed` restores the caller's random-number state on
+success or error. Repeated seeded calls are reproducible with serial execution:
+
+```r
+res_gsea <- richGSEA(genelist, object = hsako, eps = 0,
+                     scoreType = "std", nproc = 1, seed = 123)
+```
+
+`padj.method` is applied to p-values for the full backend-returned pathway set
+before result filtering, so choosing a non-BH method can change adjusted
+p-values.
+
+`parGSEA()` forwards the same controls. With `simplify = FALSE` it returns a
+`GSEAResult` with metadata; `simplify = TRUE` returns a data frame.
+
 ### 3. Custom gene sets
 
 ```r
@@ -95,6 +140,10 @@ my_sets <- list(
 annot <- buildAnnotFromList(my_sets)
 res <- enrich(my_genes, annot)
 ```
+
+Named gene-set lists and batch input lists require unique, nonblank names;
+duplicate names are rejected. If a GMT file contains repeated term names,
+`readGMT()` merges their memberships in first-seen order and warns once.
 
 ### 4. Custom annotation with bioAnno
 

@@ -20,7 +20,9 @@ richKEGG_internal(
   filename = NULL,
   padj.method = "BH",
   builtin = TRUE,
-  sep = ","
+  sep = ",",
+  universe = NULL,
+  annotation_provenance = NULL
 )
 }
 \arguments{
@@ -42,7 +44,7 @@ richKEGG_internal(
 
 \item{maxSize}{maximum number of genes included in significant terms}
 
-\item{minGSSize}{minimal size of genes annotated by ontology term for testing.}
+\item{minGSSize}{minimum annotated term size for reporting; positive-overlap terms are adjusted before this reporting filter.}
 
 \item{maxGSSize}{maximal size of each geneSet for analyzing}
 
@@ -55,6 +57,10 @@ richKEGG_internal(
 \item{builtin}{use KEGG built-in annotation or not (set FALSE if you want to use newest KEGG data)}
 
 \item{sep}{character string used to separate the genes when concatenating}
+
+\item{universe}{optional character vector defining the ORA background}
+
+\item{annotation_provenance}{optional annotation provenance captured from an Annot object}
 }
 \description{
 KEGG Pathway Enrichment analysis function

@@ -19,7 +19,9 @@ richGO_internal(
   keepRich = FALSE,
   filename = NULL,
   padj.method = "BH",
-  sep = ","
+  sep = ",",
+  universe = NULL,
+  annotation_provenance = NULL
 )
 }
 \arguments{
@@ -41,7 +43,7 @@ richGO_internal(
 
 \item{maxSize}{maximum number of genes included in significant terms}
 
-\item{minGSSize}{minimal size of genes annotated by ontology term for testing.}
+\item{minGSSize}{minimum annotated term size for reporting; positive-overlap terms are adjusted before this reporting filter.}
 
 \item{maxGSSize}{maximal size of each geneset for analyzing}
 
@@ -52,6 +54,10 @@ richGO_internal(
 \item{padj.method}{pvalue adjust method(default:"BH")}
 
 \item{sep}{character string used to separate the genes when concatenating}
+
+\item{universe}{optional character vector defining the ORA background}
+
+\item{annotation_provenance}{optional annotation provenance captured from an Annot object}
 }
 \description{
 GO Enrichment analysis function

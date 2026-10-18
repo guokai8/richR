@@ -18,8 +18,9 @@
   maxGSSize = 500,
   keepRich = TRUE,
   padj.method = "BH",
-  builtin = TRUE,
-  sep = ","
+  sep = ",",
+  universe = NULL,
+  builtin = TRUE
 )
 }
 \arguments{
@@ -41,7 +42,7 @@
 
 \item{maxSize}{maximum number of genes included in significant terms}
 
-\item{minGSSize}{minimal size of genes annotated by ontology term for testing.}
+\item{minGSSize}{minimum annotated term size for reporting; positive-overlap terms are adjusted before this reporting filter.}
 
 \item{maxGSSize}{maximal size of each geneset for analyzing}
 
@@ -49,9 +50,11 @@
 
 \item{padj.method}{pvalue adjust method(default:"BH")}
 
-\item{builtin}{use KEGG built-in annotation or not (set FALSE if you want to use newest KEGG data)}
-
 \item{sep}{character string used to separate the genes when concatenating}
+
+\item{universe}{optional character vector intersected with annotated genes to define the ORA background}
+
+\item{builtin}{use KEGG built-in annotation or not (set FALSE if you want to use newest KEGG data)}
 }
 \description{
 Enrichment analysis function

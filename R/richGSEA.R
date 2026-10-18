@@ -1,3 +1,74 @@
+.validate_gsea_inputs <- function(x, pvalue, padj, minSize, maxSize,
+                                 minGSSize, maxGSSize, padj.method,
+                                 eps, scoreType, nproc, BPPARAM, seed) {
+  scalar_probability <- function(value, name) {
+    if (length(value) != 1L || !is.numeric(value) || !is.finite(value) ||
+        value < 0 || value > 1) {
+      stop(name, " must be one finite numeric scalar between 0 and 1.", call. = FALSE)
+    }
+  }
+  scalar_size <- function(value, name, allow_infinite = FALSE) {
+    if (length(value) != 1L || !is.numeric(value) || is.na(value) ||
+        value < 1 || (!is.finite(value) && !allow_infinite) ||
+        (is.finite(value) && value != floor(value))) {
+      stop(name, " must be one positive whole-number scalar.", call. = FALSE)
+    }
+  }
+  if (!is.atomic(x) || !is.numeric(x) || !is.null(dim(x)) || length(x) == 0L ||
+      is.null(names(x)) || anyNA(x) || any(!is.finite(x))) {
+    stop("GSEA stats must be a non-empty named numeric vector with finite numbers.",
+         call. = FALSE)
+  }
+  ids <- names(x)
+  if (anyNA(ids) || any(!nzchar(trimws(ids))) || anyDuplicated(ids)) {
+    stop("GSEA stats must have unique, non-missing, non-blank gene names.",
+         call. = FALSE)
+  }
+  scalar_probability(pvalue, "pvalue")
+  if (!is.null(padj)) scalar_probability(padj, "padj")
+  scalar_size(minSize, "minSize")
+  scalar_size(maxSize, "maxSize", allow_infinite = TRUE)
+  scalar_size(minGSSize, "minGSSize")
+  scalar_size(maxGSSize, "maxGSSize", allow_infinite = TRUE)
+  if (minSize > maxSize || minGSSize > maxGSSize) {
+    stop("Minimum GSEA size must not exceed its maximum size.", call. = FALSE)
+  }
+  if (length(padj.method) != 1L || is.na(padj.method) ||
+      !padj.method %in% stats::p.adjust.methods) {
+    stop("padj.method must be one of: ", paste(stats::p.adjust.methods, collapse = ", "),
+         call. = FALSE)
+  }
+  if (!is.null(eps) && (length(eps) != 1L || !is.numeric(eps) ||
+                        !is.finite(eps) || eps < 0)) {
+    stop("eps must be one finite numeric scalar greater than or equal to 0.",
+         call. = FALSE)
+  }
+  if (!is.null(scoreType) && (!is.character(scoreType) || length(scoreType) != 1L ||
+                              is.na(scoreType) ||
+                              !scoreType %in% c("std", "pos", "neg"))) {
+    stop("scoreType must be one of: std, pos, neg.", call. = FALSE)
+  }
+  if (!is.null(nproc) && (length(nproc) != 1L || !is.numeric(nproc) ||
+                          !is.finite(nproc) || nproc < 0 ||
+                          nproc != floor(nproc) || nproc > .Machine$integer.max)) {
+    stop("nproc must be one whole-number scalar between 0 and .Machine$integer.max.",
+         call. = FALSE)
+  }
+  if (!is.null(BPPARAM) && !methods::is(BPPARAM, "BiocParallelParam")) {
+    stop("BPPARAM must inherit from BiocParallelParam.", call. = FALSE)
+  }
+  if (!is.null(nproc) && !is.null(BPPARAM)) {
+    stop("Specify only one of nproc or BPPARAM.", call. = FALSE)
+  }
+  if (!is.null(seed) && (length(seed) != 1L || !is.numeric(seed) ||
+                         !is.finite(seed) || seed < 0 ||
+                         seed != floor(seed) || seed > .Machine$integer.max)) {
+    stop("seed must be one whole-number scalar between 0 and .Machine$integer.max.",
+         call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
 #' Enrichment analysis for any type of annotation data
 #' @param x a vector include all log2FC with gene name
 #' @param object annotation file for all genes
@@ -14,25 +85,71 @@
 #' @param ontology ontology type
 #' @param table leadingEdge as vector
 #' @param sep character string used to separate the genes when concatenating
+#' @param eps optional fgsea convergence tolerance
+#' @param scoreType optional fgsea score type (std, pos, or neg)
+#' @param nproc optional fgsea worker count
+#' @param BPPARAM optional BiocParallel backend
+#' @param seed optional seed scoped to this GSEA call
+#' @param annotation_provenance optional annotation provenance captured from an Annot object
 #' @importFrom fgsea fgseaMultilevel
 #' @author Kai Guo
 richGSEA_internal<-function(x,object,keytype="",pvalue=0.05,padj=NULL,KEGG=FALSE,minSize=15,maxSize=500,
                             minGSSize = 10, maxGSSize = 500,
-                            padj.method="BH",organism=NULL,ontology=NULL,table=TRUE,sep=","){
+                            padj.method="BH",organism=NULL,ontology=NULL,table=TRUE,sep=",",
+                            eps=NULL,scoreType=NULL,nproc=NULL,BPPARAM=NULL,seed=NULL,
+                            annotation_provenance=NULL){
+  .validate_gsea_inputs(x, pvalue, padj, minSize, maxSize, minGSSize,
+                        maxGSSize, padj.method, eps, scoreType, nproc,
+                        BPPARAM, seed)
+  rng_summary <- list(seed = NULL, RNGkind = RNGkind(), backend = NULL)
+  if (!is.null(seed)) {
+    had_seed <- exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
+    old_seed <- if (had_seed) get(".Random.seed", envir = .GlobalEnv) else NULL
+    old_kind <- RNGkind()
+    on.exit({
+      kind_args <- as.list(old_kind)
+      names(kind_args) <- c("kind", "normal.kind", "sample.kind")[seq_along(kind_args)]
+      do.call(RNGkind, kind_args)
+      if (had_seed) {
+        assign(".Random.seed", old_seed, envir = .GlobalEnv)
+      } else if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) {
+        rm(".Random.seed", envir = .GlobalEnv)
+      }
+    }, add = TRUE)
+    set.seed(as.integer(seed))
+    rng_summary <- list(seed = as.integer(seed), RNGkind = RNGkind(), backend = NULL)
+  }
+  metadata_padj <- padj
+  original_input_ids <- names(x)
   x<-sort(x)
   if("Annot"%in%colnames(object)){
     object[,2]<-object$Annot
   }
+  normalization <- .normalize_annotation(object, func_name = "richGSEA")
+  object <- normalization$data[, 1:2, drop = FALSE]
+  normalization$counts$eligible_rows <- as.integer(nrow(object))
+  normalization$counts$effective_rows <- normalization$counts$eligible_rows
   annod<-sf(object);
-  res<-fgseaMultilevel(pathways=annod,stats=x,minSize=minSize,maxSize=maxSize)
+  backend_args <- list(pathways = annod, stats = x,
+                       minSize = minSize, maxSize = maxSize)
+  if (!is.null(eps)) backend_args$eps <- eps
+  if (!is.null(scoreType)) backend_args$scoreType <- scoreType
+  if (!is.null(nproc)) backend_args$nproc <- nproc
+  if (!is.null(BPPARAM)) backend_args$BPPARAM <- BPPARAM
+  res <- as.data.frame(do.call(fgseaMultilevel, backend_args))
+  rng_summary$backend <- if (!is.null(BPPARAM)) class(BPPARAM) else if (!is.null(nproc)) {
+    list(nproc = nproc)
+  } else NULL
+  tested_count <- nrow(res)
+  res$padj <- stats::p.adjust(res$pval, method = padj.method)
   if(isTRUE(table)){
     res$leadingEdge<-unlist(lapply(res$leadingEdge, function(x)paste(gsub(" ","",x),collapse = sep,sep="")))
   }
   if(is.null(padj)){
-    res<-res[res$pval<pvalue,]
+    res<-res[!is.na(res$pval) & res$pval<pvalue, , drop = FALSE]
     padj=numeric()
   }else{
-    res<-res[res$padj<padj,]
+    res<-res[!is.na(res$padj) & res$padj<padj, , drop = FALSE]
   }
   res<-res[order(res$pval),]
   res <- res[!is.na(res$pathway),]
@@ -60,7 +177,53 @@ richGSEA_internal<-function(x,object,keytype="",pvalue=0.05,padj=NULL,KEGG=FALSE
               keytype        = keytype,
               sep = sep
   )
-  return(result)
+  annotation_genes <- unique(as.character(object[, 1]))
+  ranked_ids <- unique(as.character(original_input_ids[!is.na(original_input_ids) &
+                                                        nzchar(trimws(original_input_ids))]))
+  input_info <- list(
+    original_count = as.integer(length(original_input_ids)),
+    valid_count = as.integer(sum(!is.na(original_input_ids) & nzchar(trimws(original_input_ids)))),
+    unique_count = as.integer(length(ranked_ids)),
+    duplicate_count = as.integer(sum(!is.na(original_input_ids) & nzchar(trimws(original_input_ids))) -
+                                   length(ranked_ids)),
+    invalid_count = as.integer(sum(is.na(original_input_ids) | !nzchar(trimws(original_input_ids)))),
+    ids = ranked_ids, mapped_ids = ranked_ids[ranked_ids %in% annotation_genes],
+    unmapped_ids = ranked_ids[!ranked_ids %in% annotation_genes],
+    mapped_count = as.integer(sum(ranked_ids %in% annotation_genes)),
+    unmapped_count = as.integer(sum(!ranked_ids %in% annotation_genes)),
+    effective_ids = ranked_ids[ranked_ids %in% annotation_genes],
+    effective_count = as.integer(sum(ranked_ids %in% annotation_genes)),
+    excluded_by_universe_ids = character()
+  )
+  background <- list(mode = "ranked_input", original_count = NA_integer_,
+                     valid_count = NA_integer_, unique_count = NA_integer_,
+                     invalid_count = NA_integer_, duplicate_count = NA_integer_,
+                     unmapped_count = NA_integer_, unmapped_ids = character(),
+                     effective_count = as.integer(length(ranked_ids)),
+                     effective_ids = ranked_ids)
+  testing <- list(family_policy = "fgsea_returned_before_filtering",
+                  tested_count = as.integer(tested_count),
+                  effective_N = NA_integer_, effective_n = NA_integer_)
+  options <- list(pvalue = pvalue, padj = metadata_padj, minSize = minSize,
+                  maxSize = maxSize, minGSSize = minGSSize,
+                  maxGSSize = maxGSSize, padj.method = padj.method,
+                  ontology = ontology, keytype = keytype, KEGG = KEGG,
+                  table = table, sep = sep, eps = eps, scoreType = scoreType,
+                  nproc = nproc,
+                  BPPARAM = if (is.null(BPPARAM)) NULL else class(BPPARAM),
+                  seed = seed)
+  if (is.null(annotation_provenance)) {
+    annotation_provenance <- .annotation_provenance(
+      species = organism, keytype = keytype, anntype = ontology,
+      source_type = "custom", source_name = NA_character_
+    )
+  }
+  attr(result, "richR_metadata") <- .analysis_metadata(
+    "GSEA", input_info, normalization$counts, background, testing, options,
+    annotation_provenance, fgsea_version = .package_version_or_na("fgsea"),
+    rng = rng_summary
+  )
+  result
 }
 
 #' GSEA Enrichment analysis function
@@ -77,6 +240,11 @@ richGSEA_internal<-function(x,object,keytype="",pvalue=0.05,padj=NULL,KEGG=FALSE
 #' @param organism organism name
 #' @param table leadingEdge as vector
 #' @param sep character string used to separate the genes
+#' @param eps optional fgsea convergence tolerance
+#' @param scoreType optional fgsea score type (std, pos, or neg)
+#' @param nproc optional fgsea worker count
+#' @param BPPARAM optional BiocParallel backend
+#' @param seed optional seed scoped to this GSEA call
 #' @export
 #' @examples
 #' \dontrun{
@@ -89,9 +257,11 @@ richGSEA_internal<-function(x,object,keytype="",pvalue=0.05,padj=NULL,KEGG=FALSE
 #' }
 #' @author Kai Guo
 setMethod("richGSEA", signature(object = "data.frame"),definition = function(x,object,keytype="",pvalue=0.05,padj=NULL,KEGG=FALSE,minSize=15,ontology="",
-                                                                             maxSize=500,padj.method="BH",organism=NULL,table=TRUE,sep=",") {
+                                                                             maxSize=500,padj.method="BH",organism=NULL,table=TRUE,sep=",",
+                                                                             eps=NULL,scoreType=NULL,nproc=NULL,BPPARAM=NULL,seed=NULL) {
   richGSEA_internal(x,object,keytype=keytype,pvalue=pvalue,padj=padj,KEGG=KEGG,minSize=minSize,ontology=ontology,
-                    maxSize=maxSize,padj.method=padj.method,organism=organism,table=table,sep=sep)
+                    maxSize=maxSize,padj.method=padj.method,organism=organism,table=table,sep=sep,
+                    eps=eps,scoreType=scoreType,nproc=nproc,BPPARAM=BPPARAM,seed=seed)
 })
 #' GSEA Enrichment analysis function
 #' @param x a vector include all log2FC with gene name
@@ -117,10 +287,19 @@ setMethod("richGSEA", signature(object = "data.frame"),definition = function(x,o
 #' }
 #' @export
 #' @author Kai Guo
+#' @param eps optional fgsea convergence tolerance
+#' @param scoreType optional fgsea score type (std, pos, or neg)
+#' @param nproc optional fgsea worker count
+#' @param BPPARAM optional BiocParallel backend
+#' @param seed optional seed scoped to this GSEA call
 setMethod("richGSEA", signature(object = "Annot"),definition = function(x,object,keytype="",pvalue=0.05,padj=NULL,KEGG=FALSE,minSize=15,ontology="",
-                                                                        maxSize=500,padj.method="BH",organism=NULL,table=TRUE,sep=",") {
+                                                                        maxSize=500,padj.method="BH",organism=NULL,table=TRUE,sep=",",
+                                                                        eps=NULL,scoreType=NULL,nproc=NULL,BPPARAM=NULL,seed=NULL) {
+  provenance <- .annotation_provenance(object)
   richGSEA_internal(x,object@annot,keytype=object@keytype,pvalue=pvalue,padj=padj,KEGG=KEGG,minSize=minSize,ontology=object@anntype,
-                    maxSize=maxSize,padj.method=padj.method,organism=object@species,table=table,sep=sep)
+                    maxSize=maxSize,padj.method=padj.method,organism=object@species,table=table,sep=sep,
+                    annotation_provenance=provenance,eps=eps,scoreType=scoreType,
+                    nproc=nproc,BPPARAM=BPPARAM,seed=seed)
 })
 
 
@@ -778,6 +957,11 @@ filterPathways <- function(gseaRes, nes_cutoff = NULL, padj_cutoff = 0.05, pval_
 #' @param organism organism name
 #' @param table leadingEdge as vector
 #' @param sep character string used to separate the genes when concatenating
+#' @param eps optional fgsea convergence tolerance
+#' @param scoreType optional fgsea score type (std, pos, or neg)
+#' @param nproc optional fgsea worker count
+#' @param BPPARAM optional BiocParallel backend
+#' @param seed optional seed scoped to this GSEA call
 #' @export
 #' @examples
 #' \dontrun{
@@ -794,7 +978,8 @@ filterPathways <- function(gseaRes, nes_cutoff = NULL, padj_cutoff = 0.05, pval_
 parGSEA<-function(x,object,log2FC="log2FoldChange",gene.col=NULL,
                   simplify=FALSE,keytype="",
                   pvalue=0.05,padj=NULL,KEGG=FALSE,minSize=15,ontology="",
-                  maxSize=500,padj.method="BH",organism=NULL,table=TRUE,sep=","){
+                  maxSize=500,padj.method="BH",organism=NULL,table=TRUE,sep=",",
+                  eps=NULL,scoreType=NULL,nproc=NULL,BPPARAM=NULL,seed=NULL){
   fc<-x[,log2FC]
   if(is.null(gene.col)){
     names(fc)<-rownames(x)
@@ -802,7 +987,8 @@ parGSEA<-function(x,object,log2FC="log2FoldChange",gene.col=NULL,
     names(fc)<-x[,gene.col]
   }
   tmp<-richGSEA(fc,object,keytype=keytype,pvalue=pvalue,padj=padj,KEGG=KEGG,minSize=minSize,ontology=ontology,
-                maxSize=maxSize,padj.method=padj.method,organism=organism,table=table,sep=sep)
+                maxSize=maxSize,padj.method=padj.method,organism=organism,table=table,sep=sep,
+                eps=eps,scoreType=scoreType,nproc=nproc,BPPARAM=BPPARAM,seed=seed)
   if(isTRUE(simplify)){
     tmp<-result(tmp)
   }

@@ -11,7 +11,7 @@
 #' @param keytype keytype for input genes
 #' @param minSize minimal number of genes included in significant terms
 #' @param maxSize maximum number of genes included in significant terms
-#' @param minGSSize minimal size of genes annotated by ontology term for testing.
+#' @param minGSSize minimum annotated term size for reporting; positive-overlap terms are adjusted before this reporting filter.
 #' @param maxGSSize maximal size of each geneset for analyzing
 #' @param keepRich keep terms with rich factor value equal 1 or not (default: TRUE)
 #' @param filename output filename
@@ -28,9 +28,10 @@
 #' }
 ##' @export
 ##' @author Kai Guo
+#' @param universe optional character vector intersected with annotated genes to define the ORA background
 setGeneric("richGO", function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,organism=NULL,keytype=NULL,minSize=2,maxSize=500,
                               minGSSize = 10, maxGSSize = 500,
-                              keepRich=TRUE,filename=NULL,padj.method="BH",sep=",",...)
+                              keepRich=TRUE,filename=NULL,padj.method="BH",sep=",",universe=NULL,...)
   standardGeneric("richGO"))
 
 ##' richKEGG
@@ -45,7 +46,7 @@ setGeneric("richGO", function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,organ
 #' @param keytype keytype for input genes
 #' @param minSize minimal number of genes included in significant terms
 #' @param maxSize maximum number of genes included in significant terms
-#' @param minGSSize minimal size of genes annotated by ontology term for testing.
+#' @param minGSSize minimum annotated term size for reporting; positive-overlap terms are adjusted before this reporting filter.
 #' @param maxGSSize maximal size of each geneset for analyzing
 #' @param keepRich keep terms with rich factor value equal 1 or not (default: TRUE)
 #' @param builtin use KEGG built-in annotation or not (set FALSE if you want use newest KEGG data)
@@ -62,9 +63,10 @@ setGeneric("richGO", function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,organ
 #' }
 ##' @export
 ##' @author Kai Guo
+#' @param universe optional character vector intersected with annotated genes to define the ORA background
 setGeneric("richKEGG", function(x,kodata,pvalue=0.05,padj=NULL,organism=NULL,ontology="KEGG",
                                 keytype=NULL,minSize=2,maxSize=500,minGSSize = 10, maxGSSize = 500,
-                                keepRich=TRUE,filename=NULL,padj.method="BH",builtin=TRUE,sep=",",...)
+                                keepRich=TRUE,filename=NULL,padj.method="BH",builtin=TRUE,sep=",",universe=NULL,...)
   standardGeneric("richKEGG"))
 
 ##' richGSEA
@@ -85,6 +87,11 @@ setGeneric("richKEGG", function(x,kodata,pvalue=0.05,padj=NULL,organism=NULL,ont
 #' @param organism organism name
 #' @param table leadingEdge as vector
 #' @param sep character string used to separate the genes when concatenating
+#' @param eps optional fgsea convergence tolerance
+#' @param scoreType optional fgsea score type
+#' @param nproc optional fgsea worker count
+#' @param BPPARAM optional BiocParallel backend
+#' @param seed optional seed scoped to this GSEA call
 #' @param ... additional arguments
 ##' @return GSEAResult
 #' @examples
@@ -99,7 +106,8 @@ setGeneric("richKEGG", function(x,kodata,pvalue=0.05,padj=NULL,organism=NULL,ont
 ##' @export
 ##' @author Kai Guo
 setGeneric("richGSEA", function(x,object,keytype="",pvalue=0.05,padj=NULL,KEGG=FALSE,minSize=15,ontology="",
-                                maxSize=500,padj.method="BH",organism=NULL,table=TRUE,sep=",",...)
+                                maxSize=500,padj.method="BH",organism=NULL,table=TRUE,sep=",",
+                                eps=NULL,scoreType=NULL,nproc=NULL,BPPARAM=NULL,seed=NULL,...)
   standardGeneric("richGSEA"))
 ##' enrich
 ##'
@@ -114,7 +122,7 @@ setGeneric("richGSEA", function(x,object,keytype="",pvalue=0.05,padj=NULL,KEGG=F
 #' @param keytype keytype for input genes
 #' @param minSize minimal number of genes included in significant terms
 #' @param maxSize maximum number of genes included in significant terms
-#' @param minGSSize minimal size of genes annotated by ontology term for testing.
+#' @param minGSSize minimum annotated term size for reporting; positive-overlap terms are adjusted before this reporting filter.
 #' @param maxGSSize maximal size of each geneset for analyzing
 #' @param keepRich keep terms with rich factor value equal 1 or not (default: TRUE)
 #' @param filename output filename
@@ -134,10 +142,11 @@ setGeneric("richGSEA", function(x,object,keytype="",pvalue=0.05,padj=NULL,KEGG=F
 ##' }
 ##' @export
 ##' @author Kai Guo
+#' @param universe optional character vector intersected with annotated genes to define the ORA background
 setGeneric("enrich", function(x,object,ontology="",pvalue=0.05,padj=NULL,organism=NULL,
                               keytype="",filename=NULL,minSize=2,maxSize=500,
                               minGSSize = 10, maxGSSize = 500,
-                              keepRich=TRUE,padj.method="BH",sep=",",...)
+                              keepRich=TRUE,padj.method="BH",sep=",",universe=NULL,...)
   standardGeneric("enrich"))
 
 
