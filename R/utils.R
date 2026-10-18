@@ -377,9 +377,11 @@
   GeneID <- rhs_gene[names(stats$rhs)]
   # Term names: use supplied mapping or fall back to term IDs
   if (!is.null(term_names)) {
-    Term <- term_names[names(stats$rhs)]
+    Term <- as.character(unname(term_names[names(stats$rhs)]))
+    missing_label <- is.na(Term) | !nzchar(trimws(Term))
+    Term[missing_label] <- names(stats$rhs)[missing_label]
   } else {
-    Term <- names(stats$rhs)
+    Term <- as.character(unname(names(stats$rhs)))
   }
   resultFis <- data.frame(
     Annot = names(stats$rhs), Term = Term,
