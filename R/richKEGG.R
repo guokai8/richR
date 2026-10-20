@@ -33,7 +33,7 @@ richKEGG_internal<-function(x,kodata,pvalue=0.05,padj=NULL,ontology="KEGG",
   }
   term_names <- setNames(all_ko[, 1], rownames(all_ko))
   path_env <- new.env(parent = emptyenv())
-  data("path", envir = path_env)
+  utils::data("path", package = "richR", envir = path_env)
   .run_ora(x, annot = kodata, term_names = term_names, extra_cols = path_env$path,
            pvalue = pvalue, padj = padj, padj.method = padj.method,
            minSize = minSize, maxSize = maxSize,
