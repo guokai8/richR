@@ -1,0 +1,113 @@
+name: Upstream installed regressions
+
+"on":
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  installed-regressions:
+    name: ${{ matrix.os }} installed regressions
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+          - os: macos-latest
+          - os: windows-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      TARGET_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: release
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::testthat
+          needs: check
+
+      - name: Build source archive and install into a fresh library
+        shell: bash
+        env:
+          RICH_R_INSTALL_LIB: ${{ runner.temp }}/richR-installed-library
+        run: |
+          actual_head="$(git rev-parse HEAD)"
+          if [[ "$actual_head" != "$TARGET_HEAD_SHA" ]]; then
+            printf 'Checked out HEAD %s does not match PR head %s\n' "$actual_head" "$TARGET_HEAD_SHA" >&2
+            exit 1
+          fi
+          printf 'SOURCE_HEAD_SHA: %s\n' "$actual_head"
+          Rscript --vanilla -e 'dir.create(Sys.getenv("RICH_R_INSTALL_LIB"), recursive = TRUE, showWarnings = FALSE)'
+          R CMD build --no-build-vignettes --no-manual .
+          archives=(richR_*.tar.gz)
+          if [[ ${#archives[@]} -ne 1 ]]; then
+            printf 'Expected one richR source archive, found %s\n' "${#archives[@]}" >&2
+            exit 1
+          fi
+          printf 'SOURCE_ARCHIVE: %s\n' "${archives[0]}"
+          printf 'INSTALL_LIBRARY: %s\n' "$RICH_R_INSTALL_LIB"
+          R CMD INSTALL --library="$RICH_R_INSTALL_LIB" "${archives[0]}"
+
+      - name: Verify installed target and run scoped tests
+        shell: bash
+        env:
+          R_LIBS: ${{ runner.temp }}/richR-installed-library
+        run: |
+          Rscript --vanilla -e '
+          description_path <- file.path(Sys.getenv("GITHUB_WORKSPACE"), "DESCRIPTION")
+          expected_version <- read.dcf(description_path, fields = "Version")[[1]]
+          installed_lib <- normalizePath(Sys.getenv("R_LIBS"), winslash = "/", mustWork = TRUE)
+          .libPaths(c(installed_lib, .libPaths()))
+          namespace <- loadNamespace("richR")
+          installed_version <- as.character(utils::packageVersion("richR"))
+          package_path <- normalizePath(getNamespaceInfo(namespace, "path"), winslash = "/")
+          stopifnot(identical(installed_version, expected_version))
+          stopifnot(startsWith(package_path, paste0(installed_lib, "/")))
+          cat("EXPECTED_TARGET_VERSION:", expected_version, "\n")
+          cat("INSTALLED_TARGET_VERSION:", installed_version, "\n")
+          cat("INSTALLED_TARGET_PATH:", package_path, "\n")
+
+          library(testthat)
+          candidates <- c(
+            "tests/testthat/test-consumer-compat.R",
+            "tests/testthat/test-batchEnrich-binding.R",
+            "tests/testthat/test-batchEnrich-reliability.R",
+            "tests/testthat/test-compareResult-reliability.R"
+          )
+          workspace <- normalizePath(Sys.getenv("GITHUB_WORKSPACE"), winslash = "/")
+          source_files <- file.path(workspace, candidates)
+          source_files <- source_files[file.exists(source_files)]
+          stopifnot(length(source_files) > 0L)
+          setwd(tempdir())
+          cat("TEST_WORKING_DIRECTORY:", normalizePath(getwd(), winslash = "/"), "\n")
+          test_directory <- tempfile(pattern = "richR-regression-tests-")
+          dir.create(test_directory)
+          test_paths <- file.path(test_directory, basename(source_files))
+          copied <- file.copy(source_files, test_paths)
+          stopifnot(all(copied))
+          test_directory <- normalizePath(test_directory, winslash = "/", mustWork = TRUE)
+          stopifnot(!startsWith(test_directory, paste0(workspace, "/")))
+          test_paths <- normalizePath(test_paths, winslash = "/", mustWork = TRUE)
+          Sys.setenv(TARGET_TEST_FILES = paste(test_paths, collapse = .Platform$path.sep))
+          cat("TARGET_TEST_FILES:", Sys.getenv("TARGET_TEST_FILES"), "\n")
+          test_paths <- strsplit(Sys.getenv("TARGET_TEST_FILES"),
+                                 .Platform$path.sep, fixed = TRUE)[[1L]]
+          for (test_path in test_paths) {
+            cat("COPIED_TEST_FILE:", test_path, "\n")
+            cat("TEST_FILE_CWD:", normalizePath(dirname(test_path), winslash = "/"), "\n")
+            testthat::test_file(test_path, reporter = "summary", stop_on_failure = TRUE)
+          }
+          cat("INSTALLED_REGRESSIONS_PASS\n")
+          '
+
