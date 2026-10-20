@@ -191,28 +191,43 @@ test_that("unequal clusters preserve membership, scores, and strict filtering", 
     Pvalue=c(1e-8, 1e-7, 1e-6, 1e-5, 1e-4, .5),
     Padj=c(1e-8, 1e-7, 1e-6, 1e-5, 1e-4, .5)
   )
-  result <- richR::richCluster(unequal, gene=NULL, cutoff=.1, overlap=0, minSize=2)
-  expect_identical(rownames(result), c("a", "d"))
-  expect_identical(as.integer(result$filteredClusterSize), c(3L, 2L))
-  expect_equal(result$EnrichmentScore, c(7, 4.5), tolerance=1e-12)
-  expect_setequal(strsplit(result$Cluster[1], ",", fixed=TRUE)[[1]], letters[1:3])
-  expect_setequal(strsplit(result$Cluster[2], ",", fixed=TRUE)[[1]], letters[4:5])
+  expected_members <- list(letters[1:3], letters[4:5])
+  for (input in list(unequal, .as_rich_result(unequal))) {
+    for (use_term in c(FALSE, TRUE)) {
+      representatives <- if (use_term) c("A", "D") else c("a", "d")
+      members <- if (use_term) lapply(expected_members, toupper) else expected_members
+      result <- richR::richCluster(
+        input, gene=NULL, useTerm=use_term, cutoff=.1, overlap=0, minSize=2
+      )
+      expect_identical(rownames(result), representatives)
+      expect_identical(as.integer(result$filteredClusterSize), c(3L, 2L))
+      expect_equal(result$EnrichmentScore, c(7, 4.5), tolerance=1e-12)
+      expect_setequal(strsplit(result$Cluster[1], ",", fixed=TRUE)[[1]], members[[1]])
+      expect_setequal(strsplit(result$Cluster[2], ",", fixed=TRUE)[[1]], members[[2]])
 
-  filtered <- richR::richCluster(
-    unequal, gene=NULL, cutoff=.1, overlap=0, minSize=2, escore=6
-  )
-  expect_identical(rownames(filtered), "a")
-  expect_identical(as.integer(filtered$filteredClusterSize), 3L)
+      filtered <- richR::richCluster(
+        input, gene=NULL, useTerm=use_term, cutoff=.1, overlap=0,
+        minSize=2, escore=6
+      )
+      expect_identical(rownames(filtered), representatives[1])
+      expect_identical(as.integer(filtered$filteredClusterSize), 3L)
+      expect_equal(filtered$EnrichmentScore, 7, tolerance=1e-12)
+    }
+  }
 })
 
 test_that("cluster errors remain clear when no pairs or scores survive", {
   fixture <- .cluster_fixture()
-  expect_error(
-    richR::richCluster(fixture, gene=NULL, cutoff=1, overlap=0, minSize=2),
-    "kappa cutoff too high"
-  )
-  expect_error(
-    richR::richCluster(fixture, gene=NULL, cutoff=.1, overlap=0, minSize=2, escore=8),
-    "Enrichment score too high, No significant cluster"
-  )
+  for (input in list(fixture, .as_rich_result(fixture))) {
+    for (use_term in c(FALSE, TRUE)) {
+      expect_error(
+        richR::richCluster(input, gene=NULL, useTerm=use_term, cutoff=1, overlap=0, minSize=2),
+        "kappa cutoff too high"
+      )
+      expect_error(
+        richR::richCluster(input, gene=NULL, useTerm=use_term, cutoff=.1, overlap=0, minSize=2, escore=8),
+        "Enrichment score too high, No significant cluster"
+      )
+    }
+  }
 })
