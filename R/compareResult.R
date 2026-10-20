@@ -1,8 +1,14 @@
 #' compare enrichment results across different samples
-#' @param x list of richResults
-#' @param pvalue cutoff pvalue
-#' @param padj cutoff p adjust value
-#' @param include.all include all richResults even empty
+#' @param x Non-empty list of richResult objects, result data.frames, or NULL
+#'   entries. Unnamed lists receive positional Group labels; explicit names
+#'   must be nonblank and unique.
+#' @param pvalue Strict raw p-value cutoff used when \code{padj} is NULL; such
+#'   rows must also satisfy \code{Padj < 1}.
+#' @param padj Strict adjusted p-value cutoff; when supplied, rows must also
+#'   satisfy \code{Pvalue < 1}.
+#' @param include.all Preserve all input group names as factor levels in input order,
+#'   including groups with no retained rows. The same strict significance
+#'   filtering still applies, and no placeholder terms are created.
 #' @examples
 #' \dontrun{
 #' hsako <- buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
@@ -17,27 +23,53 @@
 #' @export
 compareResult<-function (x, pvalue = 0.05, padj = NULL,include.all=FALSE)
 {
-  if (!is.null(padj)) {
-    pvalue <- 1
+  if (!is.list(x) || length(x) == 0L) {
+    stop("x must be a non-empty list of enrichment results.", call. = FALSE)
   }
-  else {
-    padj <- 1
+  if (is.null(names(x))) names(x) <- paste("Group", seq_along(x))
+  .validate_named_list(x, "x")
+
+  required <- c("Annot", "Term", "Annotated", "Significant", "Pvalue", "Padj", "GeneID")
+  frames <- lapply(seq_along(x), function(i) {
+    group <- names(x)[[i]]
+    value <- x[[i]]
+    if (is.null(value)) return(NULL)
+    if (methods::is(value, "richResult")) value <- value@result
+    if (!is.data.frame(value)) {
+      stop("x group '", group, "' must be a richResult, data.frame, or NULL.",
+           call. = FALSE)
+    }
+    missing <- setdiff(required, names(value))
+    if (length(missing)) {
+      stop("x group '", group, "' is missing required result column(s): ",
+           paste(missing, collapse = ", "), call. = FALSE)
+    }
+    if (is.null(padj)) {
+      value <- value[!is.na(value$Padj) & value$Padj < 1 &
+                       !is.na(value$Pvalue) & value$Pvalue < pvalue, , drop = FALSE]
+    } else {
+      value <- value[!is.na(value$Padj) & value$Padj < padj &
+                       !is.na(value$Pvalue) & value$Pvalue < 1, , drop = FALSE]
+    }
+    value$group <- rep(group, nrow(value))
+    value
+  })
+  names(frames) <- names(x)
+  present <- Filter(Negate(is.null), frames)
+  if (length(present)) {
+    dx <- dplyr::bind_rows(present)
+  } else {
+    dx <- data.frame(
+      Annot = character(), Term = character(), Annotated = numeric(),
+      Significant = numeric(), RichFactor = numeric(), FoldEnrichment = numeric(),
+      zscore = numeric(), Pvalue = numeric(), Padj = numeric(), GeneID = character(),
+      group = character(), stringsAsFactors = FALSE
+    )
   }
-  if (is.null(names(x))) {
-    names(x) <- paste("Group", seq_along(x))
+  if (isTRUE(include.all)) {
+    dx$group <- factor(as.character(dx$group), levels = names(x))
   }
-  tmp <- lapply(x, function(x) filter(x, Padj < padj, Pvalue <
-                                        pvalue))
-  tmp <- lapply(names(x), function(x) mutate(tmp[[x]], group = x))
-  dx <- do.call(rbind, tmp)
-  if(isTRUE(include.all)){
-    id<-setdiff(names(x),unique(dx$group))
-    dd<-data.frame(Annot=dx$Annot[1],Term=dx$Term[1],
-                   Annotated=min(dx$Annotated),Significant=min(dx$Significant),Pvalue=1,
-                   Padj=1,GeneID="",group=id)
-    dx<-rbind(dx,dd)
-  }
-  return(dx)
+  dx
 }
 ##' draw dotplot for multiple enrichment results
 ##' @importFrom ggplot2 ggplot
@@ -72,7 +104,9 @@ compareResult<-function (x, pvalue = 0.05, padj = NULL,include.all=FALSE)
 ##' @param filename figure output name
 ##' @param width figure width
 ##' @param height figure height
-##' @param include.all include all richResults even empty
+##' @param include.all Preserve all supplied group labels on the x-axis,
+##'   including groups with no retained rows. This plotting option uses the
+##'   existing inclusive display cutoffs; it does not create placeholder terms.
 ##' @examples
 #' \dontrun{
 #' hsako <- buildAnnot(species="human",keytype="SYMBOL",anntype = "KEGG")
@@ -92,6 +126,7 @@ richCompareDot<-function (x, pvalue = 0.05, low = "lightpink", high = "red",leve
                       fontsize.y = 10, short = FALSE, padj = NULL, usePadj = TRUE,
                       filename = NULL, width = 10, height = 8,include.all=FALSE)
 {
+  group_levels <- if (is.factor(x$group)) levels(x$group) else unique(as.character(x$group))
   if(isTRUE(include.all)){
     padj<-pvalue<-1.1
     low<-"white"
@@ -107,6 +142,9 @@ richCompareDot<-function (x, pvalue = 0.05, low = "lightpink", high = "red",leve
   }
   if(!is.null(pathway)){
     x<-x[x[,level]%in%pathway,]
+  }
+  if (isTRUE(include.all)) {
+    x$group <- factor(as.character(x$group), levels = group_levels)
   }
   if (isTRUE(usePadj)) {
     p <- ggplot(x, aes(x = group, y = Term)) + geom_point(aes(size = Significant,
@@ -127,6 +165,9 @@ richCompareDot<-function (x, pvalue = 0.05, low = "lightpink", high = "red",leve
                                                                                   high = high) + ylab("Pathway name") + xlab("") +
       labs(size = "Gene number") + guides(color = guide_colourbar(order = 1),
                                           size = guide_legend(order = 2))
+  }
+  if (isTRUE(include.all)) {
+    p <- p + ggplot2::scale_x_discrete(limits = group_levels, drop = FALSE)
   }
   if (!is.null(filename)) {
     ggsave(p, filename = paste(filename, "enrichment.pdf", sep = "_"),

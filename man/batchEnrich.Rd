@@ -26,16 +26,27 @@ batchEnrich(
 (e.g., ontology, pvalue, padj, minSize, maxSize)}
 }
 \value{
-A list with two elements:
+A list with three elements:
 \describe{
   \item{results}{Named list of richResult objects}
   \item{combined}{Combined data.frame with a \code{group} column,
-    ready for \code{comparedot()}}
+    ready for \code{richCompareDot()}. Its group is a factor whose levels
+    are the names of all successful results, including empty results.}
+  \item{status}{One row per input group with character columns \code{group}
+    and \code{status} (success, empty, failed), integer \code{n_terms}, and
+    character \code{error}. Failed groups have NA term counts and the
+    original error message; successful and empty groups have NA errors.}
 }
 }
 \description{
 Runs enrichment analysis on a named list of gene vectors and returns
-combined results ready for \code{comparedot()} visualization.
+combined results ready for \code{richCompareDot()} visualization.
+}
+\details{
+Batch comparison combines each group's already-filtered result rows without
+applying a second significance cutoff. Successful zero-row results remain
+in \code{results} and are represented by their group level in
+\code{combined}; their status is \code{empty}.
 }
 \examples{
 \dontrun{
@@ -52,7 +63,7 @@ batch <- batchEnrich(gene_lists, hsako, fun = "richKEGG")
 head(result(batch$results[["Treatment"]]))
 
 # Visualize comparison
-comparedot(batch$combined)
+richCompareDot(batch$combined)
 }
 }
 \author{

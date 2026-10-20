@@ -11,11 +11,21 @@
 #' @param ... Additional arguments passed to the enrichment function
 #'   (e.g., ontology, pvalue, padj, minSize, maxSize)
 #'
-#' @return A list with two elements:
+#' @details Batch comparison combines each group's already-filtered result rows without
+#' applying a second significance cutoff. Successful zero-row results remain
+#' in \code{results} and are represented by their group level in
+#' \code{combined}; their status is \code{empty}.
+#'
+#' @return A list with three elements:
 #' \describe{
 #'   \item{results}{Named list of richResult objects}
 #'   \item{combined}{Combined data.frame with a \code{group} column,
-#'     ready for \code{richCompareDot()}}
+#'     ready for \code{richCompareDot()}. Its group is a factor whose levels
+#'     are the names of all successful results, including empty results.}
+#'   \item{status}{One row per input group with character columns \code{group}
+#'     and \code{status} (success, empty, failed), integer \code{n_terms}, and
+#'     character \code{error}. Failed groups have NA term counts and the
+#'     original error message; successful and empty groups have NA errors.}
 #' }
 #'
 #' @examples
@@ -39,38 +49,55 @@
 #' @author Junguk Hur
 batchEnrich <- function(gene_lists, annot, fun = c("enrich", "richGO", "richKEGG"),
                         verbose = TRUE, ...) {
+  .validate_named_list(gene_lists, "gene_lists")
   fun <- match.arg(fun)
-  if (!is.list(gene_lists) || is.null(names(gene_lists))) {
-    stop("gene_lists must be a named list of character vectors.", call. = FALSE)
-  }
   n <- length(gene_lists)
   group_names <- names(gene_lists)
-  results <- list()
+  results <- vector("list", n)
+  names(results) <- group_names
+  statuses <- rep("failed", n)
+  n_terms <- rep(NA_integer_, n)
+  errors <- rep(NA_character_, n)
   for (i in seq_len(n)) {
     name <- group_names[i]
     if (verbose) message("batchEnrich: [", i, "/", n, "] Processing '", name, "'...")
     tryCatch({
+      result <- NULL
       if (fun == "richGO") {
-        results[[name]] <- richGO(gene_lists[[name]], godata = annot, ...)
+        result <- richGO(gene_lists[[name]], godata = annot, ...)
       } else if (fun == "richKEGG") {
-        results[[name]] <- richKEGG(gene_lists[[name]], kodata = annot, ...)
+        result <- richKEGG(gene_lists[[name]], kodata = annot, ...)
       } else {
-        results[[name]] <- enrich(gene_lists[[name]], object = annot, ...)
+        result <- enrich(gene_lists[[name]], object = annot, ...)
       }
+      results[[i]] <- result
+      n_terms[[i]] <- as.integer(nrow(result@result))
+      statuses[[i]] <- if (n_terms[[i]] > 0L) "success" else "empty"
     }, error = function(e) {
-      warning("batchEnrich: failed for '", name, "': ", e$message, call. = FALSE)
-      results[[name]] <<- NULL
+      errors[[i]] <<- conditionMessage(e)
+      results[i] <<- list(NULL)
+      warning("batchEnrich: failed for '", name, "': ", errors[[i]], call. = FALSE)
     })
   }
-  # Remove failed results
-  results <- results[!sapply(results, is.null)]
+  names(results) <- group_names
+  results <- results[statuses != "failed"]
   if (length(results) == 0) {
     stop("batchEnrich: all enrichment analyses failed.", call. = FALSE)
   }
   if (verbose) {
     message("batchEnrich: completed ", length(results), "/", n, " analyses successfully.")
   }
-  # Create combined data.frame
-  combined <- compareResult(results)
-  return(list(results = results, combined = combined))
+  combined_frames <- lapply(names(results), function(name) {
+    result <- results[[name]]@result
+    result$group <- rep(name, nrow(result))
+    result
+  })
+  combined <- dplyr::bind_rows(combined_frames)
+  combined$group <- factor(as.character(combined$group), levels = names(results))
+  status <- data.frame(
+    group = as.character(group_names), status = as.character(statuses),
+    n_terms = as.integer(n_terms), error = as.character(errors),
+    stringsAsFactors = FALSE, row.names = NULL
+  )
+  return(list(results = results, combined = combined, status = status))
 }
