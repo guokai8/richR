@@ -60,11 +60,10 @@ jobs:
           R CMD INSTALL --library="$RICH_R_INSTALL_LIB" "${archives[0]}"
 
       - name: Verify installed target and run scoped tests
-        shell: bash
+        shell: Rscript --vanilla {0}
         env:
           R_LIBS: ${{ runner.temp }}/richR-installed-library
         run: |
-          Rscript --vanilla -e '
           description_path <- file.path(Sys.getenv("GITHUB_WORKSPACE"), "DESCRIPTION")
           expected_version <- read.dcf(description_path, fields = "Version")[[1]]
           installed_lib <- normalizePath(Sys.getenv("R_LIBS"), winslash = "/", mustWork = TRUE)
@@ -109,5 +108,4 @@ jobs:
             testthat::test_file(test_path, reporter = "summary", stop_on_failure = TRUE)
           }
           cat("INSTALLED_REGRESSIONS_PASS\n")
-          '
 
