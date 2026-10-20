@@ -56,6 +56,32 @@
   invisible(TRUE)
 }
 
+#' Validate exact identities on a named list before processing its members
+#' @param x named list
+#' @param arg argument name for messages
+#' @return invisible TRUE when names are valid
+#' @keywords internal
+.validate_named_list <- function(x, arg) {
+  if (!is.list(x) || length(x) == 0L || is.null(names(x))) {
+    stop(arg, " must be a non-empty named list.", call. = FALSE)
+  }
+  ids <- names(x)
+  valid_name <- !is.na(ids)
+  valid_name[valid_name] <- nzchar(ids[valid_name]) & nzchar(trimws(ids[valid_name]))
+  invalid <- !valid_name
+  if (any(invalid)) {
+    stop(arg, " has missing or blank names at position ",
+         paste(which(invalid), collapse = ", "), call. = FALSE)
+  }
+  duplicate <- duplicated(ids) | duplicated(ids, fromLast = TRUE)
+  if (any(duplicate)) {
+    stop(arg, " has duplicate name(s) at position(s) ",
+         paste(which(duplicate), collapse = ", "), ": ",
+         paste(unique(ids[duplicate]), collapse = ", "), call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
 #' Compute ORA statistics (shared across enrichment functions)
 #' @param k named numeric vector of significant gene counts per term
 #' @param M named numeric vector of annotated gene counts per term

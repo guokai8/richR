@@ -7,13 +7,19 @@
 compareResult(x, pvalue = 0.05, padj = NULL, include.all = FALSE)
 }
 \arguments{
-\item{x}{list of richResults}
+\item{x}{Non-empty list of richResult objects, result data.frames, or NULL
+entries. Unnamed lists receive positional Group labels; explicit names
+must be nonblank and unique.}
 
-\item{pvalue}{cutoff pvalue}
+\item{pvalue}{Strict raw p-value cutoff used when \code{padj} is NULL; such
+rows must also satisfy \code{Padj < 1}.}
 
-\item{padj}{cutoff p adjust value}
+\item{padj}{Strict adjusted p-value cutoff; when supplied, rows must also
+satisfy \code{Pvalue < 1}.}
 
-\item{include.all}{include all richResults even empty}
+\item{include.all}{Preserve all input group names as factor levels in input order,
+including groups with no retained rows. The same strict significance
+filtering still applies, and no placeholder terms are created.}
 }
 \description{
 compare enrichment results across different samples
