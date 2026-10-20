@@ -96,7 +96,9 @@
   ml1<-split(mat$Var1,mat$Var2)
   ml2<-split(mat$Var2,mat$Var1)
   ###
-  ml<-sapply(union(names(ml1),names(ml2)),function(x)c(ml1[[x]],ml2[[x]]))
+  ml_names <- union(names(ml1), names(ml2))
+  ml <- lapply(ml_names, function(x) c(ml1[[x]], ml2[[x]]))
+  names(ml) <- ml_names
   ###
   res<-.merge_term(ml,overlap)
   #### remove the class with smaller number
@@ -105,7 +107,9 @@
   idx<-lapply(res,function(y)which.min(x[y,"Pvalue"]))
   ###use the term with smallest p value as name
   names(res)<-unlist(lapply(names(idx),function(x)res[[x]][idx[[x]]]))
-  res<-sapply(unique(names(res)),function(x)unique(unlist(res[names(res)==x])))
+  res_names <- unique(names(res))
+  res <- lapply(res_names, function(x) unique(unlist(res[names(res) == x])))
+  names(res) <- res_names
   #####
   es <- lapply(res, function(y).calculate_Enrichment_Score(y,x))
   tl <- unlist(lapply(res,length))

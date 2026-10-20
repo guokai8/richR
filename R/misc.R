@@ -489,8 +489,9 @@ getdetail<-function(rese,resd,sep){
 ##' @importFrom KEGGREST keggList
 .get_kg_dat<-function(builtin=TRUE){
   if(isTRUE(builtin)){
-    data(kegg)
-    return(kegg.db)
+    kegg_env <- new.env(parent = emptyenv())
+    utils::data("kegg", package = "richR", envir = kegg_env)
+    return(kegg_env$kegg.db)
   }else{
     pathway<-cbind(keggList('pathway'))
     rownames(pathway)<-sub('.*map','',rownames(pathway))
@@ -499,8 +500,9 @@ getdetail<-function(rese,resd,sep){
     pathway$annotation<-as.vector(pathway$annotation)
     #data(pathway)
     if(is.na(pathway['04148',])){
-      data(kegg)
-      pathway<-kegg.db
+      kegg_env <- new.env(parent = emptyenv())
+      utils::data("kegg", package = "richR", envir = kegg_env)
+      pathway<-kegg_env$kegg.db
     }
     return(pathway)
   }
@@ -513,8 +515,9 @@ getdetail<-function(rese,resd,sep){
   #colnames(module)<-"annotation"
   #module<-as.data.frame(module)
   #module$annotation<-as.vector(module$annotation)
-  data(module)
-  return(module)
+  module_env <- new.env(parent = emptyenv())
+  utils::data("module", package = "richR", envir = module_env)
+  return(module_env$module)
 }
 
 ##' build annotation for kegg

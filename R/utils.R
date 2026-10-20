@@ -352,7 +352,7 @@ overlap <- function(x, y) {
 .get_kg_dat <- function(builtin = TRUE) {
   if (isTRUE(builtin)) {
     kegg_env <- new.env(parent = emptyenv())
-    data("kegg", envir = kegg_env)
+    utils::data("kegg", package = "richR", envir = kegg_env)
     return(kegg_env$kegg.db)
   } else {
     pathway <- cbind(keggList('pathway'))
@@ -362,7 +362,7 @@ overlap <- function(x, y) {
     pathway$annotation <- as.vector(pathway$annotation)
     if (is.na(pathway['04148', ])) {
       kegg_env <- new.env(parent = emptyenv())
-      data("kegg", envir = kegg_env)
+      utils::data("kegg", package = "richR", envir = kegg_env)
       pathway <- kegg_env$kegg.db
     }
     return(pathway)
@@ -375,7 +375,7 @@ overlap <- function(x, y) {
 #' @keywords internal
 .get_kgm.data <- function() {
   mod_env <- new.env(parent = emptyenv())
-  data("module", envir = mod_env)
+  utils::data("module", package = "richR", envir = mod_env)
   return(mod_env$module)
 }
 

@@ -23,7 +23,7 @@ richLevel_internal<-function(x,kodata,level="Level2",pvalue =0.05, padj=NULL,
                              minGSSize = 10, maxGSSize = 500,
                              keepRich=TRUE, filename=NULL,padj.method="BH",sep=","){
   path_env <- new.env(parent = emptyenv())
-  data("path", envir = path_env)
+  utils::data("path", package = "richR", envir = path_env)
   annot<-left_join(kodata,path_env$path,by=c('PATH'="ko"))
   annot<-annot[,c("GeneID",level)]
   annot<-annot[!is.na(annot[,2]),]
