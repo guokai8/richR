@@ -21,13 +21,16 @@
   ontology = "",
   keytype = "",
   filename = NULL,
-  sep = ","
+  sep = ",",
+  universe = NULL,
+  annotation_provenance = NULL,
+  metadata_ontology = ontology
 )
 }
 \arguments{
 \item{x}{gene vector or data.frame (rownames used if data.frame)}
 
-\item{annot}{2-column data.frame: col1 = term/pathway, col2 = gene}
+\item{annot}{data.frame with gene in column 1 and term/pathway in column 2}
 
 \item{term_names}{named vector mapping term IDs to readable names (or NULL)}
 
@@ -58,6 +61,12 @@
 \item{filename}{optional output filename}
 
 \item{sep}{separator for gene IDs}
+
+\item{universe}{optional character vector defining the ORA background}
+
+\item{annotation_provenance}{optional annotation provenance captured from an Annot object}
+
+\item{metadata_ontology}{ontology label retained for diagnostics}
 }
 \value{
 richResult S4 object

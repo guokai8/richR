@@ -20,7 +20,12 @@ parGSEA(
   padj.method = "BH",
   organism = NULL,
   table = TRUE,
-  sep = ","
+  sep = ",",
+  eps = NULL,
+  scoreType = NULL,
+  nproc = NULL,
+  BPPARAM = NULL,
+  seed = NULL
 )
 }
 \arguments{
@@ -55,6 +60,16 @@ parGSEA(
 \item{table}{leadingEdge as vector}
 
 \item{sep}{character string used to separate the genes when concatenating}
+
+\item{eps}{optional fgsea convergence tolerance}
+
+\item{scoreType}{optional fgsea score type (std, pos, or neg)}
+
+\item{nproc}{optional fgsea worker count}
+
+\item{BPPARAM}{optional BiocParallel backend}
+
+\item{seed}{optional seed scoped to this GSEA call}
 }
 \description{
 GSEA Enrichment analysis function for data frame with log2FC and name specifc

@@ -8,25 +8,30 @@
 #' @param keytype keytype for input genes
 #' @param minSize minimal number of genes included in significant terms
 #' @param maxSize maximum number of genes included in significant terms
-#' @param minGSSize minimal size of genes annotated by ontology term for testing.
+#' @param minGSSize minimum annotated term size for reporting; positive-overlap terms are adjusted before this reporting filter.
 #' @param maxGSSize maximal size of each geneset for analyzing
 #' @param keepRich keep terms with rich factor value equal 1 or not (default: TRUE)
 #' @param filename output filename
 #' @param padj.method pvalue adjust method(default:"BH")
 #' @param sep character string used to separate the genes when concatenating
+#' @param universe optional character vector defining the ORA background
+#' @param annotation_provenance optional annotation provenance captured from an Annot object
 #' @author Kai Guo
 enrich_internal<-function(x,object,ontology= "",pvalue=0.05,padj=NULL,organism=NULL,minSize=1,maxSize=500,
                           minGSSize = 10, maxGSSize = 500,
-                          keepRich=TRUE,keytype="",filename=NULL,padj.method="BH",sep = ","){
+                          keepRich=TRUE,keytype="",filename=NULL,padj.method="BH",sep = ",",universe=NULL,
+                          annotation_provenance=NULL){
   .validateParams(pvalue=pvalue, padj=padj, minSize=minSize, maxSize=maxSize,
                   minGSSize=minGSSize, maxGSSize=maxGSSize, func_name="enrich")
-  input <- .validateGeneInput(x, annotation=object, func_name="enrich")
-  .run_ora(x, annot = object, term_names = NULL, extra_cols = NULL,
+  normalization <- .normalize_annotation(object, func_name = "enrich")
+  .run_ora(x, annot = normalization, term_names = NULL, extra_cols = NULL,
            pvalue = pvalue, padj = padj, padj.method = padj.method,
            minSize = minSize, maxSize = maxSize,
            minGSSize = minGSSize, maxGSSize = maxGSSize,
            keepRich = keepRich, organism = organism, ontology = "",
-           keytype = keytype, filename = filename, sep = sep)
+           keytype = keytype, filename = filename, sep = sep, universe = universe,
+           annotation_provenance = annotation_provenance,
+           metadata_ontology = ontology)
 }
 #' Enrichment analysis function
 #' @param x vector contains gene names or dataframe with DEGs information
@@ -38,7 +43,7 @@ enrich_internal<-function(x,object,ontology= "",pvalue=0.05,padj=NULL,organism=N
 #' @param keytype keytype for input genes
 #' @param minSize minimal number of genes included in significant terms
 #' @param maxSize maximum number of genes included in significant terms
-#' @param minGSSize minimal size of genes annotated by ontology term for testing.
+#' @param minGSSize minimum annotated term size for reporting; positive-overlap terms are adjusted before this reporting filter.
 #' @param maxGSSize maximal size of each geneset for analyzing
 #' @param keepRich keep terms with rich factor value equal 1 or not (default: TRUE)
 #' @param filename output filename
@@ -53,13 +58,14 @@ enrich_internal<-function(x,object,ontology= "",pvalue=0.05,padj=NULL,organism=N
 #' }
 #' @export
 #' @author Kai Guo
+#' @param universe optional character vector intersected with annotated genes to define the ORA background
 setMethod("enrich", signature(object = "data.frame"),definition = function(x,object,ontology="",pvalue=0.05,padj=NULL,organism=NULL,
                                                                              keytype="",filename=NULL,minSize=2,maxSize=500,
                                                                            minGSSize = 10, maxGSSize = 500,
-                                                                             keepRich=TRUE,padj.method="BH",sep=",") {
+                                                                             keepRich=TRUE,padj.method="BH",sep=",",universe=NULL) {
   enrich_internal(x,object=object,ontology=ontology,pvalue=pvalue,padj=padj,
                     organism=organism,keytype=keytype,minSize=minSize,maxSize=maxSize,minGSSize = minGSSize, maxGSSize = maxGSSize,keepRich=keepRich,
-                    filename=filename,padj.method=padj.method,sep=sep)
+                    filename=filename,padj.method=padj.method,sep=sep,universe=universe)
 })
 
 #' Enrichment analysis function
@@ -71,7 +77,7 @@ setMethod("enrich", signature(object = "data.frame"),definition = function(x,obj
 #' @param keytype keytype for input genes
 #' @param minSize minimal number of genes included in significant terms
 #' @param maxSize maximum number of genes included in significant terms
-#' @param minGSSize minimal size of genes annotated by ontology term for testing.
+#' @param minGSSize minimum annotated term size for reporting; positive-overlap terms are adjusted before this reporting filter.
 #' @param maxGSSize maximal size of each geneset for analyzing
 #' @param keepRich keep terms with rich factor value equal 1 or not (default: TRUE)
 #' @param builtin use KEGG built-in annotation or not (set FALSE if you want to use newest KEGG data)
@@ -80,13 +86,16 @@ setMethod("enrich", signature(object = "data.frame"),definition = function(x,obj
 #' @param sep character string used to separate the genes when concatenating
 #' @export
 #' @author Kai Guo
+#' @param universe optional character vector intersected with annotated genes to define the ORA background
 setMethod("enrich", signature(object = "Annot"),definition = function(x,object,pvalue=0.05,padj=NULL,organism=NULL,
                                                                         keytype="",filename=NULL,minSize=2,maxSize=500,
                                                                       minGSSize = 10, maxGSSize = 500,
-                                                                        keepRich=TRUE,padj.method="BH",builtin=TRUE,sep=",") {
+                                                                        keepRich=TRUE,padj.method="BH",sep=",",universe=NULL,builtin=TRUE) {
+  provenance <- .annotation_provenance(object)
   enrich_internal(x=x,object=object@annot,ontology=object@anntype,pvalue=pvalue,padj=padj,
                     organism=object@species,keytype=object@keytype,minSize=minSize,maxSize=maxSize,minGSSize = minGSSize, maxGSSize = maxGSSize,keepRich=keepRich,
-                    filename=filename,padj.method=padj.method,sep=sep)
+                    filename=filename,padj.method=padj.method,sep=sep,universe=universe,
+                    annotation_provenance=provenance)
 })
 
 

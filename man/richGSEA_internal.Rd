@@ -19,7 +19,13 @@ richGSEA_internal(
   organism = NULL,
   ontology = NULL,
   table = TRUE,
-  sep = ","
+  sep = ",",
+  eps = NULL,
+  scoreType = NULL,
+  nproc = NULL,
+  BPPARAM = NULL,
+  seed = NULL,
+  annotation_provenance = NULL
 )
 }
 \arguments{
@@ -52,6 +58,18 @@ richGSEA_internal(
 \item{table}{leadingEdge as vector}
 
 \item{sep}{character string used to separate the genes when concatenating}
+
+\item{eps}{optional fgsea convergence tolerance}
+
+\item{scoreType}{optional fgsea score type (std, pos, or neg)}
+
+\item{nproc}{optional fgsea worker count}
+
+\item{BPPARAM}{optional BiocParallel backend}
+
+\item{seed}{optional seed scoped to this GSEA call}
+
+\item{annotation_provenance}{optional annotation provenance captured from an Annot object}
 }
 \description{
 Enrichment analysis for any type of annotation data

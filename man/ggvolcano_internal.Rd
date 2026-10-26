@@ -2,23 +2,28 @@
 % Please edit documentation in R/ggplots_new.R
 \name{ggvolcano_internal}
 \alias{ggvolcano_internal}
-\title{Volcano plot of GSEA gene sets}
+\title{Volcano plot of enrichment results}
 \usage{
 ggvolcano_internal(
   resultFis,
   top = 50,
   pvalue = 0.05,
   padj = NULL,
-  sig.color = "#b2182b",
-  ns.color = "grey70",
-  point.size = 3,
+  usePadj = TRUE,
+  low = "#2166ac",
+  mid = "white",
+  high = "#b2182b",
+  size.range = c(2, 8),
+  label.size = 3,
+  label.top = 5,
+  short = FALSE,
   filename = NULL,
   width = 10,
   height = 8
 )
 }
 \arguments{
-\item{resultFis}{data.frame with GSEA results (columns: NES, pval or Pvalue, padj or Padj)}
+\item{resultFis}{data.frame with enrichment results}
 
 \item{top}{max number of top terms to display (default 50)}
 
@@ -26,11 +31,21 @@ ggvolcano_internal(
 
 \item{padj}{adjusted-p cutoff}
 
-\item{sig.color}{colour for significant points (default \code{"#b2182b"})}
+\item{usePadj}{colour by adjusted p-value?}
 
-\item{ns.color}{colour for non-significant points (default \code{"grey70"})}
+\item{low}{low-end gradient colour}
 
-\item{point.size}{point size (default 3)}
+\item{mid}{midpoint gradient colour}
+
+\item{high}{high-end gradient colour}
+
+\item{size.range}{point-size range for significance mapping}
+
+\item{label.size}{text label size}
+
+\item{label.top}{number of top terms to label}
+
+\item{short}{shorten term names}
 
 \item{filename}{if non-NULL, save the plot to this file}
 
@@ -42,6 +57,6 @@ ggvolcano_internal(
 a ggplot2 object
 }
 \description{
-Scatter NES vs significance, highlighting significant gene sets.
+Scatter effect size versus significance for ORA and GSEA results.
 }
 \keyword{internal}

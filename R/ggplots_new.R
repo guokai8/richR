@@ -70,17 +70,22 @@ gglollipop_internal <- function(resultFis,
 #  2. ggvolcano — Volcano plot for GSEA results (NES vs -log10 padj)
 # ============================================================
 
-#' Volcano plot of GSEA gene sets
+#' Volcano plot of enrichment results
 #'
-#' Scatter NES vs significance, highlighting significant gene sets.
+#' Scatter effect size versus significance for ORA and GSEA results.
 #'
-#' @param resultFis data.frame with GSEA results (columns: NES, pval or Pvalue, padj or Padj)
+#' @param resultFis data.frame with enrichment results
 #' @param top max number of top terms to display (default 50)
 #' @param pvalue p-value cutoff
 #' @param padj adjusted-p cutoff
-#' @param sig.color colour for significant points (default \code{"#b2182b"})
-#' @param ns.color colour for non-significant points (default \code{"grey70"})
-#' @param point.size point size (default 3)
+#' @param usePadj colour by adjusted p-value?
+#' @param low low-end gradient colour
+#' @param mid midpoint gradient colour
+#' @param high high-end gradient colour
+#' @param size.range point-size range for significance mapping
+#' @param label.size text label size
+#' @param label.top number of top terms to label
+#' @param short shorten term names
 #' @param filename if non-NULL, save the plot to this file
 #' @param width figure width
 #' @param height figure height
@@ -279,14 +284,15 @@ ggNES_internal <- function(resultFis,
 #' Labeled scatter plot of enrichment results
 #'
 #' @param resultFis data.frame of enrichment results
-#' @param top number of top terms to display (default 20)
+#' @param top number of top terms to display (default 50)
 #' @param pvalue p-value cutoff
 #' @param padj adjusted-p cutoff
 #' @param usePadj colour by adjusted p-value?
 #' @param low low-end gradient colour
 #' @param high high-end gradient colour
-#' @param point.size point size (default 5)
+#' @param point.size point size (default 3)
 #' @param label.size text label size (default 3)
+#' @param label.top number of top terms to label
 #' @param short shorten long term names
 #' @param filename if non-NULL, save figure
 #' @param width figure width
@@ -427,6 +433,8 @@ ggecdf_internal <- function(resultFis,
 #' @param low low-end gradient colour
 #' @param high high-end gradient colour
 #' @param label.size text label size
+#' @param sim.cutoff minimum Jaccard similarity to draw an edge (0-1)
+#' @param size.range point size range for gene count mapping
 #' @param short shorten long term names
 #' @param sep separator for gene IDs
 #' @param filename if non-NULL, save figure
@@ -604,7 +612,7 @@ gggenedot_internal <- function(resultFis,
 #  9. gggeneheat — Gene–term heatmap
 # ============================================================
 
-#' Gene–term heatmap
+#' Gene-term heatmap
 #'
 #' Heatmap of fold-changes for genes in enriched terms.
 #'
@@ -614,9 +622,12 @@ gggenedot_internal <- function(resultFis,
 #' @param max.genes max genes per term to display (default 30)
 #' @param pvalue p-value cutoff
 #' @param padj adjusted-p cutoff
+#' @param usePadj colour by adjusted p-value?
 #' @param low colour for negative FC
 #' @param mid colour for zero FC
 #' @param high colour for positive FC
+#' @param na.fill fill for missing gene-term combinations
+#' @param border.color tile border colour
 #' @param label.cutoff absolute FC threshold above which gene labels are shown
 #' @param short shorten long term names
 #' @param sep separator for gene IDs

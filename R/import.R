@@ -32,39 +32,57 @@ readGMT <- function(file, species = "custom", keytype = "SYMBOL") {
     stop("GMT file not found: ", file, call. = FALSE)
   }
   lines <- readLines(file, warn = FALSE)
-  lines <- lines[nchar(trimws(lines)) > 0]
+  line_numbers <- which(nzchar(trimws(lines)))
+  lines <- lines[line_numbers]
   if (length(lines) == 0) {
     stop("GMT file is empty.", call. = FALSE)
   }
   rows <- list()
-  for (line in lines) {
-    fields <- strsplit(line, "\t")[[1]]
+  parsed_terms <- character()
+  for (i in seq_along(lines)) {
+    fields <- strsplit(paste0(lines[i], "\t"), "\t", fixed = TRUE)[[1]]
     if (length(fields) < 3) next
     term_name <- fields[1]
+    if (is.na(term_name) || !nzchar(trimws(term_name))) {
+      stop("GMT term identifier is blank on line ", line_numbers[i], ".", call. = FALSE)
+    }
+    parsed_terms <- c(parsed_terms, term_name)
     # fields[2] is description, skip
     genes <- fields[3:length(fields)]
-    genes <- genes[nchar(trimws(genes)) > 0]
-    if (length(genes) > 0) {
-      rows[[length(rows) + 1]] <- data.frame(
-        GeneID = genes,
-        Term = term_name,
-        Annot = term_name,
-        stringsAsFactors = FALSE
-      )
-    }
+    rows[[length(rows) + 1]] <- data.frame(
+      GeneID = genes,
+      Term = term_name,
+      Annot = term_name,
+      stringsAsFactors = FALSE
+    )
   }
   if (length(rows) == 0) {
     stop("No valid gene sets found in GMT file.", call. = FALSE)
   }
+  duplicated_terms <- duplicated(parsed_terms) | duplicated(parsed_terms, fromLast = TRUE)
+  if (any(duplicated_terms)) {
+    warning("readGMT: duplicate term identifier(s) merged: ",
+            paste(unique(parsed_terms[duplicated_terms]), collapse = ", "),
+            call. = FALSE)
+  }
   annot_df <- do.call(rbind, rows)
+  normalization <- .normalize_annotation(annot_df, func_name = "readGMT")
+  annot_df <- normalization$data
   n_sets <- length(unique(annot_df$Term))
   n_genes <- length(unique(annot_df$GeneID))
   message("readGMT: loaded ", n_sets, " gene sets with ", n_genes, " unique genes.")
-  new("Annot",
+  provenance <- .annotation_provenance(
+    constructor = "readGMT", species = species, keytype = keytype,
+    anntype = "custom", source_type = "custom",
+    source_name = basename(file), source_version = NA_character_,
+    constructor_normalization = normalization$counts
+  )
+  .attach_annotation_metadata(new("Annot",
       species = species,
       anntype = "custom",
       keytype = keytype,
-      annot = annot_df)
+      annot = annot_df), normalization, provenance,
+      options = list(file = basename(file)))
 }
 
 #' Build annotation from a named list of gene sets
@@ -91,16 +109,20 @@ readGMT <- function(file, species = "custom", keytype = "SYMBOL") {
 #' @export
 #' @author Junguk Hur
 buildAnnotFromList <- function(gene_sets, species = "custom", keytype = "SYMBOL") {
-  if (!is.list(gene_sets) || is.null(names(gene_sets))) {
-    stop("gene_sets must be a named list of character vectors.", call. = FALSE)
-  }
-  rows <- lapply(names(gene_sets), function(term) {
-    genes <- unique(as.character(gene_sets[[term]]))
-    genes <- genes[!is.na(genes) & nchar(genes) > 0]
-    if (length(genes) == 0) return(NULL)
+  .validate_named_list(gene_sets, "gene_sets")
+  rows <- lapply(seq_along(gene_sets), function(i) {
+    term <- names(gene_sets)[i]
+    genes <- as.character(gene_sets[[i]])
+    if (length(genes) == 0L) return(NULL)
     data.frame(GeneID = genes, Term = term, Annot = term, stringsAsFactors = FALSE)
   })
-  annot_df <- do.call(rbind, rows[!sapply(rows, is.null)])
+  rows <- rows[!vapply(rows, is.null, logical(1))]
+  if (length(rows) == 0L) {
+    stop("No valid gene sets provided.", call. = FALSE)
+  }
+  normalization <- .normalize_annotation(do.call(rbind, rows),
+                                          func_name = "buildAnnotFromList")
+  annot_df <- normalization$data
   if (is.null(annot_df) || nrow(annot_df) == 0) {
     stop("No valid gene sets provided.", call. = FALSE)
   }
@@ -108,9 +130,15 @@ buildAnnotFromList <- function(gene_sets, species = "custom", keytype = "SYMBOL"
   n_genes <- length(unique(annot_df$GeneID))
   message("buildAnnotFromList: created annotation with ", n_sets,
           " gene sets and ", n_genes, " unique genes.")
-  new("Annot",
+  provenance <- .annotation_provenance(
+    constructor = "buildAnnotFromList", species = species, keytype = keytype,
+    anntype = "custom", source_type = "custom", source_name = NA_character_,
+    source_version = NA_character_,
+    constructor_normalization = normalization$counts
+  )
+  .attach_annotation_metadata(new("Annot",
       species = species,
       anntype = "custom",
       keytype = keytype,
-      annot = annot_df)
+      annot = annot_df), normalization, provenance)
 }

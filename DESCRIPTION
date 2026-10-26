@@ -35,12 +35,14 @@ Imports:
     GGally,
     rlang,
     S4Vectors,
+    sna,
     tidyr
 LinkingTo: Rcpp
 Suggests:
     knitr,
     testthat,
     rmarkdown,
+    BiocParallel,
     plotly,
     org.Hs.eg.db,
     reactome.db

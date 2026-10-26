@@ -2,7 +2,7 @@
 % Please edit documentation in R/ggplots_new.R
 \name{gggeneheat_internal}
 \alias{gggeneheat_internal}
-\title{Gene–term heatmap}
+\title{Gene-term heatmap}
 \usage{
 gggeneheat_internal(
   resultFis,
@@ -15,6 +15,8 @@ gggeneheat_internal(
   low = "#2166ac",
   mid = "white",
   high = "#b2182b",
+  na.fill = "grey90",
+  border.color = "grey40",
   label.cutoff = 1.5,
   short = FALSE,
   sep = ",",
@@ -36,11 +38,17 @@ gggeneheat_internal(
 
 \item{padj}{adjusted-p cutoff}
 
+\item{usePadj}{colour by adjusted p-value?}
+
 \item{low}{colour for negative FC}
 
 \item{mid}{colour for zero FC}
 
 \item{high}{colour for positive FC}
+
+\item{na.fill}{fill for missing gene-term combinations}
+
+\item{border.color}{tile border colour}
 
 \item{label.cutoff}{absolute FC threshold above which gene labels are shown}
 

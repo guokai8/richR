@@ -39,10 +39,8 @@
 #' @author Junguk Hur
 batchEnrich <- function(gene_lists, annot, fun = c("enrich", "richGO", "richKEGG"),
                         verbose = TRUE, ...) {
+  .validate_named_list(gene_lists, "gene_lists")
   fun <- match.arg(fun)
-  if (!is.list(gene_lists) || is.null(names(gene_lists))) {
-    stop("gene_lists must be a named list of character vectors.", call. = FALSE)
-  }
   n <- length(gene_lists)
   group_names <- names(gene_lists)
   results <- list()

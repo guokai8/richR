@@ -20,6 +20,7 @@ enrich(
   keepRich = TRUE,
   padj.method = "BH",
   sep = ",",
+  universe = NULL,
   ...
 )
 }
@@ -44,7 +45,7 @@ enrich(
 
 \item{maxSize}{maximum number of genes included in significant terms}
 
-\item{minGSSize}{minimal size of genes annotated by ontology term for testing.}
+\item{minGSSize}{minimum annotated term size for reporting; positive-overlap terms are adjusted before this reporting filter.}
 
 \item{maxGSSize}{maximal size of each geneset for analyzing}
 
@@ -53,6 +54,8 @@ enrich(
 \item{padj.method}{pvalue adjust method(default:"BH")}
 
 \item{sep}{character string used to separate the genes when concatenating}
+
+\item{universe}{optional character vector intersected with annotated genes to define the ORA background}
 
 \item{...}{additional arguments}
 }

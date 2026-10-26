@@ -8,20 +8,24 @@
 #' @param keytype keytype for input genes
 #' @param minSize minimal number of genes included in significant terms
 #' @param maxSize maximum number of genes included in significant terms
-#' @param minGSSize minimal size of genes annotated by ontology term for testing.
+#' @param minGSSize minimum annotated term size for reporting; positive-overlap terms are adjusted before this reporting filter.
 #' @param maxGSSize maximal size of each geneset for analyzing
 #' @param keepRich keep terms with rich factor value equal 1 or not (default: FALSE)
 #' @param filename output filename
 #' @param padj.method pvalue adjust method(default:"BH")
 #' @param sep character string used to separate the genes when concatenating
+#' @param universe optional character vector defining the ORA background
+#' @param annotation_provenance optional annotation provenance captured from an Annot object
 #' @author Kai Guo
 richGO_internal<-function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,
                  organism=NULL,keytype="SYMBOL",minSize=2,maxSize=500,
                  minGSSize = 10, maxGSSize = 500,
-                 keepRich=FALSE, filename=NULL,padj.method="BH",sep=","){
+                 keepRich=FALSE, filename=NULL,padj.method="BH",sep=",",universe=NULL,
+                 annotation_provenance=NULL){
   .validateParams(pvalue=pvalue, padj=padj, minSize=minSize, maxSize=maxSize,
                   minGSSize=minGSSize, maxGSSize=maxGSSize, func_name="richGO")
-  .validateGeneInput(x, annotation=godata, func_name="richGO")
+  normalization <- .normalize_annotation(godata, func_name = "richGO")
+  godata <- normalization$data
   ## GO-specific: filter annotation to terms in this ontology
   if ("ONTOLOGYALL" %in% colnames(godata)) {
     godata_filt <- godata[which(godata$ONTOLOGYALL == ontology), ]
@@ -38,18 +42,22 @@ richGO_internal<-function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,
     ## Build from existing annotation columns (avoids requiring GO.db)
     tm <- unique(godata_filt[, c("GOALL", "Annot")])
     term_names <- setNames(tm$Annot, tm$GOALL)
-    annot_2col <- godata_filt[, c("GeneID", "GOALL")]
+    annot_2col <- godata_filt[, c("GeneID", "GOALL"), drop = FALSE]
   } else {
     all_go <- .get_go_dat(ont = ontology)
     term_names <- setNames(all_go[, 1], rownames(all_go))
-    annot_2col <- godata_filt[, 1:2]
+    annot_2col <- godata_filt[, 1:2, drop = FALSE]
   }
-  .run_ora(x, annot = annot_2col, term_names = term_names,
+  normalization$counts$eligible_rows <- as.integer(nrow(annot_2col))
+  normalization$data <- annot_2col
+  .run_ora(x, annot = normalization, term_names = term_names,
            pvalue = pvalue, padj = padj, padj.method = padj.method,
            minSize = minSize, maxSize = maxSize,
            minGSSize = minGSSize, maxGSSize = maxGSSize,
            keepRich = keepRich, organism = organism, ontology = ontology,
-           keytype = keytype, filename = filename, sep = sep)
+           keytype = keytype, filename = filename, sep = sep, universe = universe,
+           annotation_provenance = annotation_provenance,
+           metadata_ontology = ontology)
 }
 #' GO Enrichment analysis function
 #' @param x vector contains gene names or dataframe with DEGs information
@@ -61,7 +69,7 @@ richGO_internal<-function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,
 #' @param keytype keytype for input genes
 #' @param minSize minimal number of genes included in significant terms
 #' @param maxSize maximum number of genes included in significant terms
-#' @param minGSSize minimal size of genes annotated by ontology term for testing.
+#' @param minGSSize minimum annotated term size for reporting; positive-overlap terms are adjusted before this reporting filter.
 #' @param maxGSSize maximal size of each geneset for analyzing
 #' @param keepRich keep terms with rich factor value equal 1 or not (default: TRUE)
 #' @param filename output filename
@@ -76,15 +84,16 @@ richGO_internal<-function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,
 #' }
 #' @export
 #' @author Kai Guo
+#' @param universe optional character vector intersected with annotated genes to define the ORA background
 setMethod("richGO", signature(godata = "data.frame"),definition = function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,
                                                                            organism=NULL,keytype=NULL,minSize=2,maxSize=500,
                                                                            minGSSize = 10, maxGSSize = 500,
-                                                                           keepRich=TRUE, filename=NULL,padj.method="BH",sep=",") {
+                                                                           keepRich=TRUE, filename=NULL,padj.method="BH",sep=",",universe=NULL) {
  # godata<-as(godata,"Annot")
   richGO_internal(x,godata,ontology=ontology,pvalue=pvalue,padj=padj,
                   organism=organism,keytype=keytype,minSize=minSize,maxSize=maxSize,
                   minGSSize = minGSSize, maxGSSize = maxGSSize,
-                  keepRich=keepRich,filename=filename,padj.method=padj.method,sep=sep)
+                  keepRich=keepRich,filename=filename,padj.method=padj.method,sep=sep,universe=universe)
 })
 
 #' GO Enrichment analysis function
@@ -95,7 +104,7 @@ setMethod("richGO", signature(godata = "data.frame"),definition = function(x,god
 #' @param padj cutoff p adjust value
 #' @param minSize minimal number of genes included in significant terms
 #' @param maxSize maximum number of genes included in significant terms
-#' @param minGSSize minimal size of genes annotated by ontology term for testing.
+#' @param minGSSize minimum annotated term size for reporting; positive-overlap terms are adjusted before this reporting filter.
 #' @param maxGSSize maximal size of each geneset for analyzing
 #' @param keepRich keep terms with rich factor value equal 1 or not (default: TRUE)
 #' @param filename output filename
@@ -109,10 +118,13 @@ setMethod("richGO", signature(godata = "data.frame"),definition = function(x,god
 #' }
 #' @export
 #' @author Kai Guo
+#' @param universe optional character vector intersected with annotated genes to define the ORA background
 setMethod("richGO", signature(godata = "Annot"),definition = function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,minSize=2,maxSize=500,
                                                                       minGSSize = 10, maxGSSize = 500,
-                                                                      keepRich=TRUE,filename=NULL,padj.method="BH",sep=",") {
+                                                                      keepRich=TRUE,filename=NULL,padj.method="BH",sep=",",universe=NULL) {
+  provenance <- .annotation_provenance(godata)
   richGO_internal(x,godata@annot,ontology=ontology,pvalue=pvalue,padj=padj,
                   organism=godata@species,keytype=godata@keytype,minSize=minSize,maxSize=maxSize,minGSSize = minGSSize, maxGSSize = maxGSSize,
-                  keepRich=keepRich,filename=filename,padj.method=padj.method,sep=sep)
+                  keepRich=keepRich,filename=filename,padj.method=padj.method,sep=sep,universe=universe,
+                  annotation_provenance=provenance)
 })

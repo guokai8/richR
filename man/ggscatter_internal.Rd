@@ -6,14 +6,15 @@
 \usage{
 ggscatter_internal(
   resultFis,
-  top = 20,
+  top = 50,
   pvalue = 0.05,
   padj = NULL,
   usePadj = TRUE,
   low = "#fee0d2",
   high = "#b2182b",
-  point.size = 5,
+  point.size = 3,
   label.size = 3,
+  label.top = 5,
   short = FALSE,
   filename = NULL,
   width = 10,
@@ -23,7 +24,7 @@ ggscatter_internal(
 \arguments{
 \item{resultFis}{data.frame of enrichment results}
 
-\item{top}{number of top terms to display (default 20)}
+\item{top}{number of top terms to display (default 50)}
 
 \item{pvalue}{p-value cutoff}
 
@@ -35,9 +36,11 @@ ggscatter_internal(
 
 \item{high}{high-end gradient colour}
 
-\item{point.size}{point size (default 5)}
+\item{point.size}{point size (default 3)}
 
 \item{label.size}{text label size (default 3)}
+
+\item{label.top}{number of top terms to label}
 
 \item{short}{shorten long term names}
 

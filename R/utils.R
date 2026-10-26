@@ -36,9 +36,9 @@
     stop("padj must be between 0 and 1")
   }
   # Validate adjustment method
-  valid_methods <- c("holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "fdr", "none")
-  if (!padj.method %in% valid_methods) {
-    stop("padj.method must be one of: ", paste(valid_methods, collapse = ", "))
+  if (length(padj.method) != 1L || is.na(padj.method) ||
+      !padj.method %in% stats::p.adjust.methods) {
+    stop("padj.method must be one of: ", paste(stats::p.adjust.methods, collapse = ", "))
   }
   # Validate size
   if (minSize > maxSize) {
@@ -52,6 +52,93 @@
     if (is.data.frame(annot) && nrow(annot) == 0) {
       stop("Annotation data.frame is empty")
     }
+  }
+  invisible(TRUE)
+}
+
+#' Normalize annotation membership rows for enrichment
+#' @param annot annotation data.frame with gene and term in its first two columns
+#' @param func_name name used in validation messages
+#' @return normalized data.frame and row counts
+#' @keywords internal
+.normalize_annotation <- function(annot, func_name = "enrichment") {
+  if (!is.data.frame(annot)) {
+    stop(func_name, ": annotation must be a data.frame.", call. = FALSE)
+  }
+  if (ncol(annot) < 2L) {
+    stop(func_name, ": annotation must have at least 2 columns (gene and term).",
+         call. = FALSE)
+  }
+  if (nrow(annot) == 0L) {
+    stop(func_name, ": annotation has no membership rows.", call. = FALSE)
+  }
+  valid_col <- vapply(annot[1:2], function(col) {
+    is.atomic(col) && is.null(dim(col))
+  }, logical(1))
+  if (!all(valid_col)) {
+    stop(func_name, ": annotation gene and term columns must be atomic vectors.",
+         call. = FALSE)
+  }
+
+  genes <- as.character(annot[[1]])
+  terms <- as.character(annot[[2]])
+  valid <- !is.na(genes) & !is.na(terms) &
+    nzchar(trimws(genes)) & nzchar(trimws(terms))
+  original_rows <- nrow(annot)
+  valid_rows <- sum(valid)
+  if (valid_rows == 0L) {
+    stop(func_name, ": annotation has no valid annotation memberships.", call. = FALSE)
+  }
+  invalid_rows <- original_rows - valid_rows
+  if (invalid_rows > 0L) {
+    warning(func_name, ": excluded ", invalid_rows,
+            " invalid annotation row(s) with missing or blank gene/term identifiers.",
+            call. = FALSE)
+  }
+
+  normalized <- annot[valid, , drop = FALSE]
+  normalized[[1]] <- genes[valid]
+  normalized[[2]] <- terms[valid]
+  duplicated_pair <- duplicated(data.frame(
+    gene = normalized[[1]], term = normalized[[2]], stringsAsFactors = FALSE
+  ))
+  duplicate_rows <- sum(duplicated_pair)
+  normalized <- normalized[!duplicated_pair, , drop = FALSE]
+  rownames(normalized) <- NULL
+  list(
+    data = normalized,
+    counts = list(
+      original_rows = as.integer(original_rows),
+      valid_rows = as.integer(valid_rows),
+      invalid_rows = as.integer(invalid_rows),
+      duplicate_rows = as.integer(duplicate_rows),
+      unique_rows = as.integer(nrow(normalized))
+    )
+  )
+}
+
+#' Validate exact identities on a named list before processing its members
+#' @param x named list
+#' @param arg argument name for messages
+#' @return invisible TRUE when names are valid
+#' @keywords internal
+.validate_named_list <- function(x, arg) {
+  if (!is.list(x) || length(x) == 0L || is.null(names(x))) {
+    stop(arg, " must be a non-empty named list.", call. = FALSE)
+  }
+  ids <- names(x)
+  valid_name <- !is.na(ids)
+  valid_name[valid_name] <- nzchar(ids[valid_name]) & nzchar(trimws(ids[valid_name]))
+  invalid <- !valid_name
+  if (any(invalid)) {
+    stop(arg, " has missing or blank names at position ",
+         paste(which(invalid), collapse = ", "), call. = FALSE)
+  }
+  duplicate <- duplicated(ids) | duplicated(ids, fromLast = TRUE)
+  if (any(duplicate)) {
+    stop(arg, " has duplicate name(s) at position(s) ",
+         paste(which(duplicate), collapse = ", "), ": ",
+         paste(unique(ids[duplicate]), collapse = ", "), call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -76,6 +163,7 @@
   mu <- M * n / N
   sigma <- mu * (N - n) * (N - M) / N / (N - 1)
   zscore <- (k - mu) / sqrt(sigma)
+  zscore[!is.finite(zscore)] <- NA_real_
   list(rhs = rhs, lhs = lhs, Annotated = M, Significant = k,
        RichFactor = RichFactor, FoldEnrichment = FoldEnrichment, zscore = zscore)
 }
@@ -98,13 +186,9 @@
   # Upper bounds always apply
   resultFis <- subset(resultFis, Significant <= maxSize)
   resultFis <- subset(resultFis, Annotated <= maxGSSize)
-  # Lower bounds: original logic uses OR when keepRich=TRUE
-  if (isTRUE(keepRich)) {
-    resultFis <- subset(resultFis, Significant >= minSize | RichFactor == 1 | Annotated >= minGSSize)
-  } else {
-    resultFis <- subset(resultFis, Significant >= minSize)
-    resultFis <- subset(resultFis, Annotated >= minGSSize)
-  }
+  lower_bounds <- (resultFis$Significant >= minSize & resultFis$Annotated >= minGSSize) |
+    (isTRUE(keepRich) & resultFis$RichFactor == 1)
+  resultFis <- resultFis[lower_bounds, , drop = FALSE]
   # Filter by p-value
   if (!is.null(padj)) {
     resultFis <- resultFis[resultFis$Padj < padj, ]
@@ -188,7 +272,7 @@
 #' test, result assembly, filtering, detail building, and richResult construction.
 #'
 #' @param x gene vector or data.frame (rownames used if data.frame)
-#' @param annot 2-column data.frame: col1 = term/pathway, col2 = gene
+#' @param annot data.frame with gene in column 1 and term/pathway in column 2
 #' @param term_names named vector mapping term IDs to readable names (or NULL)
 #' @param extra_cols data.frame to cbind to result before filtering (e.g. KEGG path levels)
 #' @param pvalue p-value cutoff
@@ -204,37 +288,100 @@
 #' @param keytype key type
 #' @param filename optional output filename
 #' @param sep separator for gene IDs
+#' @param universe optional character vector defining the ORA background
+#' @param annotation_provenance optional annotation provenance captured from an Annot object
+#' @param metadata_ontology ontology label retained for diagnostics
 #' @return richResult S4 object
 #' @keywords internal
 .run_ora <- function(x, annot, term_names = NULL, extra_cols = NULL,
                      pvalue = 0.05, padj = NULL, padj.method = "BH",
                      minSize = 2, maxSize = 500, minGSSize = 10, maxGSSize = 500,
                      keepRich = TRUE, organism = NULL, ontology = "",
-                     keytype = "", filename = NULL, sep = ",") {
+                     keytype = "", filename = NULL, sep = ",", universe = NULL,
+                     annotation_provenance = NULL, metadata_ontology = ontology) {
+  normalization <- if (!is.data.frame(annot) && is.list(annot) &&
+                       all(c("data", "counts") %in% names(annot))) {
+    annot
+  } else {
+    .normalize_annotation(annot, func_name = "ORA")
+  }
+  annot <- normalization$data
   .validate_enrichment_input(x, annot = annot, pvalue = pvalue, padj = padj,
                              padj.method = padj.method, minSize = minSize, maxSize = maxSize)
+  raw_input <- if (is.data.frame(x)) rownames(x) else as.vector(x)
+  raw_input <- as.character(raw_input)
+  valid_input <- raw_input[!is.na(raw_input) & nzchar(trimws(raw_input))]
+  input <- unique(valid_input)
+  annotation_genes <- unique(as.character(annot[, 1]))
+  annotation_counts <- normalization$counts
+  if (is.null(annotation_counts$eligible_rows)) {
+    annotation_counts$eligible_rows <- as.integer(nrow(annot))
+  }
+  if (is.null(universe)) {
+    effective_universe <- annotation_genes
+    background_counts <- list(
+      mode = "annotation", original_count = NA_integer_, valid_count = NA_integer_,
+      unique_count = NA_integer_, invalid_count = NA_integer_,
+      duplicate_count = NA_integer_, unmapped_count = NA_integer_,
+      unmapped_ids = character(), effective_count = as.integer(length(effective_universe)),
+      effective_ids = effective_universe
+    )
+  } else {
+    if (!is.atomic(universe) || !is.character(universe)) {
+      stop("ORA: universe must be an atomic character vector.", call. = FALSE)
+    }
+    if (!is.null(dim(universe))) {
+      stop("ORA: universe must not have dimensions.", call. = FALSE)
+    }
+    if (length(universe) == 0) {
+      stop("ORA: universe is explicitly empty.", call. = FALSE)
+    }
+    clean_universe <- unique(universe[!is.na(universe) & nzchar(trimws(universe))])
+    if (length(clean_universe) == 0) {
+      stop("ORA: universe contains no valid genes after removing NA and blank values.", call. = FALSE)
+    }
+    effective_universe <- clean_universe[clean_universe %in% annotation_genes]
+    if (length(effective_universe) == 0) {
+      stop("ORA: universe has no annotated genes after intersecting with the eligible annotation.", call. = FALSE)
+    }
+    valid_universe <- universe[!is.na(universe) & nzchar(trimws(universe))]
+    background_counts <- list(
+      mode = "explicit", original_count = as.integer(length(universe)),
+      valid_count = as.integer(length(valid_universe)),
+      unique_count = as.integer(length(clean_universe)),
+      invalid_count = as.integer(length(universe) - length(valid_universe)),
+      duplicate_count = as.integer(length(valid_universe) - length(clean_universe)),
+      unmapped_count = as.integer(sum(!clean_universe %in% annotation_genes)),
+      unmapped_ids = clean_universe[!clean_universe %in% annotation_genes],
+      effective_count = as.integer(length(effective_universe)),
+      effective_ids = effective_universe
+    )
+  }
+  effective_input <- input[input %in% effective_universe]
+  if (length(effective_input) == 0) {
+    stop("ORA: no query genes remain in the effective universe.", call. = FALSE)
+  }
+  annot <- annot[as.character(annot[, 1]) %in% effective_universe, , drop = FALSE]
+  annotation_counts$effective_rows <- as.integer(nrow(annot))
   ao2gene <- sf(annot)
   ao2gene_num <- name_table(ao2gene)
   gene2ao <- sf(annot[, c(2, 1)])
-  if (is.data.frame(x)) {
-    input <- rownames(x)
-  } else {
-    input <- as.vector(x)
-  }
-  fgene2ao <- gene2ao[input]
+  fgene2ao <- gene2ao[effective_input]
   fao2gene <- reverseList(fgene2ao)
   k <- name_table(fao2gene)
-  n <- sum(!is.na(names(fgene2ao)))
+  n <- length(effective_input)
   M <- ao2gene_num[names(k)]
-  N <- length(unique(unlist(ao2gene)))
+  N <- length(effective_universe)
   stats <- .compute_ora_stats(k, M, N, n, padj.method)
   rhs_gene <- unlist(lapply(fao2gene, function(g) paste(unique(g), sep = "", collapse = sep)))
   GeneID <- rhs_gene[names(stats$rhs)]
   # Term names: use supplied mapping or fall back to term IDs
   if (!is.null(term_names)) {
-    Term <- term_names[names(stats$rhs)]
+    Term <- as.character(unname(term_names[names(stats$rhs)]))
+    missing_label <- is.na(Term) | !nzchar(trimws(Term))
+    Term[missing_label] <- names(stats$rhs)[missing_label]
   } else {
-    Term <- names(stats$rhs)
+    Term <- as.character(unname(names(stats$rhs)))
   }
   resultFis <- data.frame(
     Annot = names(stats$rhs), Term = Term,
@@ -253,8 +400,42 @@
                 sep = "\t", quote = FALSE, row.names = FALSE)
   }
   detail <- .build_detail(resultFis, x, sep)
-  .make_richResult(resultFis, detail, pvalue, padj, padj.method,
-                   input, organism, ontology, keytype, sep)
+  result <- .make_richResult(resultFis, detail, pvalue, padj, padj.method,
+                             input, organism, ontology, keytype, sep)
+  input_metadata <- list(
+    original_count = as.integer(length(raw_input)),
+    valid_count = as.integer(length(valid_input)),
+    unique_count = as.integer(length(input)),
+    duplicate_count = as.integer(length(valid_input) - length(input)),
+    invalid_count = as.integer(length(raw_input) - length(valid_input)),
+    ids = input,
+    mapped_ids = input[input %in% annotation_genes],
+    unmapped_ids = input[!input %in% annotation_genes],
+    mapped_count = as.integer(sum(input %in% annotation_genes)),
+    unmapped_count = as.integer(sum(!input %in% annotation_genes)),
+    effective_ids = effective_input,
+    effective_count = as.integer(length(effective_input)),
+    excluded_by_universe_ids = setdiff(input[input %in% annotation_genes], effective_universe)
+  )
+  testing <- list(family_policy = "positive_overlap_before_reporting_filters",
+                  tested_count = as.integer(length(stats$rhs)),
+                  effective_N = as.integer(N), effective_n = as.integer(n))
+  options <- list(pvalue = pvalue, padj = padj, minSize = minSize,
+                  maxSize = maxSize, minGSSize = minGSSize,
+                  maxGSSize = maxGSSize, keepRich = keepRich,
+                  padj.method = padj.method, ontology = metadata_ontology,
+                  keytype = keytype, universe = if (is.null(universe)) NULL else universe)
+  if (is.null(annotation_provenance)) {
+    annotation_provenance <- .annotation_provenance(
+      species = organism, keytype = keytype, anntype = metadata_ontology,
+      source_type = "custom", source_name = NA_character_
+    )
+  }
+  attr(result, "richR_metadata") <- .analysis_metadata(
+    "ORA", input_metadata, annotation_counts, background_counts, testing,
+    options, annotation_provenance
+  )
+  result
 }
 
 ## ----------------------------------------------------------------
