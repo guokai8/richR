@@ -202,6 +202,9 @@ richClusterDot <- function(data, method = c("auto", "enrich", "gsea"),color_low 
   if (!all(required_cols %in% colnames(data))) {
     stop("Input data must contain columns: ", paste(required_cols, collapse = ", "))
   }
+  # Display labels over all groups: one Term per identifier, so the joins on
+  # Term below never merge two identifiers that share a label.
+  data <- .ora_display_terms(as.data.frame(data))
 
   # Preprocess data
   data <- data %>%

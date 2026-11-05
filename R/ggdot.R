@@ -50,9 +50,8 @@ ggdot_internal<-function(object,top=50,pvalue=0.05,order=FALSE,
   if(nrow(dd)>=1){
     dd$rich<-dd$Significant/dd$Annotated
     #colnames(dd)[3]<-"rich";
-    if(isTRUE(short)){
-      dd$Term<-unlist(lapply(dd$Term,function(x).paste.char(x,n=6)))
-    }
+    # Display labels (after shortening): one category per identifier.
+    dd <- .ora_display_terms(dd, short = short)
     if(isTRUE(order)){
       if(isTRUE(orderp)){
         dd$Term<-factor(dd$Term,levels=dd$Term[order(dd$Pvalue,decreasing=TRUE)])
@@ -115,7 +114,7 @@ setMethod("richDot", signature(object = "richResult"),definition = function(obje
             ggdot_internal(object@result,top=top,pvalue=pvalue,order=order,
                            low=low,high=high,alpha=alpha,
                            font.x=font.x,font.y=font.y,fontsize.x=fontsize.x,fontsize.y=fontsize.y,
-                           padj=padj,usePadj=usePadj,orderp=orderp,filename=filename,width=width,height=height)
+                           short=short,padj=padj,usePadj=usePadj,orderp=orderp,filename=filename,width=width,height=height)
           })
 ##' dotplot for Enrichment results
 ##' @rdname richDot-methods
@@ -154,5 +153,5 @@ setMethod("richDot", signature(object = "data.frame"),definition = function(obje
             ggdot_internal(object,top=top,pvalue=pvalue,order=order,
                            low=low,high=high,alpha=alpha,
                            font.x=font.x,font.y=font.y,fontsize.x=fontsize.x,fontsize.y=fontsize.y,
-                           padj=padj,usePadj=usePadj,orderp=orderp,filename=filename,width=width,height=height)
+                           short=short,padj=padj,usePadj=usePadj,orderp=orderp,filename=filename,width=width,height=height)
           })

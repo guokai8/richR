@@ -44,7 +44,7 @@ gglollipop_internal <- function(resultFis,
 
   resultFis <- .filter_and_top(resultFis, top = top, pvalue = pvalue, padj = padj)
   if (nrow(resultFis) == 0) { message("No significant terms to plot."); return(invisible(NULL)) }
-  if (isTRUE(short)) resultFis$Term <- vapply(resultFis$Term, function(x) .paste.char(x, n = 6), character(1))
+  resultFis <- .ora_display_terms(resultFis, short = short)
 
   neg_log <- if (isTRUE(usePadj) && "Padj" %in% names(resultFis)) -log10(resultFis$Padj) else -log10(resultFis$Pvalue)
   resultFis$neg_log_p <- neg_log
@@ -109,7 +109,7 @@ ggvolcano_internal <- function(resultFis,
 
   resultFis <- .standardise_gsea_cols(resultFis)
   if (nrow(resultFis) > top) resultFis <- resultFis[seq_len(top), ]
-  if (isTRUE(short)) resultFis$Term <- vapply(resultFis$Term, function(x) .paste.char(x, n = 6), character(1))
+  resultFis <- .ora_display_terms(resultFis, short = short)
 
   # x-axis: log2(FoldEnrichment) for ORA, NES for GSEA
   is_gsea <- "NES" %in% names(resultFis)
@@ -200,7 +200,7 @@ ggcircbar_internal <- function(resultFis,
 
   resultFis <- .filter_and_top(resultFis, top = top, pvalue = pvalue, padj = padj)
   if (nrow(resultFis) == 0) { message("No significant terms to plot."); return(invisible(NULL)) }
-  if (isTRUE(short)) resultFis$Term <- vapply(resultFis$Term, function(x) .paste.char(x, n = 6), character(1))
+  resultFis <- .ora_display_terms(resultFis, short = short)
 
   fill_val <- if (isTRUE(usePadj) && "Padj" %in% names(resultFis)) -log10(resultFis$Padj) else -log10(resultFis$Pvalue)
   resultFis$neg_log_p <- fill_val
@@ -255,7 +255,7 @@ ggNES_internal <- function(resultFis,
   resultFis <- resultFis[order(resultFis$NES, decreasing = TRUE), ]
   if (nrow(resultFis) > top) resultFis <- resultFis[seq_len(top), ]
   if (nrow(resultFis) == 0) { message("No significant terms to plot."); return(invisible(NULL)) }
-  if (isTRUE(short)) resultFis$Term <- vapply(resultFis$Term, function(x) .paste.char(x, n = 6), character(1))
+  resultFis <- .ora_display_terms(resultFis, short = short)
 
   resultFis$direction <- ifelse(resultFis$NES > 0, "Up", "Down")
   resultFis$direction <- factor(resultFis$direction, levels = c("Down", "Up"))
@@ -316,7 +316,7 @@ ggscatter_internal <- function(resultFis,
 
   resultFis <- .filter_and_top(resultFis, top = top, pvalue = pvalue, padj = padj)
   if (nrow(resultFis) == 0) { message("No significant terms to plot."); return(invisible(NULL)) }
-  if (isTRUE(short)) resultFis$Term <- vapply(resultFis$Term, function(x) .paste.char(x, n = 6), character(1))
+  resultFis <- .ora_display_terms(resultFis, short = short)
 
   # x-axis: log10(Annotated) — pathway size
   resultFis$log_annotated <- log10(resultFis$Annotated)
@@ -401,7 +401,7 @@ ggecdf_internal <- function(resultFis,
   resultFis <- resultFis[order(resultFis$NES), ]
   if (nrow(resultFis) > top) resultFis <- resultFis[seq_len(top), ]
   if (nrow(resultFis) == 0) { message("No significant terms to plot."); return(invisible(NULL)) }
-  if (isTRUE(short)) resultFis$Term <- vapply(resultFis$Term, function(x) .paste.char(x, n = 6), character(1))
+  resultFis <- .ora_display_terms(resultFis, short = short)
 
   resultFis$cum_rank <- cumsum(resultFis$NES) / sum(abs(resultFis$NES))
 
@@ -460,7 +460,7 @@ ggtermsim_internal <- function(resultFis,
 
   resultFis <- .filter_and_top(resultFis, top = top, pvalue = pvalue, padj = padj)
   if (nrow(resultFis) < 3) { message("Need at least 3 terms for MDS."); return(invisible(NULL)) }
-  if (isTRUE(short)) resultFis$Term <- vapply(resultFis$Term, function(x) .paste.char(x, n = 6), character(1))
+  resultFis <- .ora_display_terms(resultFis, short = short)
 
   # Jaccard similarity matrix
   gene_lists <- strsplit(as.character(resultFis$GeneID), split = sep)
@@ -577,7 +577,7 @@ gggenedot_internal <- function(resultFis,
 
   resultFis <- .filter_and_top(resultFis, top = top, pvalue = pvalue, padj = padj)
   if (nrow(resultFis) == 0) { message("No significant terms to plot."); return(invisible(NULL)) }
-  if (isTRUE(short)) resultFis$Term <- vapply(resultFis$Term, function(x) .paste.char(x, n = 6), character(1))
+  resultFis <- .ora_display_terms(resultFis, short = short)
 
   melted <- .melt_gene_term(resultFis, fc = fc, sep = sep, max.genes = max.genes)
   if (nrow(melted) == 0) { message("No gene-term pairs."); return(invisible(NULL)) }
@@ -657,7 +657,7 @@ gggeneheat_internal <- function(resultFis,
 
   resultFis <- .filter_and_top(resultFis, top = top, pvalue = pvalue, padj = padj)
   if (nrow(resultFis) == 0) { message("No significant terms to plot."); return(invisible(NULL)) }
-  if (isTRUE(short)) resultFis$Term <- vapply(resultFis$Term, function(x) .paste.char(x, n = 6), character(1))
+  resultFis <- .ora_display_terms(resultFis, short = short)
 
   melted <- .melt_gene_term(resultFis, fc = fc, sep = sep, max.genes = max.genes)
   if (nrow(melted) == 0) { message("No gene-term pairs."); return(invisible(NULL)) }
@@ -742,7 +742,7 @@ gggenebar_internal <- function(resultFis,
 
   resultFis <- .filter_and_top(resultFis, top = top, pvalue = pvalue, padj = padj)
   if (nrow(resultFis) == 0) { message("No significant terms to plot."); return(invisible(NULL)) }
-  if (isTRUE(short)) resultFis$Term <- vapply(resultFis$Term, function(x) .paste.char(x, n = 6), character(1))
+  resultFis <- .ora_display_terms(resultFis, short = short)
 
   # build gene label per term (first max.genes genes)
   resultFis$gene_label <- vapply(resultFis$GeneID, function(gid) {
@@ -783,6 +783,52 @@ gggenebar_internal <- function(resultFis,
   else                 df <- df[df$Pvalue < pvalue, , drop = FALSE]
   df <- df[!is.na(df$Pvalue), , drop = FALSE]
   if (nrow(df) > top) df <- df[seq_len(top), , drop = FALSE]
+  df
+}
+
+#' Display labels that stay unique per identifier
+#'
+#' A label shared by several of the given identifiers gets the identifier
+#' appended, so facets, legends and network nodes never merge distinct gene sets.
+#' @param ids identifiers to label
+#' @param id_pool,term_pool identifiers and their labels
+#' @keywords internal
+#' @noRd
+.gsea_display_labels <- function(ids, id_pool, term_pool) {
+  ids <- as.character(ids)
+  terms <- as.character(term_pool)[match(ids, as.character(id_pool))]
+  terms[is.na(terms)] <- ids[is.na(terms)]
+  u_ids <- unique(ids)
+  u_terms <- terms[match(u_ids, ids)]
+  shared <- u_terms %in% u_terms[duplicated(u_terms)]
+  u_terms[shared] <- paste0(u_terms[shared], " [", u_ids[shared], "]")
+  u_terms[match(ids, u_ids)]
+}
+
+#' Display labels for a plotted enrichment frame
+#'
+#' Optionally shortens `Term` (\code{.paste.char}), then appends the identifier
+#' to every label shared by more than one identifier (\code{"label [ID]"}), so
+#' each identifier is its own plot category. Labels are computed after
+#' shortening, so two labels that only differ in whitespace stay distinct. The
+#' identifier is `Annot` (ORA result) or `pathway` (GSEA result); a frame with
+#' neither is returned with only the shortening applied.
+#' @param df data.frame with a `Term` column
+#' @param short logical, shorten labels first
+#' @return data.frame with `Term` replaced by the display label
+#' @keywords internal
+#' @noRd
+.ora_display_terms <- function(df, short = FALSE) {
+  if (!"Term" %in% names(df) || nrow(df) == 0L) return(df)
+  terms <- as.character(df$Term)
+  if (isTRUE(short)) terms <- vapply(terms, function(x) .paste.char(x, n = 6), character(1),
+                                     USE.NAMES = FALSE)
+  id_col <- intersect(c("Annot", "pathway"), names(df))
+  if (length(id_col)) {
+    ids <- as.character(df[[id_col[1L]]])
+    terms <- .gsea_display_labels(ids, ids, terms)
+  }
+  df$Term <- terms
   df
 }
 

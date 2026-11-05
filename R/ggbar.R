@@ -51,9 +51,8 @@ richBar_internal<-function(resultFis,top=50,pvalue=0.05,order=FALSE,horiz=TRUE,
   }else{
     yheight=1
   }
-  if(isTRUE(short)){
-    resultFis$Term<-unlist(lapply(resultFis$Term,function(x).paste.char(x,n=6)))
-  }
+  # Display labels (after shortening): one category per identifier.
+  resultFis <- .ora_display_terms(resultFis, short = short)
   if(isTRUE(order)){
     resultFis$rich<-as.numeric(resultFis$Significant)/as.numeric(resultFis$Annotated)
     if(isTRUE(orderp)){

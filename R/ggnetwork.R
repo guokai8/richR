@@ -57,6 +57,8 @@ ggnetwork_internal<-function (object=object,gene=gene,top = 50, pvalue = 0.05, p
   else {
     object <- object[1:top, ]
   }
+  # Node names are display labels, unique per identifier.
+  object <- .ora_display_terms(object)
   if (is.data.frame(gene)) {
     gene_p <- -log10(gene$padj)
     names(gene_p) <- rownames(gene)
