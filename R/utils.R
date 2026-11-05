@@ -526,28 +526,40 @@ overlap <- function(x, y) {
 }
 
 #' Get KEGG pathway annotation terms
+#'
+#' With \code{builtin = FALSE} the labels come from the live KEGG listing. When
+#' that listing fails or lacks the reference pathway 04148, the bundled labels
+#' are returned instead and a warning names the reason.
 #' @importFrom KEGGREST keggList
 #' @param builtin use built-in KEGG data or fetch from API
 #' @return data.frame with rownames as pathway IDs and "annotation" column
 #' @keywords internal
 .get_kg_dat <- function(builtin = TRUE) {
-  if (isTRUE(builtin)) {
+  bundled <- function() {
     kegg_env <- new.env(parent = emptyenv())
     data("kegg", envir = kegg_env)
-    return(kegg_env$kegg.db)
+    kegg_env$kegg.db
+  }
+  if (isTRUE(builtin)) {
+    return(bundled())
+  }
+  listing <- tryCatch(keggList('pathway'), error = function(e) e)
+  if (inherits(listing, "error")) {
+    reason <- paste0("live KEGG listing failed (", conditionMessage(listing), ")")
   } else {
-    pathway <- cbind(keggList('pathway'))
+    pathway <- cbind(listing)
     rownames(pathway) <- sub('.*map', '', rownames(pathway))
     colnames(pathway) <- "annotation"
     pathway <- as.data.frame(pathway)
     pathway$annotation <- as.vector(pathway$annotation)
-    if (is.na(pathway['04148', ])) {
-      kegg_env <- new.env(parent = emptyenv())
-      data("kegg", envir = kegg_env)
-      pathway <- kegg_env$kegg.db
+    if (!is.na(pathway["04148", "annotation"])) {
+      return(pathway)
     }
-    return(pathway)
+    reason <- "live KEGG listing lacks reference pathway 04148"
   }
+  warning("KEGG pathway labels: ", reason,
+          "; using the bundled KEGG snapshot.", call. = FALSE)
+  bundled()
 }
 
 #' Get KEGG module annotation terms

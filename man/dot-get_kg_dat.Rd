@@ -13,6 +13,8 @@
 data.frame with rownames as pathway IDs and "annotation" column
 }
 \description{
-Get KEGG pathway annotation terms
+With \code{builtin = FALSE} the labels come from the live KEGG listing. When
+that listing fails or lacks the reference pathway 04148, the bundled labels
+are returned instead and a warning names the reason.
 }
 \keyword{internal}
