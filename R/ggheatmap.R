@@ -31,15 +31,17 @@
 richHeatmap<-function(richRes, top = 50, colnames = NULL, xsize = 6, ysize = 6,usePadj=FALSE,
                      horizontal=FALSE,returnData=FALSE,...)
 {
+  # Rows are matched across results by identifier (`Annot`); a legacy result
+  # without `Annot` is matched by `Term`.
+  key <- if (all(vapply(richRes, function(x) "Annot" %in% colnames(x@result),
+                        logical(1)))) "Annot" else "Term"
   sel <- unique(unlist(lapply(richRes, function(x) {
     r <- x@result
-    head(r$Term, min(top, nrow(r)))
+    head(as.character(r[[key]]), min(top, nrow(r)))
   })))
-  if(isTRUE(usePadj)){
-    res <- Reduce(function(x, y) full_join(x, y, by = "Term"),lapply(richRes,function(x)x@result[,c("Term","Padj")]))
-  }else{
-    res <- Reduce(function(x, y) full_join(x, y, by = "Term"),lapply(richRes,function(x)x@result[,c("Term","Pvalue")]))
-  }
+  value_col <- if (isTRUE(usePadj)) "Padj" else "Pvalue"
+  res <- Reduce(function(x, y) full_join(x, y, by = key),
+                lapply(richRes, function(x) x@result[, c(key, value_col)]))
   if (!is.null(colnames)) {
     colnames(res)[2:ncol(res)] <- colnames
   }
@@ -47,8 +49,14 @@ richHeatmap<-function(richRes, top = 50, colnames = NULL, xsize = 6, ysize = 6,u
     colnames(res)[2:ncol(res)] <- paste("Group", 1:(ncol(res)-1), sep = "_")
   }
   res[is.na(res)] <- 1
-  res<-subset(res,Term%in%sel)
+  res <- res[as.character(res[[key]]) %in% sel, , drop = FALSE]
   res<-as.data.frame(res)
+  if (key == "Annot") {
+    # Display labels over the union of results: one row per identifier.
+    pool <- do.call(rbind, lapply(richRes, function(x) x@result[, c("Annot", "Term")]))
+    res[[1]] <- .gsea_display_labels(res$Annot, pool$Annot, pool$Term)
+    colnames(res)[1] <- "Term"
+  }
   rownames(res)<-res$Term
   cor_mat<-cor(t(res[,2:ncol(res)]))
   dd <- as.dist((1-cor_mat)/2);

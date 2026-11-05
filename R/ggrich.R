@@ -43,6 +43,8 @@ ggrich_internal <- function(object,top=50, pvalue=0.05, padj=NULL,
   if(nrow(object)>=top){
     object<-object[1:top,]
   }
+  # Node names are display labels, unique per identifier.
+  object <- .ora_display_terms(object)
   object$GeneID<-as.vector(object$GeneID)
   lhs <- strsplit(object$GeneID,sep)
   if(isTRUE(useTerm)){

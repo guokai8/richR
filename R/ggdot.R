@@ -50,9 +50,8 @@ ggdot_internal<-function(object,top=50,pvalue=0.05,order=FALSE,
   if(nrow(dd)>=1){
     dd$rich<-dd$Significant/dd$Annotated
     #colnames(dd)[3]<-"rich";
-    if(isTRUE(short)){
-      dd$Term<-unlist(lapply(dd$Term,function(x).paste.char(x,n=6)))
-    }
+    # Display labels (after shortening): one category per identifier.
+    dd <- .ora_display_terms(dd, short = short)
     if(isTRUE(order)){
       if(isTRUE(orderp)){
         dd$Term<-factor(dd$Term,levels=dd$Term[order(dd$Pvalue,decreasing=TRUE)])
