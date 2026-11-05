@@ -223,31 +223,55 @@ buildMSIGDB<-function(species="human",keytype="SYMBOL",anntype="GO"){
 
 #' make Reactome annotation data function
 #' @importFrom AnnotationDbi as.list
-#' @importFrom dplyr left_join
 #' @param species you can check the supported species by using showAvailableRO
 #' @param keytype key type export
 #' @author Kai Guo
 .makeROdata<-function(species="human",keytype="SYMBOL"){
   dbname<-.getrodbname(species=species);
-  if (!requireNamespace("reactome.db", quietly = TRUE)) {
-    stop("Package 'reactome.db' is required. Install it with:\n",
-         "  BiocManager::install('reactome.db')", call. = FALSE)
-  }
   dbname=sapply(strsplit(dbname,"_"),'[[',1)
-  lhs<-as.list(reactomePATHNAME2ID)
-  lhs<-lhs[grep(dbname,names(lhs))]
-  roid<-as.list(reactomePATHID2EXTID)[unique(as.vector(unlist(lhs)))]
-  roid<-lapply(roid, function(x)unique(x))
-  roid<-data.frame("GeneID"=unlist(roid),"Term"=rep(names(roid),times=lapply(roid, length)),row.names=NULL)
-  ll<-lapply(lhs,function(x)unique(x))
-  roan<-data.frame("Term"=unlist(ll),"Annot"=rep(names(ll),times=lapply(ll,length)),row.names=NULL)
-  roan$Annot<-sub('.*@ ','',sub(':','@',roan$Annot))
-  res<-left_join(roid,roan,by=c("Term"="Term"))
+  ## Keyed by pathway identifier: every species pathway with >= 1 gene is kept,
+  ## whether or not its name is shared with another pathway. The columns follow
+  ## the KEGG and GO annotations: GeneID, identifier (Term), name (Annot).
+  id2gene<-as.list(.reactome_map("reactomePATHID2EXTID"))
+  id2name<-as.list(.reactome_map("reactomePATHID2NAME"))
+  first_name<-vapply(id2name,function(x)as.character(x)[1],character(1))
+  ids<-names(first_name)[!is.na(first_name)&startsWith(first_name,paste0(dbname,": "))]
+  roid<-lapply(id2gene[intersect(ids,names(id2gene))],
+               function(x)unique(as.character(x[!is.na(x)])))
+  roid<-roid[lengths(roid)>0]
+  ## An identifier with several names keeps the first, with one warning.
+  several<-names(roid)[vapply(id2name[names(roid)],function(x)
+    length(unique(as.character(x[!is.na(x)])))>1L,logical(1))]
+  if(length(several)){
+    warning("buildAnnot: Reactome identifier(s) with several names; using the first name: ",
+            paste(several,collapse=", "),call.=FALSE)
+  }
+  res<-data.frame("GeneID"=unlist(roid,use.names=FALSE),
+                  "Term"=rep(names(roid),times=lengths(roid)),
+                  "Annot"=rep(sub('.*@ ','',sub(':','@',first_name[names(roid)])),
+                              times=lengths(roid)),
+                  row.names=NULL,stringsAsFactors=FALSE)
   if(keytype!="ENTREZID"){
     keys = idconvert(species = species,keys = res$GeneID,fkeytype = "ENTREZID",tkeytype = keytype)
     res$GeneID = keys
   }
-  return(res[,c(1,3)])
+  return(res)
+}
+
+#' Reactome map accessor
+#'
+#' Namespace-qualified access to a reactome.db map, so Reactome annotations work
+#' whether or not reactome.db is attached; also the seam the tests mock.
+#' @param name name of the reactome.db map object
+#' @return the map
+#' @keywords internal
+#' @noRd
+.reactome_map<-function(name){
+  if (!requireNamespace("reactome.db", quietly = TRUE)) {
+    stop("Package 'reactome.db' is required. Install it with:\n",
+         "  BiocManager::install('reactome.db')", call. = FALSE)
+  }
+  getExportedValue("reactome.db", name)
 }
 
 ###
