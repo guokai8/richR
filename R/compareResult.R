@@ -188,55 +188,27 @@ compareGSEA<-function(x,object,gene=NULL,pathway=NULL,
   tmp <- lapply(x, function(x) filter(x, padj < Padj, pval <
                                         Pvalue))
   sigpathway <- lapply(tmp, function(x) x$pathway)
-  NES <- do.call(rbind, lapply(tmp, function(x) {
-    nes <-x$NES
-    names(nes) <-x$pathway
-    return(nes)
-    }))
-  NES<-as.data.frame(NES)
-  NES$group <- rownames(NES)
-  value_cols <- setdiff(colnames(NES), "group")
-  NES <- data.frame(
-    group = rep(NES$group, times = length(value_cols)),
-    Group = rep(value_cols, each = nrow(NES)),
-    NES = unlist(NES[, value_cols], use.names = FALSE),
-    stringsAsFactors = FALSE
-  )
-  NES$hjustvar<-1.5
-  NES$vjustvar<-2
+  # Value tables keyed by group and pathway identifier: one row per retained
+  # pathway of each group, never aligned by position across groups.
+  keyed_values <- function(column, value_name) {
+    rows <- lapply(names(tmp), function(g) {
+      res <- tmp[[g]]@result
+      out <- data.frame(group = rep(g, nrow(res)),
+                        Group = as.character(res$pathway),
+                        stringsAsFactors = FALSE)
+      out[[value_name]] <- res[[column]]
+      out
+    })
+    out <- do.call(rbind, rows)
+    rownames(out) <- NULL
+    out$hjustvar <- rep(1.5, nrow(out))
+    out$vjustvar <- rep(2, nrow(out))
+    out
+  }
+  NES <- keyed_values("NES", "NES")
   NES$annotateText <- paste0(NES$group,":(NES=",round(NES$NES,2),")\n")
-  padjs <- do.call(rbind, lapply(tmp, function(x) {
-    pad<-x$padj
-    names(pad)<-x$pathway
-    return(pad)
-    }))
-  padjs<-as.data.frame(padjs)
-  padjs$group <- rownames(padjs)
-  value_cols2 <- setdiff(colnames(padjs), "group")
-  padjs <- data.frame(
-    group = rep(padjs$group, times = length(value_cols2)),
-    Group = rep(value_cols2, each = nrow(padjs)),
-    Padj = unlist(padjs[, value_cols2], use.names = FALSE),
-    stringsAsFactors = FALSE
-  )
-  padjs$hjustvar<-1.5
-  padjs$vjustvar<-2
-  pvals <- do.call(rbind,lapply(tmp, function(x) {
-    pva<-x$pval
-    names(pva)<-x$pathway
-    return(pva)
-    }))
-  pvals <- as.data.frame(pvals)
-  pvals$group <- rownames(pvals)
-  value_cols3 <- setdiff(colnames(pvals), "group")
-  pvals <- data.frame(
-    group = rep(pvals$group, times = length(value_cols3)),
-    Group = rep(value_cols3, each = nrow(pvals)),
-    Pvalue = unlist(pvals[, value_cols3], use.names = FALSE),
-    stringsAsFactors = FALSE
-  )
-  pvals$hjustvar<-1.5
-  pvals$vjustvar<-2
+  padjs <- keyed_values("padj", "Padj")
+  pvals <- keyed_values("pval", "Pvalue")
   # names(tmp)<-names(x)
   if(is.null(gene)){
     fc <- lapply(x,function(x){
