@@ -115,7 +115,7 @@ setMethod("richDot", signature(object = "richResult"),definition = function(obje
             ggdot_internal(object@result,top=top,pvalue=pvalue,order=order,
                            low=low,high=high,alpha=alpha,
                            font.x=font.x,font.y=font.y,fontsize.x=fontsize.x,fontsize.y=fontsize.y,
-                           padj=padj,usePadj=usePadj,orderp=orderp,filename=filename,width=width,height=height)
+                           short=short,padj=padj,usePadj=usePadj,orderp=orderp,filename=filename,width=width,height=height)
           })
 ##' dotplot for Enrichment results
 ##' @rdname richDot-methods
@@ -154,5 +154,5 @@ setMethod("richDot", signature(object = "data.frame"),definition = function(obje
             ggdot_internal(object,top=top,pvalue=pvalue,order=order,
                            low=low,high=high,alpha=alpha,
                            font.x=font.x,font.y=font.y,fontsize.x=fontsize.x,fontsize.y=fontsize.y,
-                           padj=padj,usePadj=usePadj,orderp=orderp,filename=filename,width=width,height=height)
+                           short=short,padj=padj,usePadj=usePadj,orderp=orderp,filename=filename,width=width,height=height)
           })
