@@ -170,13 +170,16 @@ richCompareDot<-function (x, pvalue = 0.05, low = "lightpink", high = "red",leve
 compareGSEA<-function(x,object,gene=NULL,pathway=NULL,
                       mycol=NULL,pvalue = 0.05, padj = NULL,label=FALSE,
                       gseaParam = 1, ticksSize = 0.2,ncol=2,scales="fixed"){
+  # The cutoffs are compared outside any data mask, so they can never resolve
+  # to the same-named columns (padj, pval) of the GSEA result table. As in
+  # compareResult(), a padj cutoff is used in place of the pvalue cutoff.
   if (!is.null(padj)) {
-    Pvalue <- 1
+    pval_cutoff <- 1
+    padj_cutoff <- padj
+  } else {
+    pval_cutoff <- pvalue
+    padj_cutoff <- 1
   }
-  else {
-    Padj <- 1
-  }
-  Pvalue=pvalue
   if (is.null(names(x))) {
     names(x) <- paste("Group", seq_along(x))
   }
@@ -185,8 +188,13 @@ compareGSEA<-function(x,object,gene=NULL,pathway=NULL,
                "#7A142C","#5D90BA","#431A3D","#91612D","#6E568C","#E0367A","#D8D155","#64495D",
                "#7CC767")
   }
-  tmp <- lapply(x, function(x) filter(x, padj < Padj, pval <
-                                        Pvalue))
+  tmp <- lapply(x, function(x) {
+    res <- x@result
+    keep <- !is.na(res$padj) & res$padj < padj_cutoff &
+      !is.na(res$pval) & res$pval < pval_cutoff
+    x@result <- res[keep, , drop = FALSE]
+    x
+  })
   sigpathway <- lapply(tmp, function(x) x$pathway)
   # Value tables keyed by group and pathway identifier: one row per retained
   # pathway of each group, never aligned by position across groups.
