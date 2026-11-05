@@ -15,7 +15,7 @@ utils::globalVariables(c(
   # ggbar
   "neg_log_p",
   # makeAnnot / Reactome
-  "gs_cat", "gs_subcat", "reactomePATHNAME2ID", "reactomePATHID2EXTID",
+  "gs_cat", "gs_subcat",
   # ggupset
   "fill_color", "color", "ymin", "ymax", "size", "active", "count",
   # data variables
