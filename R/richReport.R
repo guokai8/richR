@@ -694,9 +694,11 @@ richReport <- function(x, path, themes = NULL, stats = NULL, sensitivity = NULL,
   }
   file <- tempfile(fileext = ".png")
   on.exit(unlink(file), add = TRUE)
-  type <- if (isTRUE(unname(capabilities("cairo")))) "cairo" else {
-    if (.Platform$OS.type == "windows") "windows" else {
-      if (isTRUE(unname(capabilities("aqua")))) "quartz" else "Xlib"
+  # macOS can advertise Cairo even when its XQuartz libraries are absent.
+  # Native Quartz bitmaps do not require those optional X11 libraries.
+  type <- if (isTRUE(unname(capabilities("aqua")))) "quartz" else {
+    if (isTRUE(unname(capabilities("cairo")))) "cairo" else {
+      if (.Platform$OS.type == "windows") "windows" else "Xlib"
     }
   }
   grDevices::png(file, width = 800, height = 600, res = 96, type = type)
