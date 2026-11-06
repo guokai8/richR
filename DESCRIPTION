@@ -36,7 +36,8 @@ Imports:
     rlang,
     S4Vectors,
     sna,
-    tidyr
+    tidyr,
+    digest
 LinkingTo: Rcpp
 Suggests:
     knitr,
