@@ -298,7 +298,9 @@
                      minSize = 2, maxSize = 500, minGSSize = 10, maxGSSize = 500,
                      keepRich = TRUE, organism = NULL, ontology = "",
                      keytype = "", filename = NULL, sep = ",", universe = NULL,
-                     annotation_provenance = NULL, metadata_ontology = ontology) {
+                     annotation_provenance = NULL, metadata_ontology = ontology,
+                     universe_policy = "annotated") {
+  universe_policy <- .check_universe_policy(universe_policy, universe)
   normalization <- if (!is.data.frame(annot) && is.list(annot) &&
                        all(c("data", "counts") %in% names(annot))) {
     annot
@@ -308,6 +310,7 @@
   annot <- normalization$data
   .validate_enrichment_input(x, annot = annot, pvalue = pvalue, padj = padj,
                              padj.method = padj.method, minSize = minSize, maxSize = maxSize)
+  mapping_record <- .mapping_for_input(x)
   raw_input <- if (is.data.frame(x)) rownames(x) else as.vector(x)
   raw_input <- as.character(raw_input)
   valid_input <- raw_input[!is.na(raw_input) & nzchar(trimws(raw_input))]
@@ -357,6 +360,11 @@
       effective_ids = effective_universe
     )
   }
+  if (universe_policy == "measured") {
+    effective_universe <- clean_universe
+    background_counts$effective_ids <- effective_universe
+    background_counts$effective_count <- as.integer(length(effective_universe))
+  }
   effective_input <- input[input %in% effective_universe]
   if (length(effective_input) == 0) {
     stop("ORA: no query genes remain in the effective universe.", call. = FALSE)
@@ -393,8 +401,11 @@
   if (!is.null(extra_cols)) {
     resultFis <- cbind(resultFis, extra_cols[resultFis$Annot, , drop = FALSE])
   }
+  tested <- resultFis[order(resultFis$Pvalue), , drop = FALSE]
+  rownames(tested) <- tested$Annot
   resultFis <- .filter_ora_result(resultFis, pvalue, padj, minSize, maxSize,
                                    minGSSize, maxGSSize, keepRich)
+  tested$reported <- tested$Annot %in% resultFis$Annot
   if (!is.null(filename)) {
     write.table(resultFis, file = paste(filename, ".txt", sep = ""),
                 sep = "\t", quote = FALSE, row.names = FALSE)
@@ -402,6 +413,7 @@
   detail <- .build_detail(resultFis, x, sep)
   result <- .make_richResult(resultFis, detail, pvalue, padj, padj.method,
                              input, organism, ontology, keytype, sep)
+  result@tested <- tested
   input_metadata <- list(
     original_count = as.integer(length(raw_input)),
     valid_count = as.integer(length(valid_input)),
@@ -417,20 +429,25 @@
     effective_count = as.integer(length(effective_input)),
     excluded_by_universe_ids = setdiff(input[input %in% annotation_genes], effective_universe)
   )
+  input_metadata$occurrences <- as.integer(tabulate(match(valid_input, input), nbins = length(input)))
+  input_metadata$mapping <- mapping_record
   testing <- list(family_policy = "positive_overlap_before_reporting_filters",
+                  zero_overlap_count = 0L,
                   tested_count = as.integer(length(stats$rhs)),
                   effective_N = as.integer(N), effective_n = as.integer(n))
   options <- list(pvalue = pvalue, padj = padj, minSize = minSize,
                   maxSize = maxSize, minGSSize = minGSSize,
                   maxGSSize = maxGSSize, keepRich = keepRich,
                   padj.method = padj.method, ontology = metadata_ontology,
-                  keytype = keytype, universe = if (is.null(universe)) NULL else universe)
+                  keytype = keytype, universe = if (is.null(universe)) NULL else universe,
+                  universe_policy = universe_policy)
   if (is.null(annotation_provenance)) {
     annotation_provenance <- .annotation_provenance(
       species = organism, keytype = keytype, anntype = metadata_ontology,
       source_type = "custom", source_name = NA_character_
     )
   }
+  annotation_provenance$fingerprint <- .geneset_fingerprint(normalization$data, term_names = term_names)
   attr(result, "richR_metadata") <- .analysis_metadata(
     "ORA", input_metadata, annotation_counts, background_counts, testing,
     options, annotation_provenance
@@ -661,4 +678,20 @@ msigdbinfo <- function() {
   tbl <- .species_table()
   spe <- tbl$species[!is.na(tbl$msigdb)]
   cat(sort(spe), "\n")
+}
+
+
+.check_universe_policy <- function(universe_policy, universe) {
+  if (identical(universe_policy, c("annotated", "measured"))) universe_policy <- "annotated"
+  if (!is.character(universe_policy) || length(universe_policy) != 1L ||
+      is.na(universe_policy) || !universe_policy %in% c("annotated", "measured")) {
+    stop(sprintf("ORA: universe_policy must be \"annotated\" or \"measured\", not %s.",
+                 paste(deparse(universe_policy), collapse = " ")), call. = FALSE)
+  }
+  if (universe_policy == "measured" && is.null(universe)) {
+    stop(paste("ORA: universe_policy = \"measured\" counts the genes of an explicit",
+               "universe; supply `universe` or use universe_policy = \"annotated\"."),
+         call. = FALSE)
+  }
+  universe_policy
 }

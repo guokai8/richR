@@ -22,10 +22,13 @@ ggdot_internal(
   orderp = FALSE,
   filename = NULL,
   width = 10,
-  height = 8
+  height = 8,
+  .report_all = FALSE
 )
 }
 \arguments{
+\item{.report_all}{Internal report-only stored-row eligibility and selection accounting; ordinary calls retain strict cutoffs.}
+
 \item{object}{data.frame with enrichment results}
 
 \item{top}{number of terms you want to display}

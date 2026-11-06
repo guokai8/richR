@@ -4,12 +4,15 @@
 using namespace Rcpp;
 
 // Reverse a named list: input {A: [x,y], B: [y,z]} -> {x: [A], y: [A,B], z: [B]}
-// Uses CHARSXP pointers as hash keys (R interns strings, so pointer == identity).
+// Uses protected UTF-8 CHARSXP pointers as hash keys for text identity.
 // [[Rcpp::export]]
 List reverseList(const List& lhs) {
 
   SEXP names_sexp = Rf_getAttrib(lhs, R_NamesSymbol);
   int n = lhs.size();
+  Function enc2utf8 = Environment::base_env()["enc2utf8"];
+  // Retain every converted vector until the reversed output has been built.
+  List keys(n);
 
   // Pass 1: build reversed mapping  value -> vector of source names.
   std::unordered_map<SEXP, std::vector<SEXP>> rev;
@@ -19,6 +22,8 @@ List reverseList(const List& lhs) {
     SEXP nm_i = STRING_ELT(names_sexp, i);
     SEXP elem = lhs[i];
     if (TYPEOF(elem) != STRSXP) continue;
+    keys[i] = enc2utf8(elem);
+    elem = keys[i];
     R_xlen_t len = Rf_xlength(elem);
     for (R_xlen_t j = 0; j < len; j++) {
       SEXP val = STRING_ELT(elem, j);

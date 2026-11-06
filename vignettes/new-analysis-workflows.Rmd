@@ -1,0 +1,243 @@
+---
+title: "Auditable enrichment workflows with richR"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Auditable enrichment workflows with richR}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+library(richR)
+```
+
+This guide follows identifiers from conversion through enrichment, comparison,
+theme summaries and a portable report. Its examples use a small local annotation
+and a mapping table; they do not download annotation data.
+
+The new functions add analysis records and ways to inspect them. Existing upstream
+analysis defaults remain in force: ORA uses `pvalue = 0.05` and `padj = NULL`,
+with a strict cutoff. Supplying `padj` selects the adjusted-p-value cutoff in
+place of the raw-p-value cutoff. The ORA adjustment family consists of terms with
+positive query overlap before size-based reporting filters. With `keepRich = TRUE`,
+fully rich terms can pass the lower size cutoffs. Upper size bounds still apply.
+These rules differ from the released fork's defaults; adding these functions does
+not adopt the fork's statistical policy or update the bundled annotation catalogs.
+
+## Convert identifiers with an inspectable decision record
+
+`mapGenes()` accepts a character vector or a named numeric ranking. Its mapping
+source can be a table, an installed `OrgDb`, or a supported species whose `OrgDb`
+is installed. A table keeps this example self-contained.
+
+```{r inputs}
+genes <- sprintf("G%02d", 1:60)
+annotation <- data.frame(
+  GeneID = c(genes[1:12], genes[8:24], genes[25:40], genes[41:60]),
+  Term = rep(c("set_a", "set_b", "set_c", "set_d"), c(12, 17, 16, 20))
+)
+id_map <- data.frame(
+  source = c(paste0("source_", 1:60), "ambiguous", "ambiguous"),
+  target = c(genes, "G02", "G03")
+)
+source_a <- c(paste0("source_", c(1:8, 14:16, 1)), "unknown", "ambiguous")
+query_a <- mapGenes(source_a, id_map, from = "source", to = "target")
+query_b <- mapGenes(paste0("source_", c(5:9, 26:34)), id_map,
+                    from = "source", to = "target")
+mappingAudit(query_a)
+```
+
+By default, an identifier with several candidates is dropped as `ambiguous`.
+`multiple = "first"` instead chooses the first distinct target in source order
+and records that choice. Repeated targets in a gene vector are merged. In a
+ranking, entries that map to one target with conflicting scores are dropped as
+`conflict`; the function does not choose a score for the user.
+
+The mapping attribute records one decision for each original entry, including
+invalid and unmapped entries. Operations that drop vector attributes, such as
+`unique()` or subsetting with `[`, also lose that record. Pass the returned vector
+directly to analysis when you want its conversion decisions preserved.
+
+## Separate tested terms from reported terms
+
+The permissive reporting arguments below make the small example easy to inspect.
+`pvalue = 1` still uses the upstream strict cutoff, so a term with exactly P = 1
+is not reported. The tested table retains actual tested terms before reporting
+filters.
+
+```{r analyses}
+a <- enrich(query_a, annotation, pvalue = 1, padj = NULL,
+            minSize = 1, minGSSize = 1)
+b <- enrich(query_b, annotation, pvalue = 1, padj = NULL,
+            minSize = 1, minGSSize = 1)
+analyses <- list(A = a, B = b)
+head(result(a))
+head(testedTerms(a))
+mappingAudit(a)
+```
+
+`testedTerms()` returns the recorded tested table with a logical `reported`
+column describing the original analysis's reporting decision. It does not
+reconstruct missing tests from the current result table. For ORA, the table
+records the positive-overlap family used for adjustment. For GSEA, it records
+the pathways returned by the backend before result filtering. A pathway not
+returned by the backend is not an observed test in this record.
+
+`mappingAudit(a)` combines recorded conversion decisions with analysis input and
+background facts. `enrichmentInfo(a)` describes settings, effective counts and
+provenance. Existing results may have only some of this evidence. Unknown facts
+remain unavailable rather than being inferred from the reported genes.
+
+## Compare groups without replacing absence with zero
+
+```{r bind}
+comparison <- bindRich(analyses)
+head(comparison)
+table(comparison$group, comparison$state)
+```
+
+`bindRich()` produces a long table over the union of recorded term identifiers.
+Each group's own record supplies its label and statistics. The main states are:
+
+| State | Meaning |
+|---|---|
+| `reported` | The group's current result contains the term. |
+| `tested_not_reported` | Its tested table contains the term, but its current result does not. |
+| `not_tested` | A complete recorded tested family does not contain the term. |
+| `unavailable` | The record cannot establish the term's status. |
+| `untested_or_zero_overlap` | A supported imported record cannot distinguish these cases. |
+
+`execution` separately distinguishes a nonempty result, an empty result and a
+failed (`NULL`) group. Missing statistics stay `NA`. Failed groups have no inferred
+term state. ORA and GSEA results must be bound separately. A term being significant
+in one group and absent in another is not a statistical test of their difference.
+
+## Group related results and inspect their gene evidence
+
+```{r themes}
+themes <- richThemes(analyses, cutoff = 0.5)
+themes$themes
+head(themeGenes(themes))
+```
+
+`richThemes()` groups reported terms using kappa similarity of their recorded
+evidence genes. Every grouped term belongs to a theme; a term with no qualifying
+partner remains a singleton. Labels are editable display text, while `theme_id`
+links the tables. Themes can change when groups are added or removed because
+similarity genes are pooled across groups that report a term.
+
+`themeGenes()` follows a theme back to ORA overlap genes or GSEA leading-edge
+genes. Optional statistics are joined by exact gene identifier:
+
+```{r gene-statistics}
+statistics <- list(
+  A = data.frame(gene = genes, log2FC = seq(-2, 2, length.out = length(genes))),
+  B = data.frame(gene = genes, log2FC = seq(2, -2, length.out = length(genes)))
+)
+head(themeGenes(themes, stats = statistics))
+```
+
+Each statistics table needs unique gene identifiers and compatible statistic
+columns across groups. Missing values are not filled with zero. Theme membership
+is a summary, not a new significance test; there is no theme-level p-value. Shared
+genes do not establish causal drivers or independent replication.
+
+## Inspect sensitivity to prespecified settings
+
+```{r sensitivity}
+sensitivity <- richSensitivity(
+  query_a, annotation,
+  backgrounds = list(annotated = NULL, assayed = genes[1:50]),
+  maxGSSize = c(20, 60),
+  pvalue = 1, padj = NULL, minSize = 1, minGSSize = 1
+)
+sensitivity$cells
+head(sensitivity$summary)
+```
+
+`richSensitivity()` reruns ORA for every background-by-size-bound combination.
+An explicit background follows the existing annotated-universe rule unless an
+explicit supported alternative is requested. Under the default rule, unannotated
+background identifiers do not increase the effective background. The cell record
+shows the effective counts and any errors or warnings.
+
+Gene-set size bounds are reporting filters under the preserved upstream policy;
+changing a bound can change which terms are reported without changing the
+positive-overlap adjustment family. Changing the effective background can change
+the calculation. The grid records each actual run rather than deriving cells by
+filtering one result.
+
+The summary's `support` is the fraction of cells reporting a term among cells
+recorded as testing it. It is descriptive stability evidence, not a probability
+that the biological claim is true, a combined p-value or independent validation.
+Choose the grid before inspecting its most favorable result.
+
+## Save a typed result and build an offline report
+
+```{r storage}
+result_folder <- tempfile("richR-result-")
+writeRich(a, result_folder)
+restored <- readRich(result_folder)
+stopifnot(identical(result(a), result(restored)))
+list.files(result_folder)
+```
+
+`writeRich()` writes format 2: a data-only manifest and typed UTF-8 tables, with
+SHA-256 checksums for the table files. `readRich()` validates the schema, types,
+dimensions and table checksums before reconstructing a format-2 result. It also
+accepts legacy format 1, whose tables have no recorded checksums, with a warning
+that checksum verification is unavailable; typed and dimension validation still
+apply. Supported values include factors, missing values and character-vector
+list columns such as GSEA leading edges. Unsupported columns are rejected rather
+than silently coerced. A legacy GSEA table without `Term` keeps its original
+layout; consumers use its pathway identifier as a local display fallback.
+
+```{r report}
+report_folder <- tempfile("richR-report-")
+richReport(analyses, report_folder, themes = themes, stats = statistics,
+           sensitivity = sensitivity, title = "Local enrichment example",
+           figures = FALSE)
+list.files(report_folder)
+```
+
+Open `report.html` in a browser. It is self-contained, with inline styles and
+embedded images when figures are enabled. The folder also contains result folders,
+evidence tables, a manifest and `rerun.R`. The example disables figures to keep the
+vignette small. With `figures = TRUE`, `figure.top` limits the actual plotted rows;
+report figures consider otherwise drawable stored reported rows, including exact
+P = 1, without applying an additional significance threshold. Captions and the
+manifest record what the renderer actually selected and any drawing omissions.
+This display path does not change ordinary plotting cutoffs.
+
+A report rerun rebuilds the display from saved results; it does not rerun the
+original enrichment analysis:
+
+```{r report-rerun}
+rerun_folder <- tempfile("richR-report-rerun-")
+richReport(report_folder, rerun_folder)
+```
+
+For the generated command-line recipe, run `Rscript rerun.R <new folder>` in the
+report folder on a machine with richR installed. Keep the manifest and saved
+results together. Checksums detect mismatches in listed files; they do not
+authenticate who produced a folder or protect edits to the manifest itself.
+Overwrite is opt-in and limited to recognized output folders. Replacement is not
+transactional, so keep the original results when replacing an existing report.
+
+## Reading older results
+
+Older saved objects, data-frame conversions and online-provider results may lack
+a tested table, mapping decisions or producer details. `testedTerms()` and
+`mappingAudit()` return reason-bearing unavailable responses when their evidence
+was not recorded. A plain historical audit may expose recorded identifiers while
+leaving occurrence counts unknown. Binding, storage and reports preserve these
+limits; saving an old object does not recreate its original tests or source data.
+
+For new work, retain the original inputs and annotation source alongside these
+records if the enrichment itself must be rerun. A portable result or report is a
+record of the calculation, not a replacement for every original analysis input.
+
+```{r cleanup, include=FALSE}
+unlink(c(result_folder, report_folder, rerun_folder), recursive = TRUE)
+```

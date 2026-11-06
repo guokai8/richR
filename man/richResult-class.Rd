@@ -11,8 +11,9 @@ Class "richResult"
 This class represents the result of enrichment analysis.
 }
 \section{Slots}{
-
 \describe{
+\item{\code{tested}}{Recorded tested evidence; a zero-column frame means unavailable.}
+
 \item{\code{result}}{enrichment analysis results}
 
 \item{\code{detail}}{genes included in significant terms and original information}

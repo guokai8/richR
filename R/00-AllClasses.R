@@ -6,6 +6,7 @@
 ##' @aliases richResult-class plot,richResult-method
 ##'
 ##' @docType class
+##' @slot tested Recorded tested evidence; a zero-column frame means unavailable.
 ##' @slot result enrichment analysis results
 ##' @slot detail genes included in significant terms and original information
 ##' @slot pvalueCutoff cutoff pvalue
@@ -23,6 +24,7 @@
 setClass("richResult",
          representation=representation(
            result         = "data.frame",
+           tested         = "data.frame",
            detail         = "data.frame",
            pvalueCutoff   = "numeric",
            pAdjustMethod  = "character",
@@ -41,6 +43,7 @@ setClass("richResult",
 ##' @aliases GSEAResult-class plot,GSEAResult-method
 ##'
 ##' @docType class
+##' @slot tested Recorded tested evidence; a zero-column frame means unavailable.
 ##' @slot result enrichment analysis results
 ##' @slot input named numeric vector of input gene scores
 ##' @slot pvalueCutoff cutoff pvalue
@@ -58,6 +61,7 @@ setClass("richResult",
 setClass("GSEAResult",
          representation   = representation(
            result          = "data.frame",
+           tested          = "data.frame",
            pvalueCutoff   = "numeric",
            pAdjustMethod  = "character",
            padjCutoff   = "numeric",

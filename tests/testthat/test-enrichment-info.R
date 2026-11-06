@@ -23,7 +23,7 @@ test_that("enrichmentInfo reports explicit-background input and membership count
   )))
   info <- richR::enrichmentInfo(result)
 
-  expect_equal(info$schema_version, 1L)
+  expect_equal(info$schema_version, 2L)
   expect_true(info$available)
   expect_equal(info$analysis, "ORA")
   expect_equal(unname(unlist(info$input[c("original_count", "valid_count", "unique_count",

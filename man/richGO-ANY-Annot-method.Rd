@@ -18,7 +18,8 @@
   filename = NULL,
   padj.method = "BH",
   sep = ",",
-  universe = NULL
+  universe = NULL,
+  universe_policy = "annotated"
 )
 }
 \arguments{
@@ -49,6 +50,8 @@
 \item{sep}{character string used to separate the genes when concatenating}
 
 \item{universe}{optional character vector intersected with annotated genes to define the ORA background}
+
+\item{universe_policy}{Explicit background policy: "annotated" intersects with annotated genes (default); "measured" counts all valid supplied universe genes in N and query genes within it in n.}
 }
 \description{
 GO Enrichment analysis function

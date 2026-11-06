@@ -14,10 +14,13 @@ ggNES_internal(
   short = FALSE,
   filename = NULL,
   width = 10,
-  height = 8
+  height = 8,
+  .report_all = FALSE
 )
 }
 \arguments{
+\item{.report_all}{Internal report-only stored-row eligibility and selection accounting; ordinary calls retain strict cutoffs.}
+
 \item{resultFis}{data.frame with GSEA results (must contain NES column)}
 
 \item{top}{number of top terms to display (default 20)}

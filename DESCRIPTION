@@ -36,7 +36,9 @@ Imports:
     rlang,
     S4Vectors,
     sna,
-    tidyr
+    tidyr,
+    digest,
+    jsonlite
 LinkingTo: Rcpp
 Suggests:
     knitr,
