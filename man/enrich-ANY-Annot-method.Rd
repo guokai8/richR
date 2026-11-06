@@ -20,7 +20,8 @@
   padj.method = "BH",
   sep = ",",
   universe = NULL,
-  builtin = TRUE
+  builtin = TRUE,
+  universe_policy = "annotated"
 )
 }
 \arguments{
@@ -53,6 +54,8 @@
 \item{sep}{character string used to separate the genes when concatenating}
 
 \item{universe}{optional character vector intersected with annotated genes to define the ORA background}
+
+\item{universe_policy}{Explicit background policy: "annotated" intersects with annotated genes (default); "measured" counts all valid supplied universe genes in N and query genes within it in n.}
 
 \item{builtin}{use KEGG built-in annotation or not (set FALSE if you want to use newest KEGG data)}
 }

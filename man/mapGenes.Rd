@@ -91,8 +91,8 @@ UTF-8 with backslash, TAB, LF and CR written \code{\\\\}, \code{\\t},
 The record is lost by operations that drop attributes (\code{[},
 \code{unique()}, \code{c()}, \code{sort()}). It is kept by \code{[<-};
 \code{mappingAudit()} then reads the original conversion record, not a new
-conversion of the modified vector. Existing enrichment functions do not
-propagate this conversion record into their analysis metadata.
+conversion of the modified vector. Integrated enrichment functions preserve
+matching conversion records before coercion; mismatches are marked unavailable.
 }
 
 \examples{

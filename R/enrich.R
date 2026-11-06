@@ -20,7 +20,7 @@
 enrich_internal<-function(x,object,ontology= "",pvalue=0.05,padj=NULL,organism=NULL,minSize=1,maxSize=500,
                           minGSSize = 10, maxGSSize = 500,
                           keepRich=TRUE,keytype="",filename=NULL,padj.method="BH",sep = ",",universe=NULL,
-                          annotation_provenance=NULL){
+                          annotation_provenance=NULL,universe_policy="annotated"){
   .validateParams(pvalue=pvalue, padj=padj, minSize=minSize, maxSize=maxSize,
                   minGSSize=minGSSize, maxGSSize=maxGSSize, func_name="enrich")
   normalization <- .normalize_annotation(object, func_name = "enrich")
@@ -29,7 +29,7 @@ enrich_internal<-function(x,object,ontology= "",pvalue=0.05,padj=NULL,organism=N
            minSize = minSize, maxSize = maxSize,
            minGSSize = minGSSize, maxGSSize = maxGSSize,
            keepRich = keepRich, organism = organism, ontology = "",
-           keytype = keytype, filename = filename, sep = sep, universe = universe,
+           keytype = keytype, filename = filename, sep = sep, universe = universe, universe_policy = universe_policy,
            annotation_provenance = annotation_provenance,
            metadata_ontology = ontology)
 }
@@ -62,10 +62,10 @@ enrich_internal<-function(x,object,ontology= "",pvalue=0.05,padj=NULL,organism=N
 setMethod("enrich", signature(object = "data.frame"),definition = function(x,object,ontology="",pvalue=0.05,padj=NULL,organism=NULL,
                                                                              keytype="",filename=NULL,minSize=2,maxSize=500,
                                                                            minGSSize = 10, maxGSSize = 500,
-                                                                             keepRich=TRUE,padj.method="BH",sep=",",universe=NULL) {
+                                                                             keepRich=TRUE,padj.method="BH",sep=",",universe=NULL,universe_policy="annotated") {
   enrich_internal(x,object=object,ontology=ontology,pvalue=pvalue,padj=padj,
                     organism=organism,keytype=keytype,minSize=minSize,maxSize=maxSize,minGSSize = minGSSize, maxGSSize = maxGSSize,keepRich=keepRich,
-                    filename=filename,padj.method=padj.method,sep=sep,universe=universe)
+                    filename=filename,padj.method=padj.method,sep=sep,universe=universe,universe_policy=universe_policy)
 })
 
 #' Enrichment analysis function
@@ -90,11 +90,11 @@ setMethod("enrich", signature(object = "data.frame"),definition = function(x,obj
 setMethod("enrich", signature(object = "Annot"),definition = function(x,object,pvalue=0.05,padj=NULL,organism=NULL,
                                                                         keytype="",filename=NULL,minSize=2,maxSize=500,
                                                                       minGSSize = 10, maxGSSize = 500,
-                                                                        keepRich=TRUE,padj.method="BH",sep=",",universe=NULL,builtin=TRUE) {
+                                                                        keepRich=TRUE,padj.method="BH",sep=",",universe=NULL,builtin=TRUE,universe_policy="annotated") {
   provenance <- .annotation_provenance(object)
   enrich_internal(x=x,object=object@annot,ontology=object@anntype,pvalue=pvalue,padj=padj,
                     organism=object@species,keytype=object@keytype,minSize=minSize,maxSize=maxSize,minGSSize = minGSSize, maxGSSize = maxGSSize,keepRich=keepRich,
-                    filename=filename,padj.method=padj.method,sep=sep,universe=universe,
+                    filename=filename,padj.method=padj.method,sep=sep,universe=universe,universe_policy=universe_policy,
                     annotation_provenance=provenance)
 })
 

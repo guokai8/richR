@@ -21,7 +21,7 @@ richGO_internal<-function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,
                  organism=NULL,keytype="SYMBOL",minSize=2,maxSize=500,
                  minGSSize = 10, maxGSSize = 500,
                  keepRich=FALSE, filename=NULL,padj.method="BH",sep=",",universe=NULL,
-                 annotation_provenance=NULL){
+                 annotation_provenance=NULL,universe_policy="annotated"){
   .validateParams(pvalue=pvalue, padj=padj, minSize=minSize, maxSize=maxSize,
                   minGSSize=minGSSize, maxGSSize=maxGSSize, func_name="richGO")
   normalization <- .normalize_annotation(godata, func_name = "richGO")
@@ -55,7 +55,7 @@ richGO_internal<-function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,
            minSize = minSize, maxSize = maxSize,
            minGSSize = minGSSize, maxGSSize = maxGSSize,
            keepRich = keepRich, organism = organism, ontology = ontology,
-           keytype = keytype, filename = filename, sep = sep, universe = universe,
+           keytype = keytype, filename = filename, sep = sep, universe = universe, universe_policy = universe_policy,
            annotation_provenance = annotation_provenance,
            metadata_ontology = ontology)
 }
@@ -88,12 +88,12 @@ richGO_internal<-function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,
 setMethod("richGO", signature(godata = "data.frame"),definition = function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,
                                                                            organism=NULL,keytype=NULL,minSize=2,maxSize=500,
                                                                            minGSSize = 10, maxGSSize = 500,
-                                                                           keepRich=TRUE, filename=NULL,padj.method="BH",sep=",",universe=NULL) {
+                                                                           keepRich=TRUE, filename=NULL,padj.method="BH",sep=",",universe=NULL,universe_policy="annotated") {
  # godata<-as(godata,"Annot")
   richGO_internal(x,godata,ontology=ontology,pvalue=pvalue,padj=padj,
                   organism=organism,keytype=keytype,minSize=minSize,maxSize=maxSize,
                   minGSSize = minGSSize, maxGSSize = maxGSSize,
-                  keepRich=keepRich,filename=filename,padj.method=padj.method,sep=sep,universe=universe)
+                  keepRich=keepRich,filename=filename,padj.method=padj.method,sep=sep,universe=universe,universe_policy=universe_policy)
 })
 
 #' GO Enrichment analysis function
@@ -121,10 +121,10 @@ setMethod("richGO", signature(godata = "data.frame"),definition = function(x,god
 #' @param universe optional character vector intersected with annotated genes to define the ORA background
 setMethod("richGO", signature(godata = "Annot"),definition = function(x,godata,ontology="BP",pvalue=0.05,padj=NULL,minSize=2,maxSize=500,
                                                                       minGSSize = 10, maxGSSize = 500,
-                                                                      keepRich=TRUE,filename=NULL,padj.method="BH",sep=",",universe=NULL) {
+                                                                      keepRich=TRUE,filename=NULL,padj.method="BH",sep=",",universe=NULL,universe_policy="annotated") {
   provenance <- .annotation_provenance(godata)
   richGO_internal(x,godata@annot,ontology=ontology,pvalue=pvalue,padj=padj,
                   organism=godata@species,keytype=godata@keytype,minSize=minSize,maxSize=maxSize,minGSSize = minGSSize, maxGSSize = maxGSSize,
-                  keepRich=keepRich,filename=filename,padj.method=padj.method,sep=sep,universe=universe,
+                  keepRich=keepRich,filename=filename,padj.method=padj.method,sep=sep,universe=universe,universe_policy=universe_policy,
                   annotation_provenance=provenance)
 })

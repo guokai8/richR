@@ -7,8 +7,8 @@
 #' \code{@result}, \code{@gene} or \code{@detail}.
 #'
 #' @section Availability in existing analyses:
-#' Existing enrichment functions do not propagate the record attached by
-#' \code{mapGenes()}. Their metadata can still provide a plain audit of the
+#' Integrated enrichment functions preserve the record attached by
+#' \code{mapGenes()}. Plain inputs still provide an audit of the
 #' identifiers and background facts they recorded. Joined layouts below are
 #' available only when a supported stored record already contains matching
 #' conversion evidence; this function does not manufacture that evidence.

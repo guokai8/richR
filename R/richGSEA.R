@@ -119,6 +119,7 @@ richGSEA_internal<-function(x,object,keytype="",pvalue=0.05,padj=NULL,KEGG=FALSE
     set.seed(as.integer(seed))
     rng_summary <- list(seed = as.integer(seed), RNGkind = RNGkind(), backend = NULL)
   }
+  mapping_record <- .mapping_for_input(x)
   metadata_padj <- padj
   original_input_ids <- names(x)
   x<-sort(x)
@@ -143,8 +144,10 @@ richGSEA_internal<-function(x,object,keytype="",pvalue=0.05,padj=NULL,KEGG=FALSE
   tested_count <- nrow(res)
   res$padj <- stats::p.adjust(res$pval, method = padj.method)
   if(isTRUE(table)){
-    res$leadingEdge<-unlist(lapply(res$leadingEdge, function(x)paste(gsub(" ","",x),collapse = sep,sep="")))
+    res$leadingEdge<-unlist(lapply(res$leadingEdge, function(x)paste(x,collapse = sep,sep="")))
   }
+  tested <- res[order(res$pval), , drop = FALSE]
+  tested$Term <- as.character(tested$pathway)
   if(is.null(padj)){
     res<-res[!is.na(res$pval) & res$pval<pvalue, , drop = FALSE]
     padj=numeric()
@@ -157,6 +160,7 @@ richGSEA_internal<-function(x,object,keytype="",pvalue=0.05,padj=NULL,KEGG=FALSE
     data("path")
     rownames(path)<-path$Level3
     res<-cbind(res,path[res$pathway,])
+    tested <- cbind(tested, path[tested$pathway, , drop = FALSE])
   }
   if(is.null(organism)){
     organism=character()
@@ -177,6 +181,8 @@ richGSEA_internal<-function(x,object,keytype="",pvalue=0.05,padj=NULL,KEGG=FALSE
               keytype        = keytype,
               sep = sep
   )
+  tested$reported <- tested$pathway %in% res$pathway
+  result@tested <- tested
   annotation_genes <- unique(as.character(object[, 1]))
   ranked_ids <- unique(as.character(original_input_ids[!is.na(original_input_ids) &
                                                         nzchar(trimws(original_input_ids))]))
@@ -195,6 +201,8 @@ richGSEA_internal<-function(x,object,keytype="",pvalue=0.05,padj=NULL,KEGG=FALSE
     effective_count = as.integer(sum(ranked_ids %in% annotation_genes)),
     excluded_by_universe_ids = character()
   )
+  input_info$occurrences <- rep(1L, length(ranked_ids))
+  input_info$mapping <- mapping_record
   background <- list(mode = "ranked_input", original_count = NA_integer_,
                      valid_count = NA_integer_, unique_count = NA_integer_,
                      invalid_count = NA_integer_, duplicate_count = NA_integer_,
@@ -202,6 +210,7 @@ richGSEA_internal<-function(x,object,keytype="",pvalue=0.05,padj=NULL,KEGG=FALSE
                      effective_count = as.integer(length(ranked_ids)),
                      effective_ids = ranked_ids)
   testing <- list(family_policy = "fgsea_returned_before_filtering",
+                  zero_overlap_count = 0L,
                   tested_count = as.integer(tested_count),
                   effective_N = NA_integer_, effective_n = NA_integer_)
   options <- list(pvalue = pvalue, padj = metadata_padj, minSize = minSize,
@@ -218,6 +227,7 @@ richGSEA_internal<-function(x,object,keytype="",pvalue=0.05,padj=NULL,KEGG=FALSE
       source_type = "custom", source_name = NA_character_
     )
   }
+  annotation_provenance$fingerprint <- .geneset_fingerprint(object)
   attr(result, "richR_metadata") <- .analysis_metadata(
     "GSEA", input_info, normalization$counts, background, testing, options,
     annotation_provenance, fgsea_version = .package_version_or_na("fgsea"),

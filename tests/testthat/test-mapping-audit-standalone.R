@@ -7,12 +7,9 @@ stage_mapping_vector <- function(decisions) {
   value
 }
 
+# Captured from installed upstream dca5857, schema 1, before occurrence capture.
 stage_legacy_ora <- function() {
-  annotation <- data.frame(GeneID = c("A", "B", "C", "D", "E", "F"),
-                           Term = rep(c("T1", "T2", "T3"), each = 2))
-  suppressMessages(enrich(c("A", "C", "X", NA, " "), annotation,
-                          pvalue = 1, padj = NULL, minSize = 1, minGSSize = 1,
-                          keepRich = FALSE, universe = c("A", "B", "C", "D", "X")))
+  readRDS(testthat::test_path("fixtures", "legacy-audit-plain-v012.rds"))
 }
 
 test_that("audit frames preserve column types, list candidates and zero rows", {
@@ -102,9 +99,8 @@ test_that("legacy GSEA audit retains recorded ranking, scores and ties", {
                              paste0("G", 1:12))
   annotation <- data.frame(GeneID = paste0("G", 1:10),
                            Term = rep(c("T1", "T2"), each = 5))
-  object <- suppressWarnings(suppressMessages(richGSEA(
-    ranking, annotation, pvalue = 1, padj = NULL, minSize = 2, maxSize = 500,
-    eps = .05, seed = 7, nproc = 1)))
+  # Genuine pre-capture record from installed upstream dca5857, schema 1.
+  object <- readRDS(testthat::test_path("fixtures", "legacy-audit-gsea-v012.rds"))
   before <- serialize(object, NULL)
   expect_no_warning(audit <- mappingAudit(object))
   expect_identical(audit$id, names(ranking))

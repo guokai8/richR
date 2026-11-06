@@ -246,14 +246,25 @@ ggNES_internal <- function(resultFis,
                            short      = FALSE,
                            filename   = NULL,
                            width      = 10,
-                           height     = 8) {
+                           height     = 8,
+                           .report_all = FALSE) {
 
   resultFis <- .standardise_gsea_cols(resultFis)
-  if (!is.null(padj))  resultFis <- resultFis[resultFis$Padj < padj, ]
+  submitted <- nrow(resultFis)
+  if (isTRUE(.report_all)) {
+    valid <- !is.na(resultFis$Term) & nzchar(as.character(resultFis$Term)) &
+      is.finite(resultFis$NES)
+    resultFis <- resultFis[valid, , drop = FALSE]
+  } else if (!is.null(padj))  resultFis <- resultFis[resultFis$Padj < padj, ]
   else                 resultFis <- resultFis[resultFis$Pvalue < pvalue, ]
 
   resultFis <- resultFis[order(resultFis$NES, decreasing = TRUE), ]
+  eligible <- nrow(resultFis)
   if (nrow(resultFis) > top) resultFis <- resultFis[seq_len(top), ]
+  if (isTRUE(.report_all)) {
+    .report_plot_selection(resultFis, eligible, submitted, "pathway")
+    if (!nrow(resultFis)) return(ggplot2::ggplot())
+  }
   if (nrow(resultFis) == 0) { message("No significant terms to plot."); return(invisible(NULL)) }
   if (isTRUE(short)) resultFis$Term <- vapply(resultFis$Term, function(x) .paste.char(x, n = 6), character(1))
 

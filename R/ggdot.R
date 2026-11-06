@@ -36,8 +36,17 @@ ggdot_internal<-function(object,top=50,pvalue=0.05,order=FALSE,
                          low="lightpink",high="red",alpha=0.7,
                          font.x="bold",font.y="bold",fontsize.x=10,fontsize.y=10,
                          short=FALSE,
-                         padj=NULL,usePadj=TRUE,orderp=FALSE,filename=NULL,width=10,height=8){
-  if(!is.null(padj)){
+                         padj=NULL,usePadj=TRUE,orderp=FALSE,filename=NULL,width=10,height=8,
+                         .report_all=FALSE){
+  submitted <- nrow(object)
+  if (isTRUE(.report_all)) {
+    colour <- if (usePadj && "Padj" %in% names(object)) object$Padj else object$Pvalue
+    valid <- !is.na(object$Term) & nzchar(as.character(object$Term)) &
+      is.finite(object$Significant) & is.finite(object$Annotated) &
+      object$Annotated > 0 & object$Significant >= 0 &
+      is.finite(colour) & colour >= 0 & colour <= 1
+    object <- object[valid, , drop = FALSE]
+  } else if(!is.null(padj)){
     object<-object[object$Padj<padj,]
   }else{
     object<-object[object$Pvalue<pvalue,]
@@ -46,6 +55,10 @@ ggdot_internal<-function(object,top=50,pvalue=0.05,order=FALSE,
     dd<-object[1:top,]
   }else{
     dd<-object
+  }
+  if (isTRUE(.report_all)) {
+    .report_plot_selection(dd, nrow(object), submitted, "Annot")
+    if (!nrow(dd)) return(ggplot2::ggplot())
   }
   if(nrow(dd)>=1){
     dd$rich<-dd$Significant/dd$Annotated

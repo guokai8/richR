@@ -22,7 +22,8 @@ richKEGG_internal(
   builtin = TRUE,
   sep = ",",
   universe = NULL,
-  annotation_provenance = NULL
+  annotation_provenance = NULL,
+  universe_policy = "annotated"
 )
 }
 \arguments{
@@ -59,6 +60,8 @@ richKEGG_internal(
 \item{sep}{character string used to separate the genes when concatenating}
 
 \item{universe}{optional character vector defining the ORA background}
+
+\item{universe_policy}{Explicit background policy: "annotated" intersects with annotated genes (default); "measured" counts all valid supplied universe genes in N and query genes within it in n.}
 
 \item{annotation_provenance}{optional annotation provenance captured from an Annot object}
 }

@@ -24,7 +24,7 @@ richKEGG_internal<-function(x,kodata,pvalue=0.05,padj=NULL,ontology="KEGG",
                             organism=NULL,keytype="SYMBOL",minSize=2,maxSize=500,
                             minGSSize = 10, maxGSSize = 500,
                             keepRich=TRUE, filename=NULL,padj.method="BH",builtin=TRUE,sep=",",universe=NULL,
-                            annotation_provenance=NULL){
+                            annotation_provenance=NULL,universe_policy="annotated"){
     .validateParams(pvalue=pvalue, padj=padj, minSize=minSize, maxSize=maxSize,
                     minGSSize=minGSSize, maxGSSize=maxGSSize, func_name="richKEGG")
     normalization <- .normalize_annotation(kodata, func_name = "richKEGG")
@@ -42,7 +42,7 @@ richKEGG_internal<-function(x,kodata,pvalue=0.05,padj=NULL,ontology="KEGG",
            minSize = minSize, maxSize = maxSize,
            minGSSize = minGSSize, maxGSSize = maxGSSize,
            keepRich = keepRich, organism = organism, ontology = ontology,
-           keytype = keytype, filename = filename, sep = sep, universe = universe,
+           keytype = keytype, filename = filename, sep = sep, universe = universe, universe_policy = universe_policy,
            annotation_provenance = annotation_provenance,
            metadata_ontology = ontology)
 }
@@ -75,11 +75,11 @@ richKEGG_internal<-function(x,kodata,pvalue=0.05,padj=NULL,ontology="KEGG",
 #' @param universe optional character vector intersected with annotated genes to define the ORA background
 setMethod("richKEGG", signature(kodata = "data.frame"),definition = function(x,kodata,pvalue=0.05,padj=NULL,organism=NULL,ontology="KEGG",
                                                                              keytype=NULL,minSize=2,maxSize=500,minGSSize = 10, maxGSSize = 500,
-                                                                             keepRich=TRUE,filename=NULL,padj.method="BH",builtin=TRUE,sep=",",universe=NULL) {
+                                                                             keepRich=TRUE,filename=NULL,padj.method="BH",builtin=TRUE,sep=",",universe=NULL,universe_policy="annotated") {
   richKEGG_internal(x,kodata=kodata,pvalue=pvalue,padj=padj,
                     organism=organism,ontology=ontology,keytype=keytype,minSize=minSize,
                     maxSize=maxSize,minGSSize = minGSSize, maxGSSize = maxGSSize,keepRich=keepRich,filename=filename,
-                    padj.method=padj.method,builtin=builtin,sep=sep,universe=universe)
+                    padj.method=padj.method,builtin=builtin,sep=sep,universe=universe,universe_policy=universe_policy)
 })
 
 #' KEGG Enrichment analysis function
@@ -110,12 +110,12 @@ setMethod("richKEGG", signature(kodata = "data.frame"),definition = function(x,k
 #' @param universe optional character vector intersected with annotated genes to define the ORA background
 setMethod("richKEGG", signature(kodata = "Annot"),definition = function(x,kodata,pvalue=0.05,padj=NULL,organism=NULL,ontology="KEGG",
                                                                         keytype=NULL,minSize=2,maxSize=500,minGSSize = 10, maxGSSize = 500,
-                                                                        keepRich=TRUE,filename=NULL,padj.method="BH",builtin=TRUE,sep=",",universe=NULL) {
+                                                                        keepRich=TRUE,filename=NULL,padj.method="BH",builtin=TRUE,sep=",",universe=NULL,universe_policy="annotated") {
   provenance <- .annotation_provenance(kodata)
   richKEGG_internal(x,kodata@annot,pvalue=pvalue,padj=padj,
                   organism=kodata@species,ontology=kodata@anntype,keytype=kodata@keytype,minSize=minSize,
                   maxSize=maxSize,minGSSize = minGSSize, maxGSSize = maxGSSize,keepRich=keepRich,filename=filename,
-                  padj.method=padj.method,builtin=builtin,sep=sep,universe=universe,
+                  padj.method=padj.method,builtin=builtin,sep=sep,universe=universe,universe_policy=universe_policy,
                   annotation_provenance=provenance)
 })
 

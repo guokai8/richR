@@ -24,10 +24,13 @@
   sep = ",",
   universe = NULL,
   annotation_provenance = NULL,
-  metadata_ontology = ontology
+  metadata_ontology = ontology,
+  universe_policy = "annotated"
 )
 }
 \arguments{
+\item{universe_policy}{Explicit background policy: "annotated" (default) or "measured" (counts all valid supplied universe genes).}
+
 \item{x}{gene vector or data.frame (rownames used if data.frame)}
 
 \item{annot}{data.frame with gene in column 1 and term/pathway in column 2}

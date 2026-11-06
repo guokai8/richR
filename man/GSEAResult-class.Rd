@@ -11,6 +11,8 @@ Class "GSEAResult"
 This class represents the result from GSEA analysis
 }
 \section{Slots}{
+\describe{\item{\code{tested}}{Recorded tested evidence; a zero-column frame means unavailable.}}
+
 
 \describe{
 \item{\code{result}}{enrichment analysis results}
