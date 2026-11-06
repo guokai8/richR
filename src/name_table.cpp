@@ -11,6 +11,7 @@ using namespace Rcpp;
 IntegerVector name_table(List lh) {
   int n = lh.size();
   IntegerVector res(n);
+  Function enc2utf8 = Environment::base_env()["enc2utf8"];
 
   SEXP nm = Rf_getAttrib(lh, R_NamesSymbol);
 
@@ -31,16 +32,19 @@ IntegerVector name_table(List lh) {
       continue;
     }
 
+    // Keep converted strings protected while their pointers are in the buffer.
+    CharacterVector keys = enc2utf8(elem);
+
     // Two elements: simple pointer comparison.
     if (len == 2) {
-      res[i] = (STRING_ELT(elem, 0) == STRING_ELT(elem, 1)) ? 1 : 2;
+      res[i] = (STRING_ELT(keys, 0) == STRING_ELT(keys, 1)) ? 1 : 2;
       continue;
     }
 
     // General case: sort pointers, count distinct.
     buf.resize(len);
     for (R_xlen_t j = 0; j < len; j++) {
-      buf[j] = STRING_ELT(elem, j);
+      buf[j] = STRING_ELT(keys, j);
     }
     std::sort(buf.begin(), buf.end());
     int nuniq = 1;

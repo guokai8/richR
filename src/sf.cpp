@@ -29,11 +29,12 @@ SEXP fast_factor( SEXP x ) {
 //[[Rcpp::export]]
 List sf(DataFrame &x){
   SEXP col0 = VECTOR_ELT(x, 0);
-  SEXP col1 = VECTOR_ELT(x, 1);
+  Function enc2utf8 = Environment::base_env()["enc2utf8"];
+  CharacterVector col1 = enc2utf8(VECTOR_ELT(x, 1));
   R_xlen_t n = Rf_xlength(col0);
 
   // Pass 1: collect indices per group key (col1 value).
-  // Use CHARSXP pointer as key for speed (R interns strings).
+  // Protected UTF-8 keys make interned pointer identity match text identity.
   std::unordered_map<SEXP, std::vector<R_xlen_t>> groups;
   groups.reserve(n / 4);
   // Maintain insertion order via a separate vector of unique keys.
