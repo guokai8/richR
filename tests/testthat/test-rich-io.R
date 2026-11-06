@@ -545,6 +545,7 @@ test_that("namespace nodes hidden in unnamed or duplicate attributes never load 
   base <- io_dir(); writeRich(x, base)
   script <- tempfile(fileext = ".R")
   writeLines(c(
+    paste0(".libPaths(", paste(deparse(.libPaths()), collapse = ""), ")"),
     'library(richR)',
     'args <- commandArgs(TRUE); p <- args[1]; mode <- args[2]',
     'ns <- setdiff(c("splines", "tcltk", "stats4", "compiler"), loadedNamespaces())[1]',
@@ -565,14 +566,15 @@ test_that("namespace nodes hidden in unnamed or duplicate attributes never load 
     'm$metadata <- inject(m$metadata); stopifnot(done)',
     'writeLines(jsonlite::toJSON(m,auto_unbox=TRUE,null="null",digits=I(17)),file.path(p,"manifest.json"))',
     'e <- tryCatch({readRich(p); "NO ERROR"},error=conditionMessage)',
-    'stopifnot(grepl("manifest.json of .*plain data",e), !ns %in% loadedNamespaces())'
+    'stopifnot(grepl("manifest.json of .*plain data",e), !ns %in% loadedNamespaces())',
+    'cat("NAMESPACE_GUARD_OK\\n")'
   ), script)
   for (mode in c("unnamed", "duplicate")) {
     p <- copy_folder(base)
     out <- suppressWarnings(system2(file.path(R.home("bin"), "Rscript"),
-      c("--vanilla", shQuote(script), shQuote(p), mode), stdout = TRUE, stderr = TRUE,
-      env = paste0("R_LIBS=", shQuote(paste(.libPaths(), collapse = .Platform$path.sep)))))
+      c("--vanilla", shQuote(script), shQuote(p), mode), stdout = TRUE, stderr = TRUE))
     expect_null(attr(out, "status"), info = paste(mode, paste(out, collapse = "\n")))
+    expect_true("NAMESPACE_GUARD_OK" %in% out, info = mode)
   }
 })
 
@@ -594,10 +596,12 @@ test_that("manifest text is JSON itself, never a file or URL to follow", {
 test_that("extreme doubles retain their bits including negative zero", {
   x <- fs22()
   vals <- c(5e-324, -5e-324, .Machine$double.xmax, -.Machine$double.xmax,
-            .Machine$double.xmin, 0, -0, Inf, -Inf, NaN, NA, 1e-300)
+            .Machine$double.xmin, 0, -0, Inf, -Inf, NaN, NA, 1e-300,
+            1 / 3, 1 / 7, pi, 0.1, 1 - .Machine$double.eps)
   x@result$Pvalue <- rep_len(vals, nrow(x@result))
   y <- round_trip(x)
   expect_identical(y@result$Pvalue, x@result$Pvalue)
+  expect_identical(writeBin(y@result$Pvalue, raw()), writeBin(x@result$Pvalue, raw()))
   expect_identical(1 / y@result$Pvalue[7], -Inf)
 })
 
@@ -605,7 +609,10 @@ test_that("overwrite treats wildcard characters literally and removes stale test
   x <- .fora_reference()
   bare <- methods::as(x@result, "richResult")
   base <- io_dir(); dir.create(base)
-  for (pair in list(c("out[1]", "out1"), c("star*", "starX"))) {
+  pairs <- list(c("out[1]", "out1"))
+  # Windows cannot create '*'; the bracket case still exercises literal paths.
+  if (.Platform$OS.type != "windows") pairs <- c(pairs, list(c("star*", "starX")))
+  for (pair in pairs) {
     target <- file.path(base, pair[1]); sibling <- file.path(base, pair[2])
     dir.create(sibling)
     for (f in c("manifest.json", "result.tsv", "tested.tsv"))

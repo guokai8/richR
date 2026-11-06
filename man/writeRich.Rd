@@ -31,7 +31,7 @@ list cells a backslash is written \code{\\\\}, TAB \code{\\t}, newline
 \code{\\n} and carriage return \code{\\r}; a missing value of any class is
 written \code{\\N}; doubles are written with 17 significant digits
 (\code{NaN}, \code{Inf}, \code{-Inf} spelled out), which read back
-bit-identical (verified on Linux; macOS and Windows are untested); a list
+bit-identical; a list
 cell (a list of character vectors, such as a GSEA
 \code{leadingEdge} with \code{table = FALSE}) is written as a JSON array. A
 table with zero columns is recorded in the manifest only, without a file.

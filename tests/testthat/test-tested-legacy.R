@@ -31,6 +31,9 @@ test_that("a pre-0.2.0 richResult has no tested table and returns what fca5276 r
   view <- dplyr::filter(x, Pvalue <= 0.5)
   expect_identical(view@result, ref$filter)
   expect_false(methods::.hasSlot(view, "tested"))
+  # libm log10 differs by one bit between Linux and Windows. Keep the stored
+  # analysis frame exact, and compute only the derived plotting column locally.
+  ref$richBar$neg_log_p <- -log10(as.numeric(ref$richBar$Padj))
   expect_identical(richBar(x)$data, ref$richBar)
 })
 

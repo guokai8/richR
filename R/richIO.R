@@ -13,7 +13,7 @@
 #' \code{\\n} and carriage return \code{\\r}; a missing value of any class is
 #' written \code{\\N}; doubles are written with 17 significant digits
 #' (\code{NaN}, \code{Inf}, \code{-Inf} spelled out), which read back
-#' bit-identical (verified on Linux; macOS and Windows are untested); a list
+#' bit-identical; a list
 #' cell (a list of character vectors, such as a GSEA
 #' \code{leadingEdge} with \code{table = FALSE}) is written as a JSON array. A
 #' table with zero columns is recorded in the manifest only, without a file.
@@ -705,8 +705,17 @@ readRich <- function(path) {
       ## as.numeric() alone would also take spaces, hex and other spellings.
       check(grepl("^-?[0-9]+(\\.[0-9]+)?(e[-+][0-9]+)?$", v, perl = TRUE) |
               v %in% c("NaN", "Inf", "-Inf"))
-      x <- suppressWarnings(as.numeric(v))  # the missing token parses to NA
       special <- v %in% c("NaN", "Inf", "-Inf")
+      ## R's decimal conversion loses low bits on platforms without extended
+      ## long double (notably Apple Silicon). jsonlite uses the system strtod.
+      ## The grammar above is checked first; only a JSON array is ever parsed.
+      tokens <- v
+      tokens[missing | special] <- "0.0"
+      tokens <- sub("^(-?)0+([0-9])", "\\1\\2", tokens)
+      whole <- !grepl("[.e]", tokens)
+      tokens[whole] <- paste0(tokens[whole], ".0")  # retain double -0, not integer 0
+      x <- as.double(jsonlite::fromJSON(paste0("[", paste(tokens, collapse = ","), "]")))
+      x[special] <- c(NaN, Inf, -Inf)[match(v[special], c("NaN", "Inf", "-Inf"))]
       nonzero <- grepl("[1-9]", sub("e.*$", "", v))
       check(special | (is.finite(x) & !(x == 0 & nonzero)))
       x
