@@ -90,11 +90,11 @@
 #'     its interpretation, and its cells and summary as supplied;
 #'   \item how to reproduce the report, with the list of files.
 #' }
-#' Figures are drawn with \code{richDot()} (ORA) or \code{richNES()} (GSEA)
-#' with \code{pvalue = 1, padj = NULL, top = figure.top}, so they show the
-#' reported rows instead of re-thresholding them, under a local
-#' \code{LC_COLLATE = "C"}; the caption states how many of the reported rows
-#' are drawn. A group without a reported row that has a p-value gets no
+#' Figures use the internal ORA dot or GSEA NES renderer through a report-only
+#' path. Every drawable reported row, including P=1, is eligible before
+#' \code{figure.top} is applied, under a local \code{LC_COLLATE = "C"}.
+#' Captions and manifest records distinguish drawing omissions from eligible
+#' rows truncated by the top limit, and record the actual selected identifiers. A group without a reported row that has a p-value gets no
 #' figure, and the report says why. A group missing required plotting
 #' columns (\code{Significant} or \code{Annotated} for ORA, \code{NES}
 #' for GSEA) also gets no figure; the caption names those columns. Its
@@ -647,7 +647,11 @@ richReport <- function(x, path, themes = NULL, stats = NULL, sensitivity = NULL,
           else sprintf("stored rows with valid drawing values; first %s in result order", .report_num(top))
   drawn <- .report_draw(obj, gsea, top)
   k <- if (is.null(drawn$k)) n else drawn$k
-  list(caption = sprintf("%s of %s reported terms; %s", .report_num(k), .report_num(n), rule),
+  list(caption = sprintf(paste0("%s of %s reported terms; %s; ",
+                              "%s omitted for missing, blank or non-finite drawing values; ",
+                              "%s truncated by top"),
+                         .report_num(k), .report_num(n), rule,
+                         .report_num(drawn$omitted), .report_num(drawn$truncated)),
        png = drawn$png, alt = sprintf("%s of group %s", fun, group),
        record = list(group = group, `function` = fun, k = k, n = n, rule = rule, ids = drawn$ids,
                      eligible = drawn$eligible, omitted = drawn$omitted,

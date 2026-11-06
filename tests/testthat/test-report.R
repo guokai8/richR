@@ -237,8 +237,8 @@ test_that("figures draw every reported row up to figure.top and say what they dr
 
   p1 <- file.path(base, "p1"); richReport(fr, p1, figure.top = 30)
   p2 <- file.path(base, "p2"); richReport(fr, p2, figure.top = 5)
-  expect_identical(.rp_captions(.rp_html(p1)), "12 of 12 reported terms; stored rows with valid drawing values; first 30 in result order")
-  expect_identical(.rp_captions(.rp_html(p2)), "5 of 12 reported terms; stored rows with valid drawing values; first 5 in result order")
+  expect_identical(.rp_captions(.rp_html(p1)), "12 of 12 reported terms; stored rows with valid drawing values; first 30 in result order; 0 omitted for missing, blank or non-finite drawing values; 0 truncated by top")
+  expect_identical(.rp_captions(.rp_html(p2)), "5 of 12 reported terms; stored rows with valid drawing values; first 5 in result order; 0 omitted for missing, blank or non-finite drawing values; 7 truncated by top")
   f1 <- .rp_manifest(p1)$figures_drawn[[1]]
   f2 <- .rp_manifest(p2)$figures_drawn[[1]]
   expect_identical(c(f1$k, f1$n, f2$k, f2$n), c(12L, 12L, 5L, 12L))
@@ -273,7 +273,7 @@ test_that("GSEA figures follow richNES()'s order rule and caption it (AC-004: a 
   pg <- file.path(base, "pg")
   richReport(gs, pg, figure.top = 3)
   expect_identical(.rp_captions(.rp_html(pg)),
-                   rep("3 of 5 reported terms; stored rows with finite NES; first 3 by NES, descending", 2))
+                   rep("3 of 5 reported terms; stored rows with finite NES; first 3 by NES, descending; 0 omitted for missing, blank or non-finite drawing values; 2 truncated by top", 2))
   expect_identical(.rp_manifest(pg)$figures_drawn[[2]][["function"]], "richNES")
 })
 

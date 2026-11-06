@@ -249,7 +249,11 @@ ggNES_internal <- function(resultFis,
                            height     = 8,
                            .report_all = FALSE) {
 
+  # Standardization renames a legacy pathway column to Term. Preserve its
+  # actual identifiers only in the explicit report view used for accounting.
+  report_ids <- if (isTRUE(.report_all)) resultFis$pathway %||% resultFis$Term
   resultFis <- .standardise_gsea_cols(resultFis)
+  if (isTRUE(.report_all)) resultFis$pathway <- as.character(report_ids)
   submitted <- nrow(resultFis)
   if (isTRUE(.report_all)) {
     valid <- !is.na(resultFis$Term) & nzchar(as.character(resultFis$Term)) &

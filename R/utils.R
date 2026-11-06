@@ -447,7 +447,7 @@
       source_type = "custom", source_name = NA_character_
     )
   }
-  annotation_provenance$fingerprint <- .geneset_fingerprint(normalization$data)
+  annotation_provenance$fingerprint <- .geneset_fingerprint(normalization$data, term_names = term_names)
   attr(result, "richR_metadata") <- .analysis_metadata(
     "ORA", input_metadata, annotation_counts, background_counts, testing,
     options, annotation_provenance

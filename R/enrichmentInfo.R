@@ -5,7 +5,7 @@
 #' @param x Annot, richResult, or GSEAResult object
 #' @details New analyses record schema 2: input occurrences and any matching
 #' conversion record, the actual pre-reporting tested family, and SHA-256
-#' fingerprints of the normalized annotation under upstream column semantics.
+#' fingerprints of normalized upstream memberships and resolved term labels.
 #' Unknown historical producer or tested evidence is never inferred from results.
 #' @return A named list containing diagnostics and provenance
 #' @export
@@ -111,11 +111,17 @@ enrichmentInfo <- function(x) {
 }
 
 
-.geneset_fingerprint <- function(annot) {
+.geneset_fingerprint <- function(annot, term_names = NULL) {
   # Fingerprint actual upstream column semantics; no identity migration.
   frame <- data.frame(GeneID = as.character(annot[[1L]]),
                       id = as.character(annot[[2L]]),
                       label = as.character(annot[[2L]]), stringsAsFactors = FALSE)
+  if (!is.null(term_names)) {
+    labels <- as.character(unname(term_names[frame$id]))
+    missing <- is.na(labels) | !nzchar(trimws(labels))
+    labels[missing] <- frame$id[missing]
+    frame$label <- labels
+  }
   ids <- as.character(frame$id)
   genes <- as.character(frame$GeneID)
   labels <- as.character(frame$label)

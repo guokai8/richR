@@ -17,4 +17,4 @@ Metadata is recorded on newly created Annot, richResult, and GSEAResult
 objects. Legacy objects return an explicit unavailable record.
 }
 
-\details{New analyses record schema 2: input occurrences and any matching conversion record, the actual pre-reporting tested family, and SHA-256 fingerprints of the normalized annotation under upstream column semantics. Unknown historical producer or tested evidence is never inferred from results.}
+\details{New analyses record schema 2: input occurrences and any matching conversion record, the actual pre-reporting tested family, and SHA-256 fingerprints of normalized upstream memberships and resolved term labels. Unknown historical producer or tested evidence is never inferred from results.}
